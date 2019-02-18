@@ -9,7 +9,7 @@ import os
 import os.path as osp
 
 class PlanetariumData(Dataset):
-    """Assignment 3 Dataset."""
+    """Synthetic data"""
 
     def __init__(self, dataset, k_range, normalization=1., mat_targets=False):
         self.dataset = dataset
@@ -26,13 +26,8 @@ class PlanetariumData(Dataset):
 
         self.q_target = torch.from_numpy(q_target).float()
         self.C_target = torch.from_numpy(C_gt).float()
-        #C_gt = torch.from_numpy(self.dataset['T_vk_i'][k_range, :3, :3]).float()
-        #C_gt = SO3.from_matrix(C_gt, normalize=True)
 
-        #self.q_target = C_gt.to_quaternion()
         if (torch.isnan(self.q_target).any()):
-            # print(torch.isnan(self.q_target[:,0]).nonzero())
-            # print(C_gt.as_matrix()[torch.isnan(self.q_target[:,0])])
             raise Exception('Quaternions have nan at indices: {}'.format(torch.isnan(self.q_target[:,0]).nonzero()))
 
         y =  torch.from_numpy(self.dataset['y_k_j'][:, k_range, :]).float()
