@@ -107,7 +107,7 @@ if __name__ == '__main__':
           'Train (Err/NLL) | Valid (Err/NLL) {:3.3f} / {:3.3f} | {:.3f} / {:3.3f}\t'.format(
             train_ang_error, train_nll, valid_ang_error, valid_nll))
 
-    best_valid_nll = valid_nll
+    best_valid_err = valid_ang_error
     for epoch in range(args.total_epochs):
         end = time.time()
         avg_train_loss = train(model, train_loader, loss_fn, optimizer, config)
@@ -120,10 +120,12 @@ if __name__ == '__main__':
         epoch_time.update(time.time() - end)
 
 
-        if valid_nll < best_valid_nll:
+        if valid_ang_error < best_valid_err:
             torch.save({
                 'model': model.state_dict(),
+                'epoch': epoch+1,
             }, 'simulation/saved_plots/best_model_heads_{}_epoch_{}.pt'.format(model.num_hydra_heads, epoch+1))
+            best_valid_err = valid_ang_error
 
         if epoch%args.epoch_display == 0:     
             print('Epoch {}. Loss (Train/Valid) {:.3E} / {:.3E} \t'

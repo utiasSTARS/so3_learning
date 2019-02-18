@@ -20,7 +20,7 @@ def canvas_to_array(fig):
 
 def _plot_sigma(x, y, y_mean, y_sigma, label, ax):
     ax.scatter(x, y, label=label, s=0.5, c='black')
-    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.4, label='$\pm 3\sigma$')
+    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$')
     ax.legend()
     return
 
@@ -39,6 +39,20 @@ def plot_errors_with_sigmas(q_gt, q_est, R_est, filename='sigma_plot.pdf'):
     fig.savefig(filename, bbox_inches='tight')
     plt.close(fig)
 
+def plot_nees(q_gt, q_est, R_est, filename='nees_plot.pdf'):
+    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row')
+    x = np.arange(0, q_gt.shape[0])
+
+
+    residuals = quat_log_diff(q_est, q_gt).unsqueeze(2)
+    nees = (1./3.) * residuals.transpose(1, 2).bmm(R_est.inverse()).bmm(residuals)
+    nees.squeeze_()
+
+    ax.plot(x, nees, label='nees')
+    ax.legend()
+    #image_array = canvas_to_array(fig)
+    fig.savefig(filename, bbox_inches='tight')
+    plt.close(fig)
 
 def plot_3D(tau_gt, tau_odom, tau_est, l_true=None):
     fig = plt.figure()
