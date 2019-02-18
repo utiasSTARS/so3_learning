@@ -1,5 +1,5 @@
 import torch 
-from lie_algebra_full import so3_log
+from lie_algebra import so3_log
 from utils import normalize_vecs, quat_log_diff, batch_logdet3
 
 

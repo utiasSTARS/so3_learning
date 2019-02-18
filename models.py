@@ -1,5 +1,5 @@
 import torch, math
-from lie_algebra_full import so3_exp
+from lie_algebra import so3_exp
 import math
 from utils import *
 

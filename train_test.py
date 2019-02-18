@@ -1,7 +1,7 @@
 import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
-from lie_algebra_full import so3_log, so3_exp
+from lie_algebra import so3_log, so3_exp
 from utils import compute_normalization, compute_error_angles, nll_mat
 
 def validate(model, loader, loss_fn, config):

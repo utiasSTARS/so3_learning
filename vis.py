@@ -18,52 +18,27 @@ def canvas_to_array(fig):
 
 
 
-def plot_norms(t, tau_gt, tau_odom, tau_est):
-    fig, ax = plt.subplots(2, 1, sharex='col', sharey='row')
-    
-    (odom_r_norms, odom_frob_norms) = compute_norms(tau_gt, tau_odom)
-    (est_r_norms, est_frob_norms) = compute_norms(tau_gt, tau_est)
-
-    ax[0].plot(t.flatten(), odom_r_norms, '--', label='Odom')
-    ax[0].plot(t.flatten(), est_r_norms, label='Corr')
-    #plt.grid()
-    ax[0].set_title('Translation Norms')
-    ax[0].legend()
-    
-    ax[1].plot(t, odom_frob_norms, '--', label='Odom')
-    ax[1].plot(t, est_frob_norms, label='Corr')
-    #plt.grid()
-    ax[1].set_title('Rotation Norms')
-    ax[1].legend()
-    
-    image_array = canvas_to_array(fig)
-    plt.close(fig)
-    return image_array
-
 def _plot_sigma(x, y, y_mean, y_sigma, label, ax):
-    ax.plot(x, y, label=label)
-    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.25, label='$\pm 3\sigma$')
+    ax.scatter(x, y, label=label, s=0.5, c='black')
+    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.4, label='$\pm 3\sigma$')
     ax.legend()
     return
 
-def plot_errors_with_sigmas(t, tau_gt, tau_est, P_est):
-    fig, ax = plt.subplots(6, 1, sharex='col', sharey='row')
-    
-    tau_errs = se3_errs(tau_gt, tau_est)
-    r_errs = tau_errs[:, :3] 
-    phi_errs = tau_errs[:, 3:]
+def plot_errors_with_sigmas(q_gt, q_est, R_est, filename='sigma_plot.pdf'):
+    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row')
 
-    _plot_sigma(t.flatten(), r_errs[:, 0], 0., np.sqrt(P_est[:,0,0].flatten()), 'x err', ax[0])
-    _plot_sigma(t.flatten(), r_errs[:, 1], 0., np.sqrt(P_est[:,1,1].flatten()), 'y err', ax[1])
-    _plot_sigma(t.flatten(), r_errs[:, 2], 0., np.sqrt(P_est[:,2,2].flatten()), 'z err', ax[2])
+    x_labels = np.arange(0, q_gt.shape[0])
+    phi_errs = quat_log_diff(q_est, q_gt).numpy()
+    R_est = R_est.numpy()
 
-    _plot_sigma(t.flatten(), phi_errs[:, 0], 0., np.sqrt(P_est[:,3,3].flatten()), '$\Theta_1$ err', ax[3])
-    _plot_sigma(t.flatten(), phi_errs[:, 1], 0., np.sqrt(P_est[:,4,4].flatten()), '$\Theta_2$ err', ax[4])
-    _plot_sigma(t.flatten(), phi_errs[:, 2], 0., np.sqrt(P_est[:,5,5].flatten()), '$\Theta_3$ err', ax[5])
+    _plot_sigma(x_labels, phi_errs[:, 0], 0., np.sqrt(R_est[:,0,0].flatten()), '$\Theta_1$ err', ax[0])
+    _plot_sigma(x_labels, phi_errs[:, 1], 0., np.sqrt(R_est[:,1,1].flatten()), '$\Theta_2$ err', ax[1])
+    _plot_sigma(x_labels, phi_errs[:, 2], 0., np.sqrt(R_est[:,2,2].flatten()), '$\Theta_3$ err', ax[2])
 
-    image_array = canvas_to_array(fig)
+    #image_array = canvas_to_array(fig)
+    fig.savefig(filename, bbox_inches='tight')
     plt.close(fig)
-    return image_array
+
 
 def plot_3D(tau_gt, tau_odom, tau_est, l_true=None):
     fig = plt.figure()
