@@ -103,9 +103,9 @@ if __name__ == '__main__':
         # Measure elapsed time
         epoch_time.update(time.time() - end)
 
-        if epoch == 5:
-            print('Freezing the ResNet!')
-            model.sensor_net.freeze_layers()
+        # if epoch == 5:
+        #     print('Freezing the ResNet!')
+        #     model.sensor_net.freeze_layers()
 
         if valid_ang_error < best_valid_err:
             print('New best validation angular error! Outputting plots and saving model.')
@@ -114,10 +114,10 @@ if __name__ == '__main__':
                 'sensor_net': model.sensor_net.state_dict(),
                 'direct_covar_head': model.direct_covar_head.state_dict(),
                 'epoch': epoch+1,
-            }, '7scenes/best_model_heads_{}_epoch_{}.pt'.format(model.num_hydra_heads, epoch+1))
+            }, '7scenes/best_model_{}_heads_{}_epoch_{}.pt'.format(args.scene,model.num_hydra_heads, epoch+1))
             best_valid_err = valid_ang_error
-            sigma_filename = '7scenes/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
-            nees_filename = '7scenes/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
+            sigma_filename = '7scenes/sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
+            nees_filename = '7scenes/nees_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
 
             plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], filename=sigma_filename)
             plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
