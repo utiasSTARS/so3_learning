@@ -118,8 +118,8 @@ class CustomResNet(torch.nn.Module):
         self.dnn = models.resnet50(pretrained=True)
 
         #To freeze or not to freeze...
-        # for param in self.dnn.parameters():
-        #     param.requires_grad = False
+        for param in self.dnn.parameters():
+            param.requires_grad = False
 
         num_ftrs = self.dnn.fc.in_features
         self.dnn.fc = torch.nn.Linear(num_ftrs, feature_dim)
