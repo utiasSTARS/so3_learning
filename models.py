@@ -34,37 +34,7 @@ class ResidualBlock(torch.nn.Module):
         out = out + residual
         #out = self.dropout(out)
         return out
-    
-class SO3IterNet(torch.nn.Module):
-    def __init__(self, D_in_sensor):
-        super(SO3Net, self).__init__()
-        self.sensor_net_dim = D_in_sensor
-        self.num_iter_heads = 1
-        self.num_hydra_heads = 20
 
-        self.sensor_net = torch.nn.Sequential(
-          ResidualBlock(self.sensor_net_dim),
-          ResidualBlock(self.sensor_net_dim),
-          ResidualBlock(self.sensor_net_dim),
-          ResidualBlock(self.sensor_net_dim),
-          ResidualBlock(self.sensor_net_dim),
-        )
-        self.heads = torch.nn.ModuleList([IterHead(D_in=self.sensor_net_dim, D_out=3, num_hydra_heads=self.num_hydra_heads) for h in range(self.num_iter_heads)])
-
-            
-    def forward(self, sensor_data, C_op):
-        y = self.sensor_net(sensor_data)
-        C = C_op.clone()
-        C_list = [C_op]
-        for h_i, head_net in enumerate(self.heads):
-            #head_in = torch.cat((y, C.view(-1, 9)), dim=1) 
-            #phi = head_net(head_in)1
-            phi = head_net(y)
-            #print('Iter: {}. Norm: {:3.3f}'.format(h_i, phi.norm()))
-            C = so3_exp(phi).bmm(C)
-            #C = so3_exp(phi).bmm(C)
-            C_list.append(C)
-        return C, C_list
 
 
 
@@ -111,6 +81,74 @@ class QuaternionNet(torch.nn.Module):
                 q_batch_mean =  q_mean.repeat([1, self.num_hydra_heads]).view(-1,4)
                 phi_diff = quat_log_diff(q_batch, q_batch_mean).view(-1, self.num_hydra_heads, 3)
                 Rinv = (Rinv.inverse() + batch_sample_covariance(phi_diff)).inverse() #Outputs N x D - 1 x D - 1
+            return q_mean, Rinv
+
+def conv_unit(in_planes, out_planes, kernel_size=3, stride=1,padding=1):
+        return torch.nn.Sequential(
+            torch.nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=padding),
+            torch.nn.BatchNorm2d(out_planes),
+            torch.nn.PReLU()
+        )
+
+
+class BasicCNN(torch.nn.Module):
+    def __init__(self, feature_dim=128):
+        super(BasicCNN, self).__init__()
+        self.cnn0 = torch.nn.Sequential(
+            # StandardBlock(D_in_sensor, self.sensor_net_dim),
+            conv_unit(3, 64, kernel_size=3, stride=2, padding=1),
+            conv_unit(64, 64, kernel_size=3, stride=2, padding=1),
+            conv_unit(64, 128, kernel_size=3, stride=2, padding=1),
+            conv_unit(128, 128, kernel_size=3, stride=2, padding=1),
+            conv_unit(128, 3, kernel_size=3, stride=2, padding=1),
+        )
+        self.fc = torch.nn.Linear(3*7*7, feature_dim)
+
+
+    def forward(self, x):
+        out = self.cnn0(x)
+        out = out.view(out.shape[0], -1)
+        out = self.fc(out)
+        return out
+
+class QuaternionCNN(torch.nn.Module):
+    def __init__(self, num_hydra_heads=25):
+        super(QuaternionCNN, self).__init__()
+        self.num_hydra_heads = num_hydra_heads
+
+        sensor_feature_dim = 128
+        self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim)
+
+        self.heads = torch.nn.ModuleList(
+            [GenericHead(D_in=sensor_feature_dim, D_out=4) for h in range(self.num_hydra_heads)])
+        self.direct_covar_head = GenericHead(D_in=sensor_feature_dim, D_out=3)
+
+    def forward(self, sensor_data):
+        x = self.sensor_net(sensor_data)
+        q_out = [normalize_vecs(head_net(x)) for head_net in self.heads]
+        inv_vars = torch.abs(
+            self.direct_covar_head(x)) + 1e-8  # Add a small non-zero number to avoid divide by zero errors
+        # If we are training, we just return self_heads*batch_size vectors - otherwise we apply the quat mean
+
+        if self.training:
+            q_out = torch.cat(q_out, 0)
+            I = torch.diag(q_out.new_ones(3)).expand(q_out.shape[0], 3, 3)
+            inv_vars = inv_vars.repeat([self.num_hydra_heads, 1])
+            Rinv = I.mul(inv_vars.unsqueeze(2).expand(q_out.shape[0], 3, 3))
+            return q_out, Rinv
+        else:
+            q_stack = torch.stack(q_out, 0)
+            q_mean = normalize_vecs(set_quat_sign(q_stack).mean(dim=0))
+            batch_size = q_mean.shape[0]
+            I = torch.diag(q_mean.new_ones(3)).expand(batch_size, 3, 3)
+            Rinv = I.mul(inv_vars.unsqueeze(2).expand(batch_size, 3, 3))
+
+            if self.num_hydra_heads > 1:
+                # #Convert into a concatenated tensor: N*M x D (where N=batches, M= heads)
+                q_batch = q_stack.permute(1, 0, 2).contiguous().view(-1, 4)
+                q_batch_mean = q_mean.repeat([1, self.num_hydra_heads]).view(-1, 4)
+                phi_diff = quat_log_diff(q_batch, q_batch_mean).view(-1, self.num_hydra_heads, 3)
+                Rinv = (Rinv.inverse() + batch_sample_covariance(phi_diff)).inverse()  # Outputs N x D - 1 x D - 1
             return q_mean, Rinv
 
 

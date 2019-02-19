@@ -47,7 +47,7 @@ class PlanetariumData(Dataset):
             target = self.q_target[idx].clone()
         return y.transpose(0,1).flatten(), target
 
-class SevenScenes(Dataset):
+class SevenScenesData(Dataset):
     def __init__(self, scene, data_path, train, transform=None):
         
         """
@@ -89,12 +89,12 @@ class SevenScenes(Dataset):
     def __getitem__(self, index):
         img = self.load_image(self.c_imgs[index])
         pose = self.poses[index].reshape((4,4))
-        rot = pose[0:3,0:3]
+        rot = pose[0:3,0:3] #Poses are camera to world, we need world to camera
 
         if self.transform is not None:
             img = self.transform(img)
 
-        return img, rot.float()
+        return img, torch.from_numpy(quaternion_from_matrix(rot.T)).float()
 
     def __len__(self):
         return self.poses.shape[0]
