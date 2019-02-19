@@ -110,10 +110,10 @@ if __name__ == '__main__':
                 'sensor_net': model.sensor_net.state_dict(),
                 'direct_covar_head': model.direct_covar_head.state_dict(),
                 'epoch': epoch+1,
-            }, 'simulation/saved_plots/best_model_heads_{}_epoch_{}.pt'.format(model.num_hydra_heads, epoch+1))
+            }, '7scenes/best_model_heads_{}_epoch_{}.pt'.format(model.num_hydra_heads, epoch+1))
             best_valid_err = valid_ang_error
-            sigma_filename = 'simulation/saved_plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
-            nees_filename = 'simulation/saved_plots/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
+            sigma_filename = '7scenes/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
+            nees_filename = '7scenes/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
 
             plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], filename=sigma_filename)
             plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
