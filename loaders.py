@@ -57,7 +57,7 @@ class SevenScenesData(Dataset):
 
         """
         self.transform = transform
-        self.valid_jitter = torchvision.transforms.ColorJitter(brightness=0.5, contrast=0.5, saturation=0.5, hue=0.5)
+        self.valid_jitter = torchvision.transforms.ColorJitter(brightness=0.1, contrast=0.1, saturation=0.1, hue=0.1)
         self.train = train
           # directories
         base_dir = osp.join(osp.expanduser(data_path), scene)   
