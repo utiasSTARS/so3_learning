@@ -93,8 +93,8 @@ class SevenScenesData(Dataset):
         pose = self.poses[index].reshape((4,4))
         rot = pose[0:3,0:3] #Poses are camera to world, we need world to camera
 
-        if (not self.train) and index > self.poses.shape[0] / 2:
-            img = self.valid_jitter(img)
+        # if (not self.train) and index > self.poses.shape[0] / 2:
+        #     img = self.valid_jitter(img)
 
         if self.transform is not None:
             img = self.transform(img)
