@@ -117,15 +117,21 @@ class CustomResNet(torch.nn.Module):
         super(CustomResNet, self).__init__()
         self.dnn = models.resnet50(pretrained=True)
 
-        #To freeze or not to freeze...
-        for param in self.dnn.parameters():
-            param.requires_grad = False
-
         num_ftrs = self.dnn.fc.in_features
         self.dnn.fc = torch.nn.Linear(num_ftrs, feature_dim)
 
     def forward(self, x):
         return self.dnn(x)
+
+    def freeze_layers(self):
+        # To freeze or not to freeze...
+        for param in self.dnn.parameters():
+            param.requires_grad = False
+
+        # Keep the FC layer active..
+        for param in self.dnn.fc.parameters():
+            param.requires_grad = True
+
 
 
 class QuaternionCNN(torch.nn.Module):

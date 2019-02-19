@@ -102,6 +102,9 @@ if __name__ == '__main__':
         # Measure elapsed time
         epoch_time.update(time.time() - end)
 
+        if epoch == 5:
+            print('Freezing the ResNet!')
+            model.sensor_net.freeze_layers()
 
         if valid_ang_error < best_valid_err:
             print('New best validation angular error! Outputting plots and saving model.')
