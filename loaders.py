@@ -58,9 +58,7 @@ class SevenScenes(Dataset):
         self.transform = transform
 
           # directories
-        base_dir = osp.join(osp.expanduser(data_path), scene)
-        data_dir = osp.join('..', 'data', '7Scenes', scene)
-    
+        base_dir = osp.join(osp.expanduser(data_path), scene)   
           # decide which sequences to use
         if train:
             split_file = osp.join(base_dir, 'TrainSplit.txt')
@@ -75,24 +73,14 @@ class SevenScenes(Dataset):
         self.pose_files = []
         self.gt_idx = np.empty((0,), dtype=np.int)
         ps = {}
-        vo_stats = {}
-        gt_offset = int(0)
         for seq in seqs:
             seq_dir = osp.join(base_dir, 'seq-{:02d}'.format(seq))
-            seq_data_dir = osp.join(data_dir, 'seq-{:02d}'.format(seq))
             p_filenames = [n for n in os.listdir(osp.join(seq_dir, '.')) if n.find('pose') >= 0]
             frame_idx = np.array(range(len(p_filenames)), dtype=np.int)
             pss = [np.loadtxt(osp.join(seq_dir, 'frame-{:06d}.pose.txt'.format(i))).flatten() for i in frame_idx]
             ps[seq] = np.asarray(pss)
-            vo_stats[seq] = {'R': np.eye(3), 't': np.zeros(3), 's': 1}
-            self.gt_idx = np.hstack((self.gt_idx, gt_offset+frame_idx))
-            gt_offset += len(p_filenames)
             c_imgs = [osp.join(seq_dir, 'frame-{:06d}.color.png'.format(i)) for i in frame_idx]
-            d_imgs = [osp.join(seq_dir, 'frame-{:06d}.depth.png'.format(i)) for i in frame_idx]
-            pose_files = [osp.join(seq_dir, 'frame-{:06d}.pose.txt'.format(i)) for i in frame_idx]
             self.c_imgs.extend(c_imgs)
-            self.d_imgs.extend(d_imgs)
-            self.pose_files.extend(pose_files)
         self.poses = np.empty((0,16))
         for seq in seqs:
             self.poses = np.vstack((self.poses,ps[seq]))
