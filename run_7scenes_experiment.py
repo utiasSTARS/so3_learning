@@ -43,7 +43,7 @@ if __name__ == '__main__':
     device = torch.device('cuda:0') if args.cuda else torch.device('cpu')
 
 
-    num_hydra_heads=25
+    num_hydra_heads=1
     model = QuaternionCNN(num_hydra_heads=num_hydra_heads)
     model.to(dtype=tensor_type, device=device)
 
