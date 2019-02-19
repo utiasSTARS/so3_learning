@@ -45,9 +45,9 @@ def validate(model, loader, loss_fn, config, output_history=False):
     avg_nll = nll/total_samples
 
     if output_history:
-        q_gt_hist = torch.cat(q_gt_hist, dim=0)
-        q_est_hist = torch.cat(q_est_hist, dim=0)
-        R_est_hist = torch.cat(R_est_hist, dim=0)
+        q_gt_hist = torch.cat(q_gt_hist, dim=0).cpu()
+        q_est_hist = torch.cat(q_est_hist, dim=0).cpu()
+        R_est_hist = torch.cat(R_est_hist, dim=0).cpu()
         return (avg_loss, avg_err, avg_nll, (q_gt_hist, q_est_hist, R_est_hist))
 
     else:

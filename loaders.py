@@ -1,7 +1,6 @@
 import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
-from torchvision.datasets.folder import default_loader
 from liegroups.torch import SO3
 import math
 from utils import quaternion_from_matrix
