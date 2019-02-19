@@ -40,15 +40,13 @@ def plot_errors_with_sigmas(q_gt, q_est, R_est, filename='sigma_plot.pdf'):
     plt.close(fig)
 
 def plot_nees(q_gt, q_est, R_est, filename='nees_plot.pdf'):
-    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row')
-    x = np.arange(0, q_gt.shape[0])
-
-
+    fig, ax = plt.subplots(1, 1, sharex='col', sharey='row')
+    xlabels = np.arange(0, q_gt.shape[0])
     residuals = quat_log_diff(q_est, q_gt).unsqueeze(2)
     nees = (1./3.) * residuals.transpose(1, 2).bmm(R_est.inverse()).bmm(residuals)
     nees.squeeze_()
 
-    ax.plot(x, nees, label='nees')
+    ax.plot(xlabels, nees.numpy(), label='nees')
     ax.legend()
     #image_array = canvas_to_array(fig)
     fig.savefig(filename, bbox_inches='tight')

@@ -53,6 +53,21 @@ def normalize_vecs(vecs):
     normed_vecs = vecs/vecs.norm(dim=1,keepdim=True)
     return normed_vecs.squeeze_()
 
+#Ensure all quaternions have positive w
+def set_quat_sign(q):
+
+    #This function assumes there a re multiple heads so we have an input of  H x B x 4 (Heads x Batch x 4)
+
+    # Check for negative scalars first, then substitute q for -q whenever that is the case (this accounts for the double cover of S3 over SO(3))
+    neg_angle_mask = q[:, :, 0] < 0.
+    neg_angle_inds = neg_angle_mask.nonzero().squeeze_()
+
+    if len(neg_angle_inds) > 0:
+        q[neg_angle_mask, :] = -1. * q[neg_angle_mask, :]
+
+    return q
+
+
 #NxMxD -> NxDxD 
 #Computes sample covariances (assuming zero mean) over each of N batches with M D-dimensional vectors
 def batch_sample_covariance(vecs):

@@ -18,13 +18,10 @@ import random
 import datetime
 #from train_test import *
 from train_test_quat import *
-
 from loaders import PlanetariumData
 from torch.utils.data import Dataset, DataLoader
-
-
-
 from utils import AverageMeter, compute_normalization
+from vis import *
 
 if __name__ == '__main__':
     #Reproducibility
@@ -38,20 +35,12 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--total_epochs', type=int, default=100)
     args = parser.parse_args()
-    
-    #train_dataset_path = 'data/dataset3_uvd_absobs.mat'
-    #valid_dataset_path = 'data/dataset3_uvd_absobs.mat'
-
-    # range_all = list(range(0, 1900))
-    # random.shuffle(range_all)
-    # k_range_train = range_all[0:1500]
-    # k_range_valid = range_all[1500:1900]
 
     train_dataset_path = 'simulation/orbital/train_abs.mat'
-    valid_dataset_path = 'simulation/orbital/valid_abs.mat'
+    valid_dataset_path = 'simulation/orbital/valid_abs_line.mat'
 
     k_range_train = range(0, 15000)
-    k_range_valid = range(0, 500)
+    k_range_valid = range(0, 250)
 
 
     train_dataset = sio.loadmat(train_dataset_path)
@@ -67,16 +56,16 @@ if __name__ == '__main__':
     device = torch.device('cuda:0') if args.cuda else torch.device('cpu')
 
 
-    num_hydra_heads=1
+    num_hydra_heads=25
     model = QuaternionNet(D_in_sensor=train_dataset['y_k_j'].shape[0]*train_dataset['y_k_j'].shape[2], num_hydra_heads=num_hydra_heads)
 
     # model = SO3Net(D_in_sensor=train_dataset['y_k_j'].shape[0] * train_dataset['y_k_j'].shape[2],
     #                       num_hydra_heads=num_hydra_heads)
     model.to(dtype=tensor_type, device=device)
 
-    #pretrained_model = torch.load('sensor_net_pretrained.pt')
-    #model.sensor_net.load_state_dict(pretrained_model['sensor_net'])
-    #model.direct_covar_head.load_state_dict(pretrained_model['direct_covar_head'])
+    # pretrained_model = torch.load('simulation/saved_plots/best_model_heads_1_epoch_74.pt')
+    #     # model.sensor_net.load_state_dict(pretrained_model['sensor_net'])
+    #     # model.direct_covar_head.load_state_dict(pretrained_model['direct_covar_head'])
 
     loss_fn.to(dtype=tensor_type, device=device)
 
@@ -102,7 +91,12 @@ if __name__ == '__main__':
     }
     epoch_time = AverageMeter()
     avg_train_loss, train_ang_error, train_nll = validate(model, train_loader, loss_fn, config)
-    avg_valid_loss, valid_ang_error, valid_nll = validate(model, valid_loader, loss_fn, config, epoch=0, output_sigma_plot=True)
+    avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True)
+
+    #Visualize
+    sigma_filename = 'simulation/saved_plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, 0)
+    plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], filename=sigma_filename)
+
     print('Starting Training \t' 
           'Train (Err/NLL) | Valid (Err/NLL) {:3.3f} / {:3.3f} | {:.3f} / {:3.3f}\t'.format(
             train_ang_error, train_nll, valid_ang_error, valid_nll))
@@ -112,20 +106,28 @@ if __name__ == '__main__':
         end = time.time()
         avg_train_loss = train(model, train_loader, loss_fn, optimizer, config)
 
-        output_sigma_plot = (epoch%1==0)
         _, train_ang_error, train_nll = validate(model, train_loader, loss_fn, config)
-        avg_valid_loss, valid_ang_error, valid_nll = validate(model, valid_loader, loss_fn, config, epoch=epoch+1, output_sigma_plot=output_sigma_plot)
+        avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True)
 
         # Measure elapsed time
         epoch_time.update(time.time() - end)
 
 
         if valid_ang_error < best_valid_err:
+            print('New best validation angular error! Outputting plots and saving model.')
             torch.save({
-                'model': model.state_dict(),
+                'full_model': model.state_dict(),
+                'sensor_net': model.sensor_net.state_dict(),
+                'direct_covar_head': model.direct_covar_head.state_dict(),
                 'epoch': epoch+1,
             }, 'simulation/saved_plots/best_model_heads_{}_epoch_{}.pt'.format(model.num_hydra_heads, epoch+1))
             best_valid_err = valid_ang_error
+            sigma_filename = 'simulation/saved_plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
+            nees_filename = 'simulation/saved_plots/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
+
+            plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], filename=sigma_filename)
+            plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
+
 
         if epoch%args.epoch_display == 0:     
             print('Epoch {}. Loss (Train/Valid) {:.3E} / {:.3E} \t'

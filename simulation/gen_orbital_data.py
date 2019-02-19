@@ -8,14 +8,15 @@ import scipy.io as sio
 
 sim_setup = {
     "num_pts": 36, #Must be a square - i.e., 16,25, etc. (quirk of the way I generate a meshgrid)
-    "num_poses": [20000, 1000],  #Both num_poses and traj_names can be lists that correspond to different datasets
-    "traj_names": ['train_abs', 'valid_abs'],
+    "num_poses": [15000, 250],  #Both num_poses and traj_names can be lists that correspond to different datasets
+    "traj_names": ['train_abs', 'valid_abs_line'],
     "absolute_pose": True,
     "pixel_noise_var": [1., 1.],
     "pixel_bias": [0., 0.],
     'semisphere_radius': 25,
-    'angle_limits': [((-np.pi/4, np.pi/4), (-np.pi/4, np.pi/4),(-np.pi/4, np.pi/4)),
-        ((-np.pi/4, np.pi/4), (-np.pi/4, np.pi/4),(-np.pi/2, -np.pi/4))],
+    'angle_limits': [((-np.pi/3, np.pi/3), (-np.pi/4, np.pi/4),(-np.pi/4, np.pi/4)),
+        ((-0.45*np.pi, 0.45*np.pi), (-np.pi/4,  np.pi/4),(-np.pi/4, np.pi/4))],
+    'sequential_x': [False, True],
     'camera_intrinsics': {'w': 500, 'h': 500, 'cu': 250., 'cv': 250., 'f': 500, 'b': 1.0},
     "data_output_folder": "./orbital"
 }
@@ -74,12 +75,18 @@ def visualize_world(pts, T_vi_list, file_name, radius):
 
 
 #Sample poses from a semi sphere that can see all the landmarks
-def create_orbital_poses(num_poses, semisphere_radius, angle_limits):
+def create_orbital_poses(num_poses, semisphere_radius, angle_limits, sequential_x):
     T_vi_list = []
-    (z_lim, y_lim, x_lim) = angle_limits
+    (x_lim, y_lim, z_lim) = angle_limits
+
+    if sequential_x:
+        angle_x = np.linspace(x_lim[0], x_lim[1], num_poses)
+    else:
+        angle_x = (x_lim[1] - x_lim[0]) * np.random.rand(num_poses) + x_lim[0]
+
+    angle_y = (y_lim[1] - y_lim[0]) * np.random.rand(num_poses) + y_lim[0]
     angle_z =  (z_lim[1] - z_lim[0])*np.random.rand(num_poses) + z_lim[0]
-    angle_y =  (y_lim[1] - y_lim[0])*np.random.rand(num_poses) + y_lim[0]
-    angle_x =  (x_lim[1] - x_lim[0])*np.random.rand(num_poses) + x_lim[0]
+
 
     for i in range(num_poses):
 
@@ -142,10 +149,10 @@ def save_mat_data(T_vi_gt, pts_w, obs, sim_setup, data_filename, t_i):
 
         # Observations
         # Need 3 x num_poses x num_pts matrix
-        y_k_j = np.empty((3, len(T_vi_gt), pts_w.shape[0]))
+        y_k_j = np.empty((2, len(T_vi_gt), pts_w.shape[0]))
 
         for o_i, (_,_, uvd) in enumerate(obs):
-            y_k_j[:, o_i, :] = uvd.T
+            y_k_j[:, o_i, :] = uvd[:, :2].T
     else:
         T_vk_i = np.empty((round(len(T_vi_gt)/2), 4, 4))
 
@@ -205,7 +212,7 @@ for t_i, traj in enumerate(sim_setup['traj_names']):
     num_poses  = sim_setup['num_poses'][t_i]
     output_image = "{}/{}.png".format(sim_setup['data_output_folder'],traj)
     if sim_setup["absolute_pose"]:
-        T_cw_list = create_orbital_poses(num_poses, sim_setup['semisphere_radius'], sim_setup['angle_limits'][t_i])
+        T_cw_list = create_orbital_poses(num_poses, sim_setup['semisphere_radius'], sim_setup['angle_limits'][t_i], sim_setup['sequential_x'][t_i])
     else:
         print("Creating small odometry with 6x1 observation vectors")
         T_cw_list = create_rand_odometry(num_poses, sim_setup['semisphere_radius'], sim_setup['angle_limits'][t_i])

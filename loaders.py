@@ -48,7 +48,7 @@ class PlanetariumData(Dataset):
         return y.transpose(0,1).flatten(), target
 
 class SevenScenes(Dataset):
-    def __init__(self, scene, data_path, train, transform=None, target_transform=None):
+    def __init__(self, scene, data_path, train, transform=None):
         
         """
           :param scene: scene name: 'chess', 'pumpkin', ...
@@ -56,8 +56,7 @@ class SevenScenes(Dataset):
 
         """
         self.transform = transform
-        self.target_transform = target_transform
-    
+
           # directories
         base_dir = osp.join(osp.expanduser(data_path), scene)
         data_dir = osp.join('..', 'data', '7Scenes', scene)
@@ -107,7 +106,7 @@ class SevenScenes(Dataset):
         if self.transform is not None:
             img = self.transform(img)
 
-        return img, torch.FloatTensor(rot)
+        return img, rot.float()
 
     def __len__(self):
         return self.poses.shape[0]

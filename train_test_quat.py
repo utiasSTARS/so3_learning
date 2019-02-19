@@ -7,7 +7,7 @@ from utils import quat_norm_diff, nll_quat, quat_ang_error
 from vis import plot_errors_with_sigmas
 
 
-def validate(model, loader, loss_fn, config, epoch=None, output_sigma_plot=False):
+def validate(model, loader, loss_fn, config, output_history=False):
     model.eval()
 
     with torch.no_grad():
@@ -16,7 +16,7 @@ def validate(model, loader, loss_fn, config, epoch=None, output_sigma_plot=False
         nll = 0.        
         total_samples = 0.
 
-        if output_sigma_plot:
+        if output_history:
             q_gt_hist = []
             q_est_hist = []
             R_est_hist = []
@@ -33,21 +33,25 @@ def validate(model, loader, loss_fn, config, epoch=None, output_sigma_plot=False
             angular_error += quat_ang_error(q_est, q_gt).sum()
             nll += nll_quat(q_est, q_gt, Rinv).sum()
 
-            if output_sigma_plot:
+            if output_history:
                 q_gt_hist.append(q_gt)
                 q_est_hist.append(q_est)
                 R_est_hist.append(Rinv.inverse())
 
             total_samples += batch_size
 
-        if output_sigma_plot:
-            q_gt_hist = torch.cat(q_gt_hist, dim=0)
-            q_est_hist = torch.cat(q_est_hist, dim=0)
-            R_est_hist = torch.cat(R_est_hist, dim=0)
-            filename = 'simulation/saved_plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch)
-            plot_errors_with_sigmas(q_gt_hist, q_est_hist, R_est_hist, filename=filename)
+    avg_loss = loss.item() / len(loader)
+    avg_err = (angular_error/total_samples)*(180./3.1415)
+    avg_nll = nll/total_samples
 
-    return loss.item()/len(loader), (angular_error/total_samples)*(180./3.1415), nll/total_samples
+    if output_history:
+        q_gt_hist = torch.cat(q_gt_hist, dim=0)
+        q_est_hist = torch.cat(q_est_hist, dim=0)
+        R_est_hist = torch.cat(R_est_hist, dim=0)
+        return (avg_loss, avg_err, avg_nll, (q_gt_hist, q_est_hist, R_est_hist))
+
+    else:
+        return (avg_loss, avg_err, avg_nll)
 
 
 def train(model, loader, loss_fn, optimizer, config):
