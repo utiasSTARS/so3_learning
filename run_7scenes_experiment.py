@@ -14,7 +14,7 @@ from loss import *
 import time, sys
 import argparse
 import datetime
-from train_test_quat import *
+from train_test import *
 from loaders import SevenScenesData
 from torch.utils.data import Dataset, DataLoader
 from vis import *
@@ -31,6 +31,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=5e-4)
     parser.add_argument('--total_epochs', type=int, default=100)
     parser.add_argument('--num_heads', type=int, default=1)
+    parser.add_argument('--scene', type=str, default='chess')
 
     args = parser.parse_args()
 
@@ -64,10 +65,10 @@ if __name__ == '__main__':
                              std=[0.229, 0.224, 0.225])
     ])
 
-    train_loader = DataLoader(SevenScenesData('chess', '/home/valentinp/research/data/7scenes', train=True, transform=transform),
+    train_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=True, transform=transform),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=True, num_workers=10, drop_last=False)
-    valid_loader = DataLoader(SevenScenesData('chess', '/home/valentinp/research/data/7scenes', train=False, transform=transform),
+    valid_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=False, transform=transform),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=False, num_workers=10, drop_last=False)
     total_time = 0.
