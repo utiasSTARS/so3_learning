@@ -200,13 +200,13 @@ class GenericHead(torch.nn.Module):
         self.fc1 = torch.nn.Linear(512, D_out)
         #self.fc0.apply(init_lin_weights)
         # self.fc1.apply(init_lin_weights)
-        #self.dropout = torch.nn.Dropout()
+        self.dropout = torch.nn.Dropout(p=0.2)
         self.nonlin = torch.nn.PReLU()
 
     def forward(self, x):
         out = self.fc0(x)
         out = self.nonlin(out)
-        # out = self.dropout(out)
+        out = self.dropout(out)
         out = self.fc1(out)
         return out
 
