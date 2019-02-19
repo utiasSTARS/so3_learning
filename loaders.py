@@ -7,7 +7,6 @@ import math
 from utils import quaternion_from_matrix
 import os
 import os.path as osp
-import torchvision
 
 class PlanetariumData(Dataset):
     """Synthetic data"""
@@ -49,7 +48,7 @@ class PlanetariumData(Dataset):
         return y.transpose(0,1).flatten(), target
 
 class SevenScenesData(Dataset):
-    def __init__(self, scene, data_path, train, transform=None):
+    def __init__(self, scene, data_path, train, transform=None, valid_jitter_transform=None):
         
         """
           :param scene: scene name: 'chess', 'pumpkin', ...
@@ -57,7 +56,7 @@ class SevenScenesData(Dataset):
 
         """
         self.transform = transform
-        self.valid_jitter = torchvision.transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2, hue=0.2)
+        self.valid_jitter_transform = valid_jitter_transform
         self.train = train
           # directories
         base_dir = osp.join(osp.expanduser(data_path), scene)   
@@ -93,10 +92,10 @@ class SevenScenesData(Dataset):
         pose = self.poses[index].reshape((4,4))
         rot = pose[0:3,0:3] #Poses are camera to world, we need world to camera
 
-        # if (not self.train) and index > self.poses.shape[0] / 2:
-        #     img = self.valid_jitter(img)
 
-        if self.transform is not None:
+        if (not self.train) and (self.valid_jitter_transform is not None) and index > self.poses.shape[0] / 2:
+            img = self.valid_jitter_transform(img)
+        else:
             img = self.transform(img)
 
 

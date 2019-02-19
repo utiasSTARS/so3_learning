@@ -19,6 +19,7 @@ from loaders import SevenScenesData
 from torch.utils.data import Dataset, DataLoader
 from vis import *
 import torchvision.transforms as transforms
+
 if __name__ == '__main__':
     #Reproducibility
     #torch.manual_seed(7)
@@ -64,11 +65,19 @@ if __name__ == '__main__':
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
     ])
+    transform_jitter = transforms.Compose([
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
+        transforms.ColorJitter(brightness=0.2, contrast=0, saturation=0, hue=0),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
+    ])
 
     train_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=True, transform=transform),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=True, num_workers=10, drop_last=False)
-    valid_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=False, transform=transform),
+    valid_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=False, transform=transform, valid_jitter_transform=transform_jitter),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=False, num_workers=10, drop_last=False)
     total_time = 0.
