@@ -2,6 +2,7 @@ import torch, math
 from lie_algebra import so3_exp
 import math
 from utils import *
+from torchvision import transforms, datasets, models
 
 class StandardBlock(torch.nn.Module):
     def __init__(self, in_channels, out_channels):
@@ -111,13 +112,29 @@ class BasicCNN(torch.nn.Module):
         out = self.fc(out)
         return out
 
+class CustomResNet(torch.nn.Module):
+    def __init__(self, feature_dim):
+        super(CustomResNet, self).__init__()
+        self.dnn = models.resnet50(pretrained=True)
+
+        # I recommend training with these layers unfrozen for a couple of epochs after the initial frozen training
+        for param in self.dnn.parameters():
+            param.requires_grad = False
+
+        num_ftrs = self.dnn.fc.in_features
+        self.dnn.fc = torch.nn.Linear(num_ftrs, feature_dim)
+
+    def forward(self, x):
+        return self.dnn(x)
+
+
 class QuaternionCNN(torch.nn.Module):
     def __init__(self, num_hydra_heads=25):
         super(QuaternionCNN, self).__init__()
         self.num_hydra_heads = num_hydra_heads
 
         sensor_feature_dim = 128
-        self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim)
+        self.sensor_net = CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(
             [GenericHead(D_in=sensor_feature_dim, D_out=4) for h in range(self.num_hydra_heads)])
@@ -196,3 +213,4 @@ def init_lin_weights(m):
         #m.weight.data.normal_(std=1e-2)
         #m.weight.data.fill_(0.01)
         m.bias.data.fill_(0.)
+
