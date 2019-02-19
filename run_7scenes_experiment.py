@@ -28,8 +28,10 @@ if __name__ == '__main__':
     parser.add_argument('--cuda', action='store_true', default=False)
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--epoch_display', type=int, default=1)
-    parser.add_argument('--lr', type=float, default=1e-4)
+    parser.add_argument('--lr', type=float, default=5e-4)
     parser.add_argument('--total_epochs', type=int, default=100)
+    parser.add_argument('--num_heads', type=int, default=1)
+
     args = parser.parse_args()
 
 
@@ -43,7 +45,7 @@ if __name__ == '__main__':
     device = torch.device('cuda:0') if args.cuda else torch.device('cpu')
 
 
-    num_hydra_heads=1
+    num_hydra_heads=args.num_heads
     model = QuaternionCNN(num_hydra_heads=num_hydra_heads)
     model.to(dtype=tensor_type, device=device)
 
@@ -64,10 +66,10 @@ if __name__ == '__main__':
 
     train_loader = DataLoader(SevenScenesData('chess', '/home/valentinp/research/data/7scenes', train=True, transform=transform),
                         batch_size=args.batch_size, pin_memory=True,
-                        shuffle=True, num_workers=4, drop_last=False)
+                        shuffle=True, num_workers=6, drop_last=False)
     valid_loader = DataLoader(SevenScenesData('chess', '/home/valentinp/research/data/7scenes', train=False, transform=transform),
                         batch_size=args.batch_size, pin_memory=True,
-                        shuffle=True, num_workers=4, drop_last=False)
+                        shuffle=False, num_workers=6, drop_last=False)
     total_time = 0.
     now = datetime.datetime.now()
     start_datetime_str = '{}-{}-{}-{}-{}-{}'.format(now.year, now.month, now.day, now.hour, now.minute, now.second)
