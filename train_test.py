@@ -78,11 +78,10 @@ def train(model, loader, loss_fn, optimizer, config):
             all_loss = loss_fn(q_est, q_gt, Rinv)
             all_loss = all_loss.view(model.num_hydra_heads, batch_size)
             losses = all_loss.mean(dim=1)
+            optimizer.zero_grad()
 
             for loss in losses:
-                optimizer.zero_grad()
                 loss.backward(retain_graph=True)
-                optimizer.step()
 
             # #(loss, _) = torch.min(all_loss, dim=0)'
             # Or randomize heads
@@ -94,6 +93,6 @@ def train(model, loader, loss_fn, optimizer, config):
         total_loss += loss.item()
         # optimizer.zero_grad()
         # loss.backward()
-        # optimizer.step()
+        optimizer.step()
     
     return total_loss/total_batches
