@@ -78,7 +78,7 @@ if __name__ == '__main__':
     train_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=True, transform=transform),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=True, num_workers=10, drop_last=False)
-    valid_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=False, transform=transform, valid_jitter_transform=None),
+    valid_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=False, transform=transform, valid_jitter_transform=transform_jitter),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=False, num_workers=10, drop_last=False)
     total_time = 0.
