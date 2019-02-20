@@ -21,7 +21,7 @@ def canvas_to_array(fig):
 def _plot_sigma(x, y, y_mean, y_sigma, y_sigma_2, label, ax):
     ax.scatter(x, y, label=label, s=0.5, c='black')
     ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$ Total')
-    ax.fill_between(x, y_mean - 3 * y_sigma_2, y_mean + 3 * y_sigma_2, alpha=0.5, c='red', label='$\pm 3\sigma$ Direct')
+    ax.fill_between(x, y_mean - 3 * y_sigma_2, y_mean + 3 * y_sigma_2, alpha=0.5, color='red', label='$\pm 3\sigma$ Direct')
     return
 
 def plot_errors_with_sigmas(q_gt, q_est, R_est, R_direct_est, filename='sigma_plot.pdf'):
