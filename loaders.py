@@ -90,7 +90,7 @@ class SevenScenesData(Dataset):
         print('Loaded {} poses'.format(self.poses.shape[0]))
 
     def __getitem__(self, index):
-        img = self.load_image(self.c_imgs[index])
+        img = self.load_depth(self.c_imgs[index])
         pose = self.poses[index].reshape((4,4))
         rot = pose[0:3,0:3] #Poses are camera to world, we need world to camera
 
