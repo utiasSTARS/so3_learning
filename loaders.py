@@ -94,8 +94,7 @@ class SevenScenesData(Dataset):
         pose = self.poses[index].reshape((4,4))
         rot = pose[0:3,0:3] #Poses are camera to world, we need world to camera
 
-        print(img.size)
-        print(img.mode)
+        print(img.shape)
 
         if (not self.train) and (self.valid_jitter_transform is not None) and index > self.poses.shape[0] / 2:
             #img = self.valid_jitter_transform(img)
@@ -104,9 +103,6 @@ class SevenScenesData(Dataset):
             if self.transform:
                 img = self.transform(img)
 
-        print(img[:,200,180])
-        print(img.shape)
-
         return img, torch.from_numpy(quaternion_from_matrix(rot.T)).float()
 
     def __len__(self):
@@ -114,7 +110,7 @@ class SevenScenesData(Dataset):
 
     def load_depth(self, filename, loader=default_loader):
         try:
-            img = io.imread(filename)[:224, :224]
+            img = torch.from_numpy(io.imread(filename)[:224, :224])
         except IOError as e:
             print('Could not load image {:s}, IOError: {:s}'.format(filename, e))
             return None
