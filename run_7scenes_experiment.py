@@ -70,7 +70,7 @@ if __name__ == '__main__':
     transform_jitter = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
-        transforms.ColorJitter(brightness=0.4, contrast=0.4, saturation=0.4, hue=0.4),
+        transforms.RandomAffine(45, shear=25),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
@@ -126,7 +126,7 @@ if __name__ == '__main__':
                 'direct_covar_head': model.direct_covar_head.state_dict(),
                 'epoch': epoch+1,
             }, '7scenes/best_model_{}_heads_{}_epoch_{}.pt'.format(args.scene,model.num_hydra_heads, epoch+1))
-            best_valid_err = valid_ang_error
+            best_valid_nll = valid_nll
             sigma_filename = '7scenes/sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
             nees_filename = '7scenes/nees_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
 
