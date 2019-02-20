@@ -26,7 +26,7 @@ def validate(model, loader, loss_fn, config, output_history=False, output_grid=F
         for batch_idx, (y_obs, q_gt) in enumerate(loader):
             y_obs = y_obs.to(config['device'])
 
-            if batch_idx==100 and output_grid:
+            if batch_idx==10 and output_grid:
                 print('SAVING IMAGE GRID')
                 torchvision.utils.save_image(torchvision.utils.make_grid(y_obs), '7scenes/jittered_image.png')
 
