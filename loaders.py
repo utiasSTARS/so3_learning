@@ -2,7 +2,6 @@ import torch
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from torchvision.datasets.folder import default_loader
-from torchvision.utils import save_image
 from liegroups.torch import SO3
 import math
 from utils import quaternion_from_matrix
@@ -97,9 +96,6 @@ class SevenScenesData(Dataset):
 
         if (not self.train) and (self.valid_jitter_transform is not None) and index > self.poses.shape[0] / 2:
             img = self.valid_jitter_transform(img)
-            if index == 1600:
-                print('SAVING IMAGE YOU DUFUS')
-                save_image(img, '/7scenes/jittered_image.png')
 
             #img = 200*torch.rand((3, 224, 224)) - 100
         else:

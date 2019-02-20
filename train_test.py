@@ -5,6 +5,7 @@ from liegroups.torch import SO3
 from lie_algebra import so3_log, so3_exp
 from utils import quat_norm_diff, nll_quat, quat_ang_error
 from vis import plot_errors_with_sigmas
+import torchvision
 
 
 def validate(model, loader, loss_fn, config, output_history=False):
@@ -24,6 +25,11 @@ def validate(model, loader, loss_fn, config, output_history=False):
 
         for batch_idx, (y_obs, q_gt) in enumerate(loader):
             y_obs = y_obs.to(config['device'])
+
+            if batch_idx==100:
+                print('SAVING IMAGE GRID')
+                torchvision.utils.save_image(torchvision.utils.make_grid(y_obs), '7scenes/jittered_image.png')
+
             q_gt = q_gt.to(config['device'])
             batch_size = q_gt.shape[0]
 
