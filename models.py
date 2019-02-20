@@ -138,12 +138,12 @@ class QuaternionCNN(torch.nn.Module):
         super(QuaternionCNN, self).__init__()
         self.num_hydra_heads = num_hydra_heads
 
-        sensor_feature_dim = 128
+        sensor_feature_dim = 256
         #BasicCNN(feature_dim=sensor_feature_dim)#
         self.sensor_net = CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(
-            [GenericHead(D_in=sensor_feature_dim, D_layers=128, D_out=4) for h in range(self.num_hydra_heads)])
+            [GenericHead(D_in=sensor_feature_dim, D_layers=256, D_out=4, dropout=True) for h in range(self.num_hydra_heads)])
         self.direct_covar_head = GenericHead(D_in=sensor_feature_dim, D_layers=128, D_out=3, dropout=False)
 
     def forward(self, sensor_data):
@@ -175,26 +175,10 @@ class QuaternionCNN(torch.nn.Module):
             return q_mean, Rinv
 
 
-class IterHead(torch.nn.Module):
-    def __init__(self, D_in, D_out, num_hydra_heads):
-        super(IterHead, self).__init__()
-        self.D_in = D_in
-        self.D_out = D_out
-        self.num_heads = num_hydra_heads
-        self.heads = torch.nn.ModuleList([GenericHead(D_in=D_in, D_out=D_out) for h in range(num_hydra_heads)])
-    def forward(self, x):
-        y_out = [head_net(x) for head_net in self.heads]
-
-        #Gather data and computer sample mean/covariance
-        outputs = torch.stack(y_out, 0)
-        out_mean = outputs.mean(dim=0)
-        #sample_covariance = (outputs - dx_mean).mm((outputs-dx_mean).transpose(0,1))/(self.num_heads - 1)
-        return out_mean
-
 
 
 class GenericHead(torch.nn.Module):
-    def __init__(self, D_in, D_out, D_layers, dropout=True):
+    def __init__(self, D_in, D_out, D_layers, dropout=False):
         super(GenericHead, self).__init__()
         self.fc0 = torch.nn.Linear(D_in, D_layers)
         self.fc1 = torch.nn.Linear(D_layers, D_out)
@@ -207,6 +191,7 @@ class GenericHead(torch.nn.Module):
         self.nonlin = torch.nn.PReLU()
 
     def forward(self, x):
+        out = self.nonlin(x)
         out = self.fc0(x)
         out = self.nonlin(out)
         if self.dropout:
