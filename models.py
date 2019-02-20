@@ -144,7 +144,7 @@ class QuaternionCNN(torch.nn.Module):
 
         self.heads = torch.nn.ModuleList(
             [GenericHead(D_in=sensor_feature_dim, D_out=4) for h in range(self.num_hydra_heads)])
-        self.direct_covar_head = GenericHead(D_in=sensor_feature_dim, D_out=3)
+        self.direct_covar_head = GenericHead(D_in=sensor_feature_dim, D_layers=1024, D_out=3, dropout=False)
 
     def forward(self, sensor_data):
         x = self.sensor_net(sensor_data)
@@ -194,19 +194,23 @@ class IterHead(torch.nn.Module):
 
 
 class GenericHead(torch.nn.Module):
-    def __init__(self, D_in, D_out):
+    def __init__(self, D_in, D_out, D_layers, dropout=True):
         super(GenericHead, self).__init__()
-        self.fc0 = torch.nn.Linear(D_in, 512)
-        self.fc1 = torch.nn.Linear(512, D_out)
+        self.fc0 = torch.nn.Linear(D_in, D_layers)
+        self.fc1 = torch.nn.Linear(D_layers, D_out)
         #self.fc0.apply(init_lin_weights)
         # self.fc1.apply(init_lin_weights)
-        self.dropout = torch.nn.Dropout(p=0.2)
+        if dropout:
+            self.dropout = torch.nn.Dropout(p=0.5)
+        else:
+            self.dropout = None
         self.nonlin = torch.nn.PReLU()
 
     def forward(self, x):
         out = self.fc0(x)
         out = self.nonlin(out)
-        out = self.dropout(out)
+        if self.dropout:
+            out = self.dropout(out)
         out = self.fc1(out)
         return out
 
