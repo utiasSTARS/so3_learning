@@ -25,6 +25,13 @@ def _plot_sigma(x, y, y_mean, y_sigma, y_sigma_2, label, ax):
     ax.set_ylabel(label)
     return
 
+def _plot_sigma_with_gt(x, y_est, y_gt, y_sigma, y_sigma_2, label, ax):
+    ax.scatter(x, y_est, s=0.5, c='green')
+    ax.scatter(x, y_gt, s=0.5, c='black')
+    ax.fill_between(x, y_est-3*y_sigma, y_est+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$ Total')
+    ax.fill_between(x, y_est - 3 * y_sigma_2, y_est + 3 * y_sigma_2, alpha=0.5, color='red', label='$\pm 3\sigma$ Direct')
+    ax.set_ylabel(label)
+    return
 def plot_errors_with_sigmas(q_gt, q_est, R_est, R_direct_est, filename='sigma_plot.pdf'):
     fig, ax = plt.subplots(3, 1, sharex='col', sharey='row')
 
@@ -36,6 +43,25 @@ def plot_errors_with_sigmas(q_gt, q_est, R_est, R_direct_est, filename='sigma_pl
     _plot_sigma(x_labels, phi_errs[:, 0], 0., np.sqrt(R_est[:,0,0].flatten()), np.sqrt(R_direct_est[:,0,0].flatten()),  '$\Theta_1$ err', ax[0])
     _plot_sigma(x_labels, phi_errs[:, 1], 0., np.sqrt(R_est[:,1,1].flatten()), np.sqrt(R_direct_est[:,1,1].flatten()), '$\Theta_2$ err', ax[1])
     _plot_sigma(x_labels, phi_errs[:, 2], 0., np.sqrt(R_est[:,2,2].flatten()), np.sqrt(R_direct_est[:,2,2].flatten()), '$\Theta_3$ err', ax[2])
+
+    ax[2].legend()
+    #image_array = canvas_to_array(fig)
+    fig.savefig(filename, bbox_inches='tight')
+    plt.close(fig)
+
+def plot_abs_with_sigmas(q_gt, q_est, R_est, R_direct_est, filename='sigma_plot.pdf'):
+    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row')
+
+    x_labels = np.arange(0, q_gt.shape[0])
+    phi_est = quat_log(q_est)
+    phi_gt = quat_log(q_gt)
+
+    R_est = R_est.numpy()
+    R_direct_est = R_direct_est.numpy()
+
+    _plot_sigma_with_gt(x_labels, phi_gt[:, 0], phi_est[:, 0], np.sqrt(R_est[:,0,0].flatten()), np.sqrt(R_direct_est[:,0,0].flatten()),  '$\Theta_1$ err', ax[0])
+    _plot_sigma_with_gt(x_labels, phi_gt[:, 1], phi_est[:, 1], np.sqrt(R_est[:,1,1].flatten()), np.sqrt(R_direct_est[:,1,1].flatten()), '$\Theta_2$ err', ax[1])
+    _plot_sigma_with_gt(x_labels, phi_gt[:, 2], phi_est[:, 2], np.sqrt(R_est[:,2,2].flatten()), np.sqrt(R_direct_est[:,2,2].flatten()), '$\Theta_3$ err', ax[2])
 
     ax[2].legend()
     #image_array = canvas_to_array(fig)

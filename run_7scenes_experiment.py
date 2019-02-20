@@ -136,6 +136,19 @@ if __name__ == '__main__':
             plot_errors_with_sigmas(predict_history_train[0], predict_history_train[1], predict_history_train[2], predict_history_train[3],
                                     filename=sigma_filename_train)
 
+            abs_filename = '7scenes/abs_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads,
+                                                                                  epoch + 1)
+            abs_filename_train = '7scenes/train_abs_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene,
+                                                                                              model.num_hydra_heads,
+                                                                                              epoch + 1)
+            plot_abs_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3],
+                                    filename=abs_filename)
+            plot_abs_with_sigmas(predict_history_train[0], predict_history_train[1], predict_history_train[2],
+                                    predict_history_train[3],
+                                    filename=abs_filename_train)
+
+
+
             plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
 
 
