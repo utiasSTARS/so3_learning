@@ -20,13 +20,14 @@ def validate(model, loader, loss_fn, config, output_history=False):
             q_gt_hist = []
             q_est_hist = []
             R_est_hist = []
+            R_direct_hist = []
 
         for batch_idx, (y_obs, q_gt) in enumerate(loader):
             y_obs = y_obs.to(config['device'])
             q_gt = q_gt.to(config['device'])
             batch_size = q_gt.shape[0]
 
-            q_est, Rinv = model(y_obs)
+            q_est, Rinv, Rinv_direct = model(y_obs)
 
             loss_b = loss_fn(q_est, q_gt, Rinv).mean()
             loss = loss + loss_b
@@ -37,6 +38,7 @@ def validate(model, loader, loss_fn, config, output_history=False):
                 q_gt_hist.append(q_gt)
                 q_est_hist.append(q_est)
                 R_est_hist.append(Rinv.inverse())
+                R_direct_hist.append(Rinv_direct.inverse())
 
             total_samples += batch_size
 
@@ -48,7 +50,9 @@ def validate(model, loader, loss_fn, config, output_history=False):
         q_gt_hist = torch.cat(q_gt_hist, dim=0).cpu()
         q_est_hist = torch.cat(q_est_hist, dim=0).cpu()
         R_est_hist = torch.cat(R_est_hist, dim=0).cpu()
-        return (avg_loss, avg_err, avg_nll, (q_gt_hist, q_est_hist, R_est_hist))
+        R_direct_hist = torch.cat(R_direct_hist, dim=0).cpu()
+
+        return (avg_loss, avg_err, avg_nll, (q_gt_hist, q_est_hist, R_est_hist, R_direct_hist))
 
     else:
         return (avg_loss, avg_err, avg_nll)

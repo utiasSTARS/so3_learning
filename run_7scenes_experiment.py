@@ -103,7 +103,7 @@ if __name__ == '__main__':
           'Train (Err/NLL) | Valid (Err/NLL) {:3.3f} / {:3.3f} | {:.3f} / {:3.3f}\t'.format(
             train_ang_error, train_nll, valid_ang_error, valid_nll))
 
-    best_valid_err = valid_ang_error
+    best_valid_nll = valid_nll
     for epoch in range(args.total_epochs):
         end = time.time()
         avg_train_loss = train(model, train_loader, loss_fn, optimizer, config)
@@ -118,8 +118,8 @@ if __name__ == '__main__':
         #     print('Freezing the ResNet!')
         #     model.sensor_net.freeze_layers()
 
-        if valid_ang_error < best_valid_err:
-            print('New best validation angular error! Outputting plots and saving model.')
+        if valid_nll < best_valid_nll:
+            print('New best validation nll! Outputting plots and saving model.')
             torch.save({
                 'full_model': model.state_dict(),
                 'sensor_net': model.sensor_net.state_dict(),
@@ -130,7 +130,7 @@ if __name__ == '__main__':
             sigma_filename = '7scenes/sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
             nees_filename = '7scenes/nees_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
 
-            plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], filename=sigma_filename)
+            plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
             plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
 
 

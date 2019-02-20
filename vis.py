@@ -18,24 +18,26 @@ def canvas_to_array(fig):
 
 
 
-def _plot_sigma(x, y, y_mean, y_sigma, label, ax):
+def _plot_sigma(x, y, y_mean, y_sigma, y_sigma_2, label, ax):
     ax.scatter(x, y, label=label, s=0.5, c='black')
-    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$')
-    ax.legend()
+    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$ Total')
+    ax.fill_between(x, y_mean - 3 * y_sigma_2, y_mean + 3 * y_sigma_2, alpha=0.5, c='red', label='$\pm 3\sigma$ Direct')
     return
 
-def plot_errors_with_sigmas(q_gt, q_est, R_est, filename='sigma_plot.pdf'):
+def plot_errors_with_sigmas(q_gt, q_est, R_est, R_direct_est, filename='sigma_plot.pdf'):
     fig, ax = plt.subplots(3, 1, sharex='col', sharey='row')
 
     x_labels = np.arange(0, q_gt.shape[0])
     print(q_est[-25:])
     phi_errs = quat_log_diff(q_est, q_gt).numpy()
     R_est = R_est.numpy()
+    R_direct_est = R_direct_est.numpy()
 
-    _plot_sigma(x_labels, phi_errs[:, 0], 0., np.sqrt(R_est[:,0,0].flatten()), '$\Theta_1$ err', ax[0])
+    _plot_sigma(x_labels, phi_errs[:, 0], 0., np.sqrt(R_est[:,0,0].flatten()),  '$\Theta_1$ err', ax[0])
     _plot_sigma(x_labels, phi_errs[:, 1], 0., np.sqrt(R_est[:,1,1].flatten()), '$\Theta_2$ err', ax[1])
     _plot_sigma(x_labels, phi_errs[:, 2], 0., np.sqrt(R_est[:,2,2].flatten()), '$\Theta_3$ err', ax[2])
 
+    ax[2].legend()
     #image_array = canvas_to_array(fig)
     fig.savefig(filename, bbox_inches='tight')
     plt.close(fig)

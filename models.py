@@ -163,15 +163,17 @@ class QuaternionCNN(torch.nn.Module):
             q_mean = normalize_vecs(set_quat_sign(q_stack).mean(dim=0))
             batch_size = q_mean.shape[0]
             I = torch.diag(q_mean.new_ones(3)).expand(batch_size, 3, 3)
-            Rinv = I.mul(inv_vars.unsqueeze(2).expand(batch_size, 3, 3))
+            Rinv_direct = I.mul(inv_vars.unsqueeze(2).expand(batch_size, 3, 3))
 
             if self.num_hydra_heads > 1:
                 # #Convert into a concatenated tensor: N*M x D (where N=batches, M= heads)
                 q_batch = q_stack.permute(1, 0, 2).contiguous().view(-1, 4)
                 q_batch_mean = q_mean.repeat([1, self.num_hydra_heads]).view(-1, 4)
                 phi_diff = quat_log_diff(q_batch, q_batch_mean).view(-1, self.num_hydra_heads, 3)
-                Rinv = (Rinv.inverse() + batch_sample_covariance(phi_diff)).inverse()  # Outputs N x D - 1 x D - 1
-            return q_mean, Rinv
+                Rinv = (Rinv_direct.inverse() + batch_sample_covariance(phi_diff)).inverse()  # Outputs N x D - 1 x D - 1
+            else:
+                Rinv = Rinv_direct
+            return q_mean, Rinv, Rinv_direct
 
 
 
