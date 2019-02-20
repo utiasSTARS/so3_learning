@@ -109,6 +109,8 @@ class SevenScenesData(Dataset):
         return self.poses.shape[0]
 
     def load_depth(self, filename, loader=default_loader):
+        img = torch.from_numpy(io.imread(filename)[:224, :224])
+
         try:
             img = torch.from_numpy(io.imread(filename)[:224, :224])
         except IOError as e:
