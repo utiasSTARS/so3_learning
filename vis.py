@@ -53,8 +53,8 @@ def plot_abs_with_sigmas(q_gt, q_est, R_est, R_direct_est, filename='sigma_plot.
     fig, ax = plt.subplots(3, 1, sharex='col', sharey='row')
 
     x_labels = np.arange(0, q_gt.shape[0])
-    phi_est = quat_log(q_est)
-    phi_gt = quat_log(q_gt)
+    phi_est = quat_log(q_est).numpy()
+    phi_gt = quat_log(q_gt).numpy()
 
     R_est = R_est.numpy()
     R_direct_est = R_direct_est.numpy()
