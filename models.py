@@ -54,8 +54,8 @@ class QuaternionNet(torch.nn.Module):
           ResidualBlock(self.sensor_net_dim),
           ResidualBlock(self.sensor_net_dim)
         )
-        self.heads = torch.nn.ModuleList([GenericHead(D_in=self.sensor_net_dim, D_out=4) for h in range(self.num_hydra_heads)])
-        self.direct_covar_head = GenericHead(D_in=self.sensor_net_dim, D_out=3)
+        self.heads = torch.nn.ModuleList([GenericHead(D_in=self.sensor_net_dim, D_layers=512, D_out=4, dropout=False) for h in range(self.num_hydra_heads)])
+        self.direct_covar_head = GenericHead(D_in=self.sensor_net_dim, D_layers=512, D_out=3, dropout=False)
             
     def forward(self, sensor_data):
         x = self.sensor_net(sensor_data)
@@ -170,7 +170,7 @@ class QuaternionCNN(torch.nn.Module):
                 q_batch = q_stack.permute(1, 0, 2).contiguous().view(-1, 4)
                 q_batch_mean = q_mean.repeat([1, self.num_hydra_heads]).view(-1, 4)
                 phi_diff = quat_log_diff(q_batch, q_batch_mean).view(-1, self.num_hydra_heads, 3)
-                Rinv = (Rinv.inverse() + batch_sample_covariance(phi_diff)).inverse()  # Outputs N x D - 1 x D - 1
+                Rinv = (batch_sample_covariance(phi_diff)).inverse()  # Outputs N x D - 1 x D - 1
             return q_mean, Rinv
 
 
