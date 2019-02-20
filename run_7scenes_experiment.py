@@ -68,7 +68,7 @@ if __name__ == '__main__':
     transform_jitter = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
-        transforms.ColorJitter(brightness=0.25, contrast=0.25, saturation=0.25, hue=0.25),
+        transforms.RandomAffine(degrees=3, shear=3),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
