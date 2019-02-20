@@ -78,7 +78,8 @@ if __name__ == '__main__':
     ])
 
     transform_depth = transforms.Compose([
-        transforms.Resize(224),
+        transforms.Resize(256),
+        transforms.CenterCrop(224),
         transforms.ToTensor()
     ])
 
