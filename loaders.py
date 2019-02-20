@@ -102,6 +102,7 @@ class SevenScenesData(Dataset):
                 img = self.transform(img)
 
 
+        print(img.shape)
 
         return img, torch.from_numpy(quaternion_from_matrix(rot.T)).float()
 
