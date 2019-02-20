@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     num_hydra_heads=args.num_heads
     model = QuaternionCNN(num_hydra_heads=num_hydra_heads)
-    model.sensor_net.freeze_layers()
+    #model.sensor_net.freeze_layers()
 
     model.to(dtype=tensor_type, device=device)
 
