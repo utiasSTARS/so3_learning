@@ -59,9 +59,9 @@ def plot_abs_with_sigmas(q_gt, q_est, R_est, R_direct_est, filename='sigma_plot.
     R_est = R_est.numpy()
     R_direct_est = R_direct_est.numpy()
 
-    _plot_sigma_with_gt(x_labels, phi_gt[:, 0], phi_est[:, 0], np.sqrt(R_est[:,0,0].flatten()), np.sqrt(R_direct_est[:,0,0].flatten()),  '$\Theta_1$ err', ax[0])
-    _plot_sigma_with_gt(x_labels, phi_gt[:, 1], phi_est[:, 1], np.sqrt(R_est[:,1,1].flatten()), np.sqrt(R_direct_est[:,1,1].flatten()), '$\Theta_2$ err', ax[1])
-    _plot_sigma_with_gt(x_labels, phi_gt[:, 2], phi_est[:, 2], np.sqrt(R_est[:,2,2].flatten()), np.sqrt(R_direct_est[:,2,2].flatten()), '$\Theta_3$ err', ax[2])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 0], phi_gt[:, 0], np.sqrt(R_est[:,0,0].flatten()), np.sqrt(R_direct_est[:,0,0].flatten()),  '$\Theta_1$ err', ax[0])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 1], phi_gt[:, 1], np.sqrt(R_est[:,1,1].flatten()), np.sqrt(R_direct_est[:,1,1].flatten()), '$\Theta_2$ err', ax[1])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 2], phi_gt[:, 2], np.sqrt(R_est[:,2,2].flatten()), np.sqrt(R_direct_est[:,2,2].flatten()), '$\Theta_3$ err', ax[2])
 
     ax[2].legend()
     #image_array = canvas_to_array(fig)
