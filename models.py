@@ -107,7 +107,6 @@ class BasicCNN(torch.nn.Module):
 
     def forward(self, x):
         out = self.cnn0(x)
-        print(out.shape)
         out = out.view(out.shape[0], -1)
         out = self.fc(out)
         return out
