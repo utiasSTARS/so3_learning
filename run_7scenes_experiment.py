@@ -77,10 +77,14 @@ if __name__ == '__main__':
                              std=[0.229, 0.224, 0.225])
     ])
 
-    train_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=True, transform=transform),
+    transform_depth = transforms.Compose([
+        transforms.Resize(224)
+    ])
+
+    train_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=True, transform=transform_depth),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=True, num_workers=12, drop_last=False)
-    valid_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=False, transform=transform, valid_jitter_transform=transform_jitter),
+    valid_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=False, transform=transform_depth, valid_jitter_transform=transform_jitter),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=False, num_workers=12, drop_last=False)
     total_time = 0.

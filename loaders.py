@@ -80,7 +80,7 @@ class SevenScenesData(Dataset):
             frame_idx = np.array(range(len(p_filenames)), dtype=np.int)
             pss = [np.loadtxt(osp.join(seq_dir, 'frame-{:06d}.pose.txt'.format(i))).flatten() for i in frame_idx]
             ps[seq] = np.asarray(pss)
-            c_imgs = [osp.join(seq_dir, 'frame-{:06d}.color.png'.format(i)) for i in frame_idx]
+            c_imgs = [osp.join(seq_dir, 'frame-{:06d}.depth.png'.format(i)) for i in frame_idx]
             self.c_imgs.extend(c_imgs)
         self.poses = np.empty((0,16))
         for seq in seqs:
@@ -98,7 +98,8 @@ class SevenScenesData(Dataset):
             #img = self.valid_jitter_transform(img)
             img = torch.rand((3, 224, 224))
         else:
-            img = self.transform(img)
+            if self.transform:
+                img = self.transform(img)
 
 
 
