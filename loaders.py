@@ -94,6 +94,7 @@ class SevenScenesData(Dataset):
 
 
         if (not self.train) and (self.valid_jitter_transform is not None) and index > self.poses.shape[0] / 2:
+            print(index)
             img = self.valid_jitter_transform(img)
         else:
             img = self.transform(img)
