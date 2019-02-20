@@ -98,7 +98,9 @@ class BasicCNN(torch.nn.Module):
             # StandardBlock(D_in_sensor, self.sensor_net_dim),
             conv_unit(1, 64, kernel_size=3, stride=2, padding=1),
             conv_unit(64, 64, kernel_size=3, stride=2, padding=1),
-            conv_unit(64, 128, kernel_size=3, stride=2, padding=1)
+            conv_unit(64, 128, kernel_size=3, stride=2, padding=1),
+            conv_unit(128, 128, kernel_size=3, stride=2, padding=1),
+            conv_unit(128, 3, kernel_size=3, stride=2, padding=1),
         )
         self.fc = torch.nn.Linear(3*7*7, feature_dim)
 
