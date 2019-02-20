@@ -78,10 +78,10 @@ if __name__ == '__main__':
 
     train_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=True, transform=transform),
                         batch_size=args.batch_size, pin_memory=True,
-                        shuffle=True, num_workers=6, drop_last=False)
+                        shuffle=True, num_workers=16, drop_last=False)
     valid_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=False, transform=transform, valid_jitter_transform=transform_jitter),
                         batch_size=args.batch_size, pin_memory=True,
-                        shuffle=False, num_workers=6, drop_last=False)
+                        shuffle=False, num_workers=16, drop_last=False)
     total_time = 0.
     now = datetime.datetime.now()
     start_datetime_str = '{}-{}-{}-{}-{}-{}'.format(now.year, now.month, now.day, now.hour, now.minute, now.second)
