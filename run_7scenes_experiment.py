@@ -70,8 +70,7 @@ if __name__ == '__main__':
     transform_jitter = transforms.Compose([
         transforms.Resize(256),
         transforms.CenterCrop(224),
-        transforms.RandomAffine(degrees=0,scale=(2, 4)),
-        #transforms.ColorJitter(brightness=0.9)
+        transforms.RandomAffine(degrees=30,shear=10),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
@@ -81,7 +80,7 @@ if __name__ == '__main__':
     train_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=True, transform=transform),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=True, num_workers=12, drop_last=False)
-    valid_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=False, transform=transform, valid_jitter_transform=None),
+    valid_loader = DataLoader(SevenScenesData(args.scene, '/home/valentinp/research/data/7scenes', train=False, transform=transform, valid_jitter_transform=transform_jitter),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=False, num_workers=12, drop_last=False)
     total_time = 0.
