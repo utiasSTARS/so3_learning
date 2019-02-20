@@ -181,8 +181,8 @@ class GenericHead(torch.nn.Module):
         super(GenericHead, self).__init__()
         self.fc0 = torch.nn.Linear(D_in, D_layers)
         self.fc1 = torch.nn.Linear(D_layers, D_out)
-        #self.fc0.apply(init_lin_weights)
-        # self.fc1.apply(init_lin_weights)
+        self.fc0.apply(init_lin_weights)
+        self.fc1.apply(init_lin_weights)
         if dropout:
             self.dropout = torch.nn.Dropout(p=0.5)
         else:
@@ -199,7 +199,7 @@ class GenericHead(torch.nn.Module):
 
 def init_lin_weights(m):
     if type(m) == torch.nn.Linear:
-        stdv = 2. / math.sqrt(m.weight.size(1))
+        stdv = 100. / math.sqrt(m.weight.size(1))
         m.weight.data.uniform_(-stdv, stdv)
 
         #torch.nn.init.kaiming_normal_(m.weight)
