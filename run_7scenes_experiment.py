@@ -108,7 +108,7 @@ if __name__ == '__main__':
         end = time.time()
         avg_train_loss = train(model, train_loader, loss_fn, optimizer, config)
 
-        _, train_ang_error, train_nll = validate(model, train_loader, loss_fn, config)
+        _, train_ang_error, train_nll, predict_history_train = validate(model, train_loader, loss_fn, config, output_history=True)
         avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True)
 
         # Measure elapsed time
@@ -127,10 +127,15 @@ if __name__ == '__main__':
                 'epoch': epoch+1,
             }, '7scenes/best_model_{}_heads_{}_epoch_{}.pt'.format(args.scene,model.num_hydra_heads, epoch+1))
             best_valid_nll = valid_nll
+
             sigma_filename = '7scenes/sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
+            sigma_filename_train = '7scenes/train_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
             nees_filename = '7scenes/nees_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
 
             plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
+            plot_errors_with_sigmas(predict_history_train[0], predict_history_train[1], predict_history_train[2], predict_history_train[3],
+                                    filename=sigma_filename_train)
+
             plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
 
 
