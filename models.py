@@ -171,7 +171,7 @@ class QuaternionCNN(torch.nn.Module):
                 q_batch = q_stack.permute(1, 0, 2).contiguous().view(-1, 4)
                 q_batch_mean = q_mean.repeat([1, self.num_hydra_heads]).view(-1, 4)
                 phi_diff = quat_log_diff(q_batch, q_batch_mean).view(-1, self.num_hydra_heads, 3)
-                Rinv = (batch_sample_covariance(phi_diff)).inverse()  # Outputs N x D - 1 x D - 1
+                Rinv = (Rinv.inverse() + batch_sample_covariance(phi_diff)).inverse()  # Outputs N x D - 1 x D - 1
             return q_mean, Rinv
 
 
