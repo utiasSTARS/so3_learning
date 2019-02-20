@@ -190,7 +190,7 @@ class GenericHead(torch.nn.Module):
             self.dropout = torch.nn.Dropout(p=0.5)
         else:
             self.dropout = None
-        self.nonlin = torch.nn.PReLU()
+        self.nonlin = torch.nn.tanh()
 
     def forward(self, x):
         out = self.fc0(x)
