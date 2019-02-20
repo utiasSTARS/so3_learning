@@ -97,7 +97,7 @@ class SevenScenesData(Dataset):
 
         if (not self.train) and (self.valid_jitter_transform is not None) and index > self.poses.shape[0] / 2:
             img = self.valid_jitter_transform(img)
-            if index == 600:
+            if index == 1600:
                 print('SAVING IMAGE YOU DUFUS')
                 save_image(img, '/7scenes/jittered_image.png')
 
