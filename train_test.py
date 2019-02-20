@@ -8,7 +8,7 @@ from vis import plot_errors_with_sigmas
 import torchvision
 
 
-def validate(model, loader, loss_fn, config, output_history=False):
+def validate(model, loader, loss_fn, config, output_history=False, output_grid=False):
     model.eval()
 
     with torch.no_grad():
@@ -26,7 +26,7 @@ def validate(model, loader, loss_fn, config, output_history=False):
         for batch_idx, (y_obs, q_gt) in enumerate(loader):
             y_obs = y_obs.to(config['device'])
 
-            if batch_idx==100:
+            if batch_idx==100 and output_grid:
                 print('SAVING IMAGE GRID')
                 torchvision.utils.save_image(torchvision.utils.make_grid(y_obs), '7scenes/jittered_image.png')
 

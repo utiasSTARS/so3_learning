@@ -94,7 +94,7 @@ if __name__ == '__main__':
     }
     epoch_time = AverageMeter()
     avg_train_loss, train_ang_error, train_nll = validate(model, train_loader, loss_fn, config)
-    avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True)
+    avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True, output_grid=True)
 
     #Visualize
     sigma_filename = 'simulation/saved_plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, 0)
