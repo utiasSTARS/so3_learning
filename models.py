@@ -149,8 +149,7 @@ class QuaternionCNN(torch.nn.Module):
     def forward(self, sensor_data):
         x = self.sensor_net(sensor_data)
         q_out = [normalize_vecs(head_net(x)) for head_net in self.heads]
-        inv_vars = torch.abs(
-            self.direct_covar_head(x)) + 1e-8  # Add a small non-zero number to avoid divide by zero errors
+        inv_vars = torch.abs(self.direct_covar_head(x)) + 1e-8  # Add a small non-zero number to avoid divide by zero errors
         # If we are training, we just return self_heads*batch_size vectors - otherwise we apply the quat mean
 
         if self.training:
@@ -191,7 +190,6 @@ class GenericHead(torch.nn.Module):
         self.nonlin = torch.nn.PReLU()
 
     def forward(self, x):
-        out = self.nonlin(x)
         out = self.fc0(x)
         out = self.nonlin(out)
         if self.dropout:
