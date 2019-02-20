@@ -28,7 +28,7 @@ def plot_errors_with_sigmas(q_gt, q_est, R_est, filename='sigma_plot.pdf'):
     fig, ax = plt.subplots(3, 1, sharex='col', sharey='row')
 
     x_labels = np.arange(0, q_gt.shape[0])
-    print(q_est[:5])
+    print(q_est[-5:])
     phi_errs = quat_log_diff(q_est, q_gt).numpy()
     R_est = R_est.numpy()
 
