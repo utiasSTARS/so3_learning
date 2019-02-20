@@ -190,7 +190,7 @@ class GenericHead(torch.nn.Module):
             self.dropout = torch.nn.Dropout(p=0.5)
         else:
             self.dropout = None
-        self.nonlin = torch.nn.SELU()
+        self.nonlin = torch.nn.LeakyReLU()
 
     def forward(self, x):
         out = self.fc0(x)
@@ -202,7 +202,7 @@ class GenericHead(torch.nn.Module):
 
 def init_lin_weights(m):
     if type(m) == torch.nn.Linear:
-        stdv = 100. / math.sqrt(m.weight.size(1))
+        stdv = 10. / math.sqrt(m.weight.size(1))
         m.weight.data.uniform_(-stdv, stdv)
 
         #torch.nn.init.kaiming_normal_(m.weight)
