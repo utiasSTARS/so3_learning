@@ -81,7 +81,7 @@ class SevenScenesData(Dataset):
             frame_idx = np.array(range(len(p_filenames)), dtype=np.int)
             pss = [np.loadtxt(osp.join(seq_dir, 'frame-{:06d}.pose.txt'.format(i))).flatten() for i in frame_idx]
             ps[seq] = np.asarray(pss)
-            c_imgs = [osp.join(seq_dir, 'frame-{:06d}.depth.png'.format(i)) for i in frame_idx]
+            c_imgs = [osp.join(seq_dir, 'frame-{:06d}.color.png'.format(i)) for i in frame_idx]
             self.c_imgs.extend(c_imgs)
         self.poses = np.empty((0,16))
         for seq in seqs:
@@ -90,7 +90,7 @@ class SevenScenesData(Dataset):
         print('Loaded {} poses'.format(self.poses.shape[0]))
 
     def __getitem__(self, index):
-        img = self.load_depth(self.c_imgs[index])/1000.
+        img = self.load_image(self.c_imgs[index])
         pose = self.poses[index].reshape((4,4))
         rot = pose[0:3,0:3] #Poses are camera to world, we need world to camera
 

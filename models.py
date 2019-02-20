@@ -139,8 +139,8 @@ class QuaternionCNN(torch.nn.Module):
         self.num_hydra_heads = num_hydra_heads
 
         sensor_feature_dim = 256
-        #BasicCNN(feature_dim=sensor_feature_dim)#
-        self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim) #CustomResNet(feature_dim=sensor_feature_dim)
+        #BasicCNN(feature_dim=sensor_feature_dim) #
+        self.sensor_net = CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(
             [GenericHead(D_in=sensor_feature_dim, D_layers=512, D_out=4, dropout=True, init_large=True) for h in range(self.num_hydra_heads)])
@@ -202,7 +202,7 @@ class GenericHead(torch.nn.Module):
 
 def init_lin_weights(m):
     if type(m) == torch.nn.Linear:
-        stdv = 100. / math.sqrt(m.weight.size(1))
+        stdv = 2. / math.sqrt(m.weight.size(1))
         m.weight.data.uniform_(-stdv, stdv)
 
         #torch.nn.init.kaiming_normal_(m.weight)
