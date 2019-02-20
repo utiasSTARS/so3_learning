@@ -95,8 +95,8 @@ class SevenScenesData(Dataset):
         rot = pose[0:3,0:3] #Poses are camera to world, we need world to camera
 
         if (not self.train) and (self.valid_jitter_transform is not None) and index > self.poses.shape[0] / 2:
-            #img = self.valid_jitter_transform(img)
-            img = torch.rand((1, 224, 224))
+            img = self.valid_jitter_transform(img)
+            #img = torch.rand((1, 224, 224))
         else:
             if self.transform:
                 img = self.transform(img)
