@@ -143,7 +143,7 @@ class QuaternionCNN(torch.nn.Module):
         self.sensor_net = CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(
-            [GenericHead(D_in=sensor_feature_dim, D_layers=512, D_out=4, dropout=False, init_large=True) for h in range(self.num_hydra_heads)])
+            [GenericHead(D_in=sensor_feature_dim, D_layers=512, D_out=4, dropout=True, init_large=True) for h in range(self.num_hydra_heads)])
         self.direct_covar_head = GenericHead(D_in=sensor_feature_dim, D_layers=128, D_out=3, dropout=False)
 
     def forward(self, sensor_data):
@@ -190,7 +190,7 @@ class GenericHead(torch.nn.Module):
             self.dropout = torch.nn.Dropout(p=0.5)
         else:
             self.dropout = None
-        self.nonlin = torch.nn.LeakyReLU()
+        self.nonlin = torch.nn.PReLU()
 
     def forward(self, x):
         out = self.fc0(x)
@@ -202,7 +202,7 @@ class GenericHead(torch.nn.Module):
 
 def init_lin_weights(m):
     if type(m) == torch.nn.Linear:
-        stdv = 10. / math.sqrt(m.weight.size(1))
+        stdv = 100. / math.sqrt(m.weight.size(1))
         m.weight.data.uniform_(-stdv, stdv)
 
         #torch.nn.init.kaiming_normal_(m.weight)
