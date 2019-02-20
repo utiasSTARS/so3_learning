@@ -87,6 +87,7 @@ class SevenScenesData(Dataset):
         for seq in seqs:
             self.poses = np.vstack((self.poses,ps[seq]))
 
+        print('Loaded {} poses'.format(self.poses.shape[0]))
 
     def __getitem__(self, index):
         img = self.load_image(self.c_imgs[index])
