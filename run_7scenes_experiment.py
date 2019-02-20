@@ -44,7 +44,7 @@ if __name__ == '__main__':
 
     #Float or Double?
     tensor_type = torch.float
-    device = torch.device('cuda:0') if args.cuda else torch.device('cpu')
+    device = torch.device('cuda:1') if args.cuda else torch.device('cpu')
 
 
     num_hydra_heads=args.num_heads
