@@ -108,7 +108,7 @@ class SevenScenesData(Dataset):
 
     def load_depth(self, filename, loader=default_loader):
         try:
-            img = torch.from_numpy(io.imread(filename)[:224, :224].astype('float')).unsqueeze(0)
+            img = torch.from_numpy(io.imread(filename)[:224, :224].astype('float')).unsqueeze(0).float()
         except IOError as e:
             print('Could not load image {:s}, IOError: {:s}'.format(filename, e))
             return None
