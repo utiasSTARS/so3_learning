@@ -94,8 +94,8 @@ class SevenScenesData(Dataset):
 
 
         if (not self.train) and (self.valid_jitter_transform is not None) and index > self.poses.shape[0] / 2:
-            print(index)
-            img = self.valid_jitter_transform(img)
+            #img = self.valid_jitter_transform(img)
+            img = torch.rand(img.size())
         else:
             img = self.transform(img)
 
