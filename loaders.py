@@ -7,7 +7,7 @@ import math
 from utils import quaternion_from_matrix
 import os
 import os.path as osp
-from PIL import Image
+from skimage import io
 
 class PlanetariumData(Dataset):
     """Synthetic data"""
@@ -90,7 +90,7 @@ class SevenScenesData(Dataset):
         print('Loaded {} poses'.format(self.poses.shape[0]))
 
     def __getitem__(self, index):
-        img = self.load_depth(self.c_imgs[index])
+        img = self.load_image(self.c_imgs[index])
         pose = self.poses[index].reshape((4,4))
         rot = pose[0:3,0:3] #Poses are camera to world, we need world to camera
 
@@ -114,7 +114,7 @@ class SevenScenesData(Dataset):
 
     def load_depth(self, filename, loader=default_loader):
         try:
-            img = Image.open(filename, mode='L')
+            img = io.imread(filename)[:224, :224]
         except IOError as e:
             print('Could not load image {:s}, IOError: {:s}'.format(filename, e))
             return None
