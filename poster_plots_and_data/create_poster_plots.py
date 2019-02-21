@@ -130,7 +130,7 @@ def create_7scenes_error_plot(scene_checkpoint):
                                           check_point['predict_history'][2],
                                           check_point['predict_history'][3])
 
-    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row', figsize=(8, 5))
+    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row', figsize=(6, 8))
 
     x_labels =np.arange(0, q_gt.shape[0])
     phi_errs = quat_log_diff(q_est, q_gt).numpy()
@@ -145,13 +145,13 @@ def create_7scenes_error_plot(scene_checkpoint):
                 np.sqrt(R_direct_est[:, 1, 1].flatten()), '$\phi_2$ err', ax[1], font_size=font_size)
     _plot_sigma(x_labels, phi_errs[:, 2], 0., np.sqrt(R_est[:, 2, 2].flatten()),
                 np.sqrt(R_direct_est[:, 2, 2].flatten()), '$\phi_3$ err', ax[2], font_size=font_size)
-    ax[2].legend(fontsize=font_size, loc='center')
+    #ax[2].legend(fontsize=font_size, loc='center')
     #image_array = canvas_to_array(fig)
     ax[2].xaxis.set_tick_params(labelsize=font_size-2)
     ax[0].yaxis.set_tick_params(labelsize=font_size-2)
     ax[1].yaxis.set_tick_params(labelsize=font_size-2)
     ax[2].yaxis.set_tick_params(labelsize=font_size-2)
-    #ax[2].set_xlabel('Pose', fontsize=font_size)
+    ax[2].set_xlabel('Pose', fontsize=font_size)
 
     fig_name = scene_checkpoint.split('/')[1].split('.')[0] + '.png'
     fig.savefig(fig_name, bbox_inches='tight', dpi=300)
