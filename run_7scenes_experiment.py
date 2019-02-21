@@ -144,10 +144,10 @@ if __name__ == '__main__':
                                     filename=abs_filename_train)
 
             torch.save({
-                'full_model': model.state_dict(),
-                'sensor_net': model.sensor_net.state_dict(),
-                'direct_covar_head': model.direct_covar_head.state_dict(),
-                'predict_history': predict_history,
+                'full_model': model.cpu().state_dict(),
+                'sensor_net': model.cpu().sensor_net.state_dict(),
+                'direct_covar_head': model.cpu().direct_covar_head.state_dict(),
+                'predict_history': predict_history.cpu(),
                 'epoch': epoch + 1,
             }, '7scenes/best_model_{}_heads_{}_epoch_{}.pt'.format(args.scene, model.num_hydra_heads, epoch + 1))
 

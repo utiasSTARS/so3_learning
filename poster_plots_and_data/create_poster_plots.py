@@ -40,8 +40,8 @@ def create_semisphere(radius, num_pts):
 
 def create_sim_world_plot():
     font_size = 24
-    train_dataset_path = '../simulation/orbital/train_abs.mat'
-    valid_dataset_path = '../simulation/orbital/valid_abs_ood.mat'
+    train_dataset_path = 'sim_data/train_abs.mat'
+    valid_dataset_path = 'sim_data/valid_abs_ood.mat'
 
     train_dataset = sio.loadmat(train_dataset_path)
     valid_dataset = sio.loadmat(valid_dataset_path)
@@ -90,7 +90,7 @@ def _plot_sigma(x, y, y_mean, y_sigma, y_sigma_2, label, ax, font_size=18):
 
 def create_sim_error_plot():
 
-    check_point = torch.load('../simulation/saved_plots/best_model_heads_25_epoch_90.pt')
+    check_point = torch.load('sim_data/best_model_heads_25_epoch_90.pt')
     (q_gt, q_est, R_est, R_direct_est) = (check_point['predict_history'][0],
                                           check_point['predict_history'][1],
                                           check_point['predict_history'][2],
@@ -123,8 +123,49 @@ def create_sim_error_plot():
     fig.savefig('sim_errors.png', bbox_inches='tight', dpi=300)
 
 
+def create_7scenes_error_plot(scene_checkpoint):
+    check_point = torch.load(scene_checkpoint)
+    (q_gt, q_est, R_est, R_direct_est) = (check_point['predict_history'][0],
+                                          check_point['predict_history'][1],
+                                          check_point['predict_history'][2],
+                                          check_point['predict_history'][3])
+
+    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row', figsize=(8, 5))
+
+    x_labels =np.arange(0, q_gt.shape[0])
+    phi_errs = quat_log_diff(q_est, q_gt).numpy()
+    R_est = R_est.numpy()
+    R_direct_est = R_direct_est.numpy()
+    font_size = 18
+
+
+    _plot_sigma(x_labels, phi_errs[:, 0], 0., np.sqrt(R_est[:, 0, 0].flatten()),
+                np.sqrt(R_direct_est[:, 0, 0].flatten()), '$\phi_1$ err', ax[0], font_size=font_size)
+    _plot_sigma(x_labels, phi_errs[:, 1], 0., np.sqrt(R_est[:, 1, 1].flatten()),
+                np.sqrt(R_direct_est[:, 1, 1].flatten()), '$\phi_2$ err', ax[1], font_size=font_size)
+    _plot_sigma(x_labels, phi_errs[:, 2], 0., np.sqrt(R_est[:, 2, 2].flatten()),
+                np.sqrt(R_direct_est[:, 2, 2].flatten()), '$\phi_3$ err', ax[2], font_size=font_size)
+    ax[2].legend(fontsize=font_size, loc='center')
+    #image_array = canvas_to_array(fig)
+    ax[2].xaxis.set_tick_params(labelsize=font_size-2)
+    ax[0].yaxis.set_tick_params(labelsize=font_size-2)
+    ax[1].yaxis.set_tick_params(labelsize=font_size-2)
+    ax[2].yaxis.set_tick_params(labelsize=font_size-2)
+    ax[2].set_xlabel('Pose', fontsize=font_size)
+
+    fig_name = '.'.split(scene_checkpoint)[0] + '.png'
+    fig.savefig(fig_name, bbox_inches='tight', dpi=300)
+
+
 def main():
     #create_sim_world_plot()
-    create_sim_error_plot()
+    #create_sim_error_plot()
+
+    sevenscene_checkpoints = ['7scenes_data/best_model_chess_heads_25_epoch_5.pt',
+                              '7scenes_data/best_model_pumpkin_heads_25_epoch_4.pt',
+                              '7scenes_data/best_model_redkitchen_heads_25_epoch_4.pt']
+    for checkpoint in sevenscene_checkpoints:
+        create_7scenes_error_plot(checkpoint)
+
 if __name__ == '__main__':
     main()
