@@ -12,6 +12,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import scipy.io as sio
+from utils import *
+
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 
@@ -77,18 +79,52 @@ def create_sim_world_plot():
 
     return
 
+
+
+def _plot_sigma(x, y, y_mean, y_sigma, y_sigma_2, label, ax, font_size=18):
+    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$ ($C$)', color='dodgerblue')
+    ax.fill_between(x, y_mean - 3 * y_sigma_2, y_mean + 3 * y_sigma_2, alpha=0.5, color='red', label='$\pm 3\sigma$ ($\Sigma$ only)')
+    ax.scatter(x, y, s=1, c='black')
+    ax.set_ylabel(label, fontsize=font_size)
+    return
+
 def create_sim_error_plot():
-    valid_dataset = sio.loadmat(valid_dataset_path)
-    num_hydra_heads=25
-    model = QuaternionNet(D_in_sensor=valid_dataset_path['y_k_j'].shape[0]*valid_dataset_path['y_k_j'].shape[2], num_hydra_heads=num_hydra_heads)
-    pretrained_model = torch.load('simulation/saved_plots/best_model_heads_1_epoch_74.pt')
-    model.load_state_dict(pretrained_model['model'])
-    avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True)
-    loss_fn = QuatNLLLoss()
+
+    check_point = torch.load('../simulation/saved_plots/best_model_heads_25_epoch_90.pt')
+    (q_gt, q_est, R_est, R_direct_est) = (check_point['predict_history'][0],
+                                          check_point['predict_history'][1],
+                                          check_point['predict_history'][2],
+                                          check_point['predict_history'][3])
+
+    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row', figsize=(8, 5))
+
+    x_labels =np.linspace(-81, 81, q_gt.shape[0])
+    phi_errs = quat_log_diff(q_est, q_gt).numpy()
+    R_est = R_est.numpy()
+    R_direct_est = R_direct_est.numpy()
+    font_size = 18
+
+
+    _plot_sigma(x_labels, phi_errs[:, 0], 0., np.sqrt(R_est[:, 0, 0].flatten()),
+                np.sqrt(R_direct_est[:, 0, 0].flatten()), '$\phi_1$ err', ax[0], font_size=font_size)
+    _plot_sigma(x_labels, phi_errs[:, 1], 0., np.sqrt(R_est[:, 1, 1].flatten()),
+                np.sqrt(R_direct_est[:, 1, 1].flatten()), '$\phi_2$ err', ax[1], font_size=font_size)
+    _plot_sigma(x_labels, phi_errs[:, 2], 0., np.sqrt(R_est[:, 2, 2].flatten()),
+                np.sqrt(R_direct_est[:, 2, 2].flatten()), '$\phi_3$ err', ax[2], font_size=font_size)
+    ax[2].legend(fontsize=font_size, loc='center')
+    #image_array = canvas_to_array(fig)
+    ax[2].xaxis.set_tick_params(labelsize=font_size-2)
+    ax[0].yaxis.set_tick_params(labelsize=font_size-2)
+    ax[1].yaxis.set_tick_params(labelsize=font_size-2)
+    ax[2].yaxis.set_tick_params(labelsize=font_size-2)
+    ax[2].set_xlabel('Semisphere angle ($\deg$)', fontsize=font_size)
+
+
+    fig.savefig('sim_errors.png', bbox_inches='tight', dpi=300)
 
 
 def main():
-    create_sim_world_plot()
-
+    #create_sim_world_plot()
+    create_sim_error_plot()
 if __name__ == '__main__':
     main()
