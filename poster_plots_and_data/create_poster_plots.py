@@ -124,7 +124,7 @@ def create_sim_error_plot():
 
 
 def create_7scenes_error_plot(scene_checkpoint):
-    check_point = torch.load(scene_checkpoint)
+    check_point = torch.load(scene_checkpoint, map_location=lambda storage, loc: storage) #The lambda call esnures
     (q_gt, q_est, R_est, R_direct_est) = (check_point['predict_history'][0],
                                           check_point['predict_history'][1],
                                           check_point['predict_history'][2],
@@ -151,9 +151,9 @@ def create_7scenes_error_plot(scene_checkpoint):
     ax[0].yaxis.set_tick_params(labelsize=font_size-2)
     ax[1].yaxis.set_tick_params(labelsize=font_size-2)
     ax[2].yaxis.set_tick_params(labelsize=font_size-2)
-    ax[2].set_xlabel('Pose', fontsize=font_size)
+    #ax[2].set_xlabel('Pose', fontsize=font_size)
 
-    fig_name = '.'.split(scene_checkpoint)[0] + '.png'
+    fig_name = scene_checkpoint.split('/')[1].split('.')[0] + '.png'
     fig.savefig(fig_name, bbox_inches='tight', dpi=300)
 
 
