@@ -8,14 +8,14 @@ import scipy.io as sio
 
 sim_setup = {
     "num_pts": 36, #Must be a square - i.e., 16,25, etc. (quirk of the way I generate a meshgrid)
-    "num_poses": [15000, 250],  #Both num_poses and traj_names can be lists that correspond to different datasets
-    "traj_names": ['train_abs', 'valid_abs_line'],
+    "num_poses": [15000, 500],  #Both num_poses and traj_names can be lists that correspond to different datasets
+    "traj_names": ['train_abs', 'valid_abs_ood'],
     "absolute_pose": True,
     "pixel_noise_var": [1., 1.],
     "pixel_bias": [0., 0.],
     'semisphere_radius': 25,
     'angle_limits': [((-np.pi/3, np.pi/3), (-np.pi/4, np.pi/4),(-np.pi/4, np.pi/4)),
-        ((-0.45*np.pi, 0.45*np.pi), (-np.pi/4,  np.pi/4),(-np.pi/4, np.pi/4))],
+        ((-0.45*np.pi, 0.45*np.pi), (-np.pi/9,  np.pi/9),(-np.pi/9, np.pi/9))],
     'sequential_x': [False, True],
     'camera_intrinsics': {'w': 500, 'h': 500, 'cu': 250., 'cv': 250., 'f': 500, 'b': 1.0},
     "data_output_folder": "./orbital"

@@ -26,12 +26,12 @@ if __name__ == '__main__':
     #random.seed(72)
 
     parser = argparse.ArgumentParser(description='3D training arguments.')
-    parser.add_argument('--cuda', action='store_true', default=False)
+    parser.add_argument('--cuda', action='store_true', default=True)
     parser.add_argument('--batch_size', type=int, default=16)
     parser.add_argument('--epoch_display', type=int, default=1)
-    parser.add_argument('--lr', type=float, default=5e-4)
-    parser.add_argument('--total_epochs', type=int, default=100)
-    parser.add_argument('--num_heads', type=int, default=1)
+    parser.add_argument('--lr', type=float, default=1e-4)
+    parser.add_argument('--total_epochs', type=int, default=15)
+    parser.add_argument('--num_heads', type=int, default=25)
     parser.add_argument('--scene', type=str, default='chess')
 
     args = parser.parse_args()
@@ -121,12 +121,7 @@ if __name__ == '__main__':
 
         if valid_nll < best_valid_nll:
             print('New best validation nll! Outputting plots and saving model.')
-            torch.save({
-                'full_model': model.state_dict(),
-                'sensor_net': model.sensor_net.state_dict(),
-                'direct_covar_head': model.direct_covar_head.state_dict(),
-                'epoch': epoch+1,
-            }, '7scenes/best_model_{}_heads_{}_epoch_{}.pt'.format(args.scene,model.num_hydra_heads, epoch+1))
+
             best_valid_nll = valid_nll
 
             sigma_filename = '7scenes/sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
@@ -148,6 +143,13 @@ if __name__ == '__main__':
                                     predict_history_train[3],
                                     filename=abs_filename_train)
 
+            torch.save({
+                'full_model': model.state_dict(),
+                'sensor_net': model.sensor_net.state_dict(),
+                'direct_covar_head': model.direct_covar_head.state_dict(),
+                'predict_history': predict_history,
+                'epoch': epoch + 1,
+            }, '7scenes/best_model_{}_heads_{}_epoch_{}.pt'.format(args.scene, model.num_hydra_heads, epoch + 1))
 
 
             plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)

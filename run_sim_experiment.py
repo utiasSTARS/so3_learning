@@ -16,8 +16,7 @@ import time, sys
 import argparse
 import random
 import datetime
-#from train_test import *
-from train_test_quat import *
+from train_test import *
 from loaders import PlanetariumData
 from torch.utils.data import Dataset, DataLoader
 from utils import AverageMeter, compute_normalization
@@ -37,10 +36,10 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     train_dataset_path = 'simulation/orbital/train_abs.mat'
-    valid_dataset_path = 'simulation/orbital/valid_abs_line.mat'
+    valid_dataset_path = 'simulation/orbital/valid_abs_ood.mat'
 
     k_range_train = range(0, 15000)
-    k_range_valid = range(0, 250)
+    k_range_valid = range(0, 500)
 
 
     train_dataset = sio.loadmat(train_dataset_path)
@@ -95,13 +94,13 @@ if __name__ == '__main__':
 
     #Visualize
     sigma_filename = 'simulation/saved_plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, 0)
-    plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], filename=sigma_filename)
+    plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
 
     print('Starting Training \t' 
           'Train (Err/NLL) | Valid (Err/NLL) {:3.3f} / {:3.3f} | {:.3f} / {:3.3f}\t'.format(
             train_ang_error, train_nll, valid_ang_error, valid_nll))
 
-    best_valid_err = valid_ang_error
+    best_valid_nll = valid_nll
     for epoch in range(args.total_epochs):
         end = time.time()
         avg_train_loss = train(model, train_loader, loss_fn, optimizer, config)
@@ -113,21 +112,26 @@ if __name__ == '__main__':
         epoch_time.update(time.time() - end)
 
 
-        if valid_ang_error < best_valid_err:
+        if valid_nll < best_valid_nll:
             print('New best validation angular error! Outputting plots and saving model.')
+
+            best_valid_nll = valid_nll
+            sigma_filename = 'simulation/saved_plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
+            nees_filename = 'simulation/saved_plots/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
+
+            plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
+            plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
+
+            abs_filename = 'simulation/saved_plots/abs_sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch + 1)
+            plot_abs_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3],
+                                    filename=abs_filename)
             torch.save({
                 'full_model': model.state_dict(),
                 'sensor_net': model.sensor_net.state_dict(),
                 'direct_covar_head': model.direct_covar_head.state_dict(),
-                'epoch': epoch+1,
-            }, 'simulation/saved_plots/best_model_heads_{}_epoch_{}.pt'.format(model.num_hydra_heads, epoch+1))
-            best_valid_err = valid_ang_error
-            sigma_filename = 'simulation/saved_plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
-            nees_filename = 'simulation/saved_plots/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
-
-            plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], filename=sigma_filename)
-            plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
-
+                'predict_history': predict_history,
+                'epoch': epoch + 1,
+            }, 'simulation/saved_plots/best_model_heads_{}_epoch_{}.pt'.format(model.num_hydra_heads, epoch + 1))
 
         if epoch%args.epoch_display == 0:     
             print('Epoch {}. Loss (Train/Valid) {:.3E} / {:.3E} \t'
