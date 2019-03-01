@@ -50,3 +50,23 @@ def visualize_data_only(x_train, y_train, x_test, y_test, filename='data.pdf'):
     ax.legend(['Train','Test'], fontsize=18)
     fig.savefig('figs/' + filename, bbox_inches='tight', dpi=300)
 
+def boxplot(data, title='', legend=None, positions=None, save_path=None):
+    plt.figure()
+    plt.clf()
+    plt.rc('text', usetex=True)
+    plt.rc('font', family='serif')
+    xtick_loc = []
+    for bp, p in zip(data,positions):
+        plt.boxplot(bp,vert=True, positions=p)
+        xtick_loc.append(p[int((len(p))/2)])
+#    plt.ylim(10^0,10^2)
+    print(xtick_loc)
+    plt.title(title)
+    plt.grid()
+    plt.xlim(0,p[-1]+1)
+    plt.xticks(xtick_loc, legend)
+#    plt.xticks(rotation=20)
+    plt.yscale('log')
+    
+    if save_path:
+        plt.savefig(save_path, format='pdf', dpi=800, bbox_inches='tight')
