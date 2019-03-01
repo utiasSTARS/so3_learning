@@ -3,7 +3,7 @@ import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from liegroups.torch import SO3
 from lie_algebra import so3_log, so3_exp
-from utils import quat_norm_diff, nll_quat, quat_ang_error
+from utils import quat_norm_diff, nll_quat, quat_ang_error, perturb_quat_for_hydranet
 from vis import plot_errors_with_sigmas
 import torchvision
 
@@ -64,12 +64,15 @@ def validate(model, loader, loss_fn, config, output_history=False, output_grid=F
         return (avg_loss, avg_err, avg_nll)
 
 
-def train(model, loader, loss_fn, optimizer, config):
+def train(model, loader, loss_fn, optimizer, config, q_target_sigma=0.):
 
     #Train!
     model.train()
     total_batches = len(loader)
     total_loss = 0.
+    #Necessary to have the same noise at every epoch
+    torch.manual_seed(42)
+
     for batch_idx, (y_obs, q_gt) in enumerate(loader):
         #Identity matrix as the initialization
         y_obs = y_obs.to(config['device'])
@@ -81,7 +84,7 @@ def train(model, loader, loss_fn, optimizer, config):
 
         else:
             batch_size = q_gt.shape[0]
-            q_gt = q_gt.repeat((model.num_hydra_heads, 1))
+            q_gt = perturb_quat_for_hydranet(q_gt, model.num_hydra_heads, q_target_sigma)
             loss = loss_fn(q_est, q_gt, Rinv).mean()
 
             # #Only select the heads that give the minimum loss

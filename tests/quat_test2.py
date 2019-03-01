@@ -2,6 +2,8 @@ from liegroups.torch import SO3
 import numpy as np
 import torch
 import time, sys, math
+sys.path.insert(0,'..')
+from utils import *
 
 def quaternion_from_matrix(matrix, isprecise=False):
     """Return quaternion from rotation matrix.
@@ -54,10 +56,47 @@ def quaternion_from_matrix(matrix, isprecise=False):
     if q[0] < 0.0:
         np.negative(q, q)
     return q
+#
 
-C = torch.tensor([[ 0.8638,  0.0675, -0.4993],
-         [ 0.0676, -0.9976, -0.0180],
-         [-0.4993, -0.0182, -0.8662]])
-C = SO3.from_matrix(C, normalize=True).as_matrix()
-print(quaternion_from_matrix(C.numpy()))
-print(SO3.from_matrix(C, normalize=True).to_quaternion())
+def allclose(mat1, mat2, tol=1e-6):
+    """Check if all elements of two tensors are close within some tolerance.
+
+    Either tensor can be replaced by a scalar.
+    """
+    return isclose(mat1, mat2, tol).all()
+
+
+def isclose(mat1, mat2, tol=1e-6):
+    """Check element-wise if two tensors are close within some tolerance.
+
+    Either tensor can be replaced by a scalar.
+    """
+    return (mat1 - mat2).abs_().lt(tol)
+
+
+# C = torch.tensor([[ 0.8638,  0.0675, -0.4993],
+#          [ 0.0676, -0.9976, -0.0180],
+#          [-0.4993, -0.0182, -0.8662]])
+# C = SO3.from_matrix(C, normalize=True).as_matrix()
+# print(quaternion_from_matrix(C.numpy()))
+# print(SO3.from_matrix(C, normalize=True).to_quaternion())
+
+phi_mat = 3.14*torch.rand((5000,1))*normalize_vecs(torch.randn((5000,3))) #Ensure max phi.norm() < pi
+q = quat_exp(phi_mat)
+phi_check = quat_log(q)
+if not allclose(phi_mat, phi_check):
+
+    far_ids = (phi_mat - phi_check).abs().gt(1e-6).nonzero()[:,0].unique()
+    print(far_ids.shape[0])
+    print(phi_mat[far_ids])
+    print(phi_mat[far_ids].norm(dim=1))
+
+    #print(phi_mat[(phi_mat - phi_check).abs().gt(1e-6)].view(-1, 3))
+    #print(phi_check[(phi_mat - phi_check).abs().gt(1e-6)].view(-1, 3))
+else:
+    print('All close.')
+
+q = normalize_vecs(torch.randn((5, 4)))
+print(perturb_quat_for_hydranet(q, 2, 0.))
+
+

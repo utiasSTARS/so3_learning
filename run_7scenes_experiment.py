@@ -32,9 +32,11 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--total_epochs', type=int, default=10)
     parser.add_argument('--num_heads', type=int, default=25)
+    parser.add_argument('--q_target_sigma', type=float, default=0.01)
     parser.add_argument('--scene', type=str, default='chess')
 
     args = parser.parse_args()
+    print(args)
 
 
     #loss_fn = SO3FrobNorm()
@@ -107,7 +109,7 @@ if __name__ == '__main__':
     best_valid_nll = valid_nll
     for epoch in range(args.total_epochs):
         end = time.time()
-        avg_train_loss = train(model, train_loader, loss_fn, optimizer, config)
+        avg_train_loss = train(model, train_loader, loss_fn, optimizer, config, q_target_sigma=args.q_target_sigma)
 
         _, train_ang_error, train_nll, predict_history_train = validate(model, train_loader, loss_fn, config, output_history=True)
         avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True)

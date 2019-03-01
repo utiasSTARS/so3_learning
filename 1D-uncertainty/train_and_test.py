@@ -117,6 +117,9 @@ def train_nn_ensemble_bootstrap(x_train, y_train, batch_size, num_models=10,num_
 #    x_test = exp_data.x_test
 #    y_test = exp_data.y_test
 
+    #Necessary to have the same noise at every epoch
+    torch.manual_seed(42)
+
     N = x_train.shape[0]
     model_list = []
 
@@ -183,6 +186,9 @@ def train_hydranet(exp_data, batch_size, num_heads=10, num_epochs=5000, use_cuda
     (x_train, y_train) = np_to_torch(exp_data.x_train, exp_data.y_train)
     x_test = exp_data.x_test
     y_test = exp_data.y_test
+
+    #Necessary to have the same noise at every epoch
+    torch.manual_seed(42)
 
     model = build_hydra(num_heads)
     loss = torch.nn.MSELoss()
@@ -290,6 +296,9 @@ def train_hydranet_sigma(exp_data, batch_size, num_heads=10, num_epochs=5000, us
 
     model = build_hydra(num_heads, num_outputs=1, direct_variance_head=True)
     loss = GaussianHydraLoss()
+
+    #Necessary to have the same noise at every epoch
+    torch.manual_seed(42)
 
     if use_cuda:
         print('Using CUDA...')

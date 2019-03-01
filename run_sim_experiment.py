@@ -33,8 +33,11 @@ if __name__ == '__main__':
     parser.add_argument('--epoch_display', type=int, default=1)
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--total_epochs', type=int, default=100)
-    args = parser.parse_args()
+    parser.add_argument('--q_target_sigma', type=float, default=0.01)
+    parser.add_argument('--num_heads', type=int, default=25)
 
+    args = parser.parse_args()
+    print(args)
     train_dataset_path = 'simulation/orbital/train_abs.mat'
     valid_dataset_path = 'simulation/orbital/valid_abs_ood.mat'
 
@@ -55,8 +58,7 @@ if __name__ == '__main__':
     device = torch.device('cuda:0') if args.cuda else torch.device('cpu')
 
 
-    num_hydra_heads=25
-    model = QuaternionNet(D_in_sensor=train_dataset['y_k_j'].shape[0]*train_dataset['y_k_j'].shape[2], num_hydra_heads=num_hydra_heads)
+    model = QuaternionNet(D_in_sensor=train_dataset['y_k_j'].shape[0]*train_dataset['y_k_j'].shape[2], num_hydra_heads=args.num_heads)
 
     # model = SO3Net(D_in_sensor=train_dataset['y_k_j'].shape[0] * train_dataset['y_k_j'].shape[2],
     #                       num_hydra_heads=num_hydra_heads)
@@ -103,7 +105,7 @@ if __name__ == '__main__':
     best_valid_nll = valid_nll
     for epoch in range(args.total_epochs):
         end = time.time()
-        avg_train_loss = train(model, train_loader, loss_fn, optimizer, config)
+        avg_train_loss = train(model, train_loader, loss_fn, optimizer, config, q_target_sigma=args.q_target_sigma)
 
         _, train_ang_error, train_nll = validate(model, train_loader, loss_fn, config)
         avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True)
