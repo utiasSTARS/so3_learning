@@ -41,9 +41,8 @@ def main():
 
     for sigma_n in target_noise_sigma:
         stats_list = []
-        csv_header = ["Rep","Dropout-NLL", "Dropout-MSE",
+        csv_header = ["Rep",
         "Ensemble-NLL", "Ensemble-MSE",
-        "Sigma-NLL", "Sigma-MSE",
         "HydraNet-NLL", "HydraNet-MSE",
         "HydraNet-Sigma-NLL", "HydraNet-Sigma-MSE"]
     
