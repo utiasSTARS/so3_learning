@@ -30,12 +30,12 @@ def gen_test_data(N=100):
     return (x, y)
 
 def main():
-    num_reps = 5
+    num_reps = 25
     minibatch_samples = 50
     train_samples = 1000
     test_samples =100
     num_epochs = 3000
-    target_noise_sigma = [0, 0.01, 0.05]
+    target_noise_sigma = [0, 0.01, 0.05, 0.25]
 
     use_cuda = False
 
@@ -55,7 +55,7 @@ def main():
             exp_data = ExperimentalData(x_train, y_train, x_test, y_test)
     
     
-            visualize_data_only(x_train, y_train, x_test, y_test, filename='data.pdf')
+#            visualize_data_only(x_train, y_train, x_test, y_test, filename='data.pdf')
             #return
     
     #        print('Starting dropout training')
@@ -79,7 +79,7 @@ def main():
             nll_bs = compute_nll(y_test, y_pred_bs, sigma_pred_bs)
             mse_bs = compute_mse(y_test, y_pred_bs)
             print('Ensemble BS, NLL: {:.3f} | MSE: {:.3f}'.format(nll_bs, mse_bs))
-            visualize(x_train, y_train, x_test, y_test, y_pred_bs, sigma_pred_bs, nll_bs, mse_bs, rep,'noise_experiment/figs/ensemble_{}_noise_{}.png'.format(rep,sigma_n))
+#            visualize(x_train, y_train, x_test, y_test, y_pred_bs, sigma_pred_bs, nll_bs, mse_bs, rep,'noise_experiment/figs/ensemble_{}_noise_{}.png'.format(rep,sigma_n))
             end = time.time()
             print('Completed in {:.3f} seconds.'.format(end - start))
     #
@@ -104,7 +104,7 @@ def main():
             nll_hydranet = compute_nll(y_test, y_pred_hydranet, sigma_pred_hydranet)
             mse_hydranet = compute_mse(y_test, y_pred_hydranet)
             print('HydraNet, NLL: {:.3f} | MSE: {:.3f}'.format(nll_hydranet, mse_hydranet))
-            visualize(x_train, y_train, x_test, y_test, y_pred_hydranet, sigma_pred_hydranet, nll_hydranet, mse_hydranet, rep,'noise_experiment/figs/hydranet_{}_noise_{}.png'.format(rep,sigma_n))
+#            visualize(x_train, y_train, x_test, y_test, y_pred_hydranet, sigma_pred_hydranet, nll_hydranet, mse_hydranet, rep,'noise_experiment/figs/hydranet_{}_noise_{}.png'.format(rep,sigma_n))
             end = time.time()
             print('Completed in {:.3f} seconds.'.format(end - start))
     
@@ -117,7 +117,7 @@ def main():
             mse_hydranetsigma = compute_mse(y_test, y_pred_hydranetsigma)
     
             print('HydraNet-Sigma, NLL: {:.3f} | MSE: {:.3f}'.format(nll_hydranetsigma, mse_hydranetsigma))
-            visualize(x_train, y_train, x_test, y_test, y_pred_hydranetsigma, sigma_pred_hydranetsigma, nll_hydranetsigma, mse_hydranetsigma, rep,'noise_experiment/figs/hydranetsigma_{}_noise_{}.png'.format(rep,sigma_n))
+#            visualize(x_train, y_train, x_test, y_test, y_pred_hydranetsigma, sigma_pred_hydranetsigma, nll_hydranetsigma, mse_hydranetsigma, rep,'noise_experiment/figs/hydranetsigma_{}_noise_{}.png'.format(rep,sigma_n))
             end = time.time()
             print('Completed in {:.3f} seconds.'.format(end - start))
     
