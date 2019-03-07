@@ -41,9 +41,9 @@ def run_sparse_vo(basedir, date, drive, im_range, metrics_filename=None, saved_t
     cv = dataset.calib.K_cam2[1, 2]
     b = dataset.calib.b_rgb
 
-    print('Focal lengths set to: {},{}. (Orig: {}, {})'.format(fu, fv, dataset.calib.K_cam0[0, 0], dataset.calib.K_cam0[1, 1]))
-    print('Principal points set to: {},{}. (Orig: {}, {})'.format(cu, cv, dataset.calib.K_cam0[0, 2], dataset.calib.K_cam0[1, 2]))
-    print('Baseline set to: {}. (Orig: {})'.format(b, dataset.calib.b_gray))
+    print('Focal lengths set to: {},{}.'.format(fu, fv))
+    print('Principal points set to: {},{}.'.format(cu, cv))
+    print('Baseline set to: {}.'.format(b))
     
 
     h, w = np.array(dataset.get_cam2(0).convert('L')).shape
@@ -109,10 +109,11 @@ def main():
     #export_dir = '/media/raid5-array/experiments/SO3-learning/stereo_vo_results/baseline_distorted'
 
     saved_tracks_dir = None
-    kitti_basedir = '/media/datasets/KITTI/raw/'
-    export_dir = '/media/datasets/KITTI/trajectory_metrics/'
+    #kitti_basedir = '/media/datasets/KITTI/raw/'
+    #export_dir = '/media/datasets/KITTI/trajectory_metrics/'
 
-
+    kitti_basedir = '/Users/valentinp/research/data/kitti/'
+    export_dir = './'
     seqs = {'00': {'date': '2011_10_03',
                    'drive': '0027',
                    'frames': range(0, 4541)},
@@ -130,7 +131,7 @@ def main():
                    'frames': range(0, 2761)},
             '06': {'date': '2011_09_30',
                    'drive': '0020',
-                   'frames': range(0, 1101)},
+                   'frames': range(0, 110)},
             '07': {'date': '2011_09_30',
                    'drive': '0027',
                    'frames': range(0, 1101)},
