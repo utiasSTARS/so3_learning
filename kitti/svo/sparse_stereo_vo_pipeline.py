@@ -98,11 +98,12 @@ class SparseStereoPipeline(object):
         start = time.time()
         disp_freq = 100
 
+        #Using RGB images
         #Track features in real time
         if self.params.saved_stereo_tracks_file is None:
-            for pose_i, impair in enumerate(dataset.gray):
-                img_l = np.array(impair[0])
-                img_r = np.array(impair[1])
+            for pose_i, impair in enumerate(dataset.rgb):
+                img_l = np.array(impair[0].convert('L'))
+                img_r = np.array(impair[1].convert('L'))
 
                 self.push_back(img_l, img_r)
 

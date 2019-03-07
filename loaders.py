@@ -143,7 +143,6 @@ class KITTIVOData(Dataset):
         """
         self.pickle_file = kitti_data_pickle_file
         self.transform_img = transform_img
-        self.img_type == 'rgb'
         self.load_kitti_data(run_type)  # Loads self.image_quad_paths and self.labels
 
     def load_kitti_data(self, run_type):
@@ -152,14 +151,14 @@ class KITTIVOData(Dataset):
 
         if run_type == 'train':
 
-            self.image_quad_paths = kitti_data.train_img_paths_rgb if self.img_type == 'rgb' else kitti_data.train_img_paths_mono
+            self.image_quad_paths = kitti_data.train_img_paths_rgb
             self.T_corr = kitti_data.train_T_corr
             self.T_gt = kitti_data.train_T_gt
             self.T_est = kitti_data.train_T_est
             self.sequences = kitti_data.train_sequences
 
         elif run_type == 'validate' or run_type == 'valid':
-            self.image_quad_paths = kitti_data.val_img_paths_rgb if self.img_type == 'rgb' else kitti_data.val_img_paths_mono
+            self.image_quad_paths = kitti_data.val_img_paths_rgb
             self.T_corr = kitti_data.val_T_corr
             self.T_gt = kitti_data.val_T_gt
             self.T_est = kitti_data.val_T_est
@@ -167,7 +166,7 @@ class KITTIVOData(Dataset):
             self.tm_mat_path = kitti_data.val_tm_mat_path
 
         elif run_type == 'test':
-            self.image_quad_paths = kitti_data.test_img_paths_rgb if self.img_type == 'rgb' else kitti_data.test_img_paths_mono
+            self.image_quad_paths = kitti_data.test_img_paths_rgb
             self.T_corr = kitti_data.test_T_corr
             self.T_gt = kitti_data.test_T_gt
             self.T_est = kitti_data.test_T_est

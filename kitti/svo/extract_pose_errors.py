@@ -35,23 +35,23 @@ def run_sparse_vo(basedir, date, drive, im_range, metrics_filename=None, saved_t
 
     #Setup KITTI Camera parameters
 
-    fu = dataset.calib.K_cam0[0, 0]
-    fv = dataset.calib.K_cam0[1, 1]
-    cu = dataset.calib.K_cam0[0, 2]
-    cv = dataset.calib.K_cam0[1, 2]
-    b = dataset.calib.b_gray
+    fu = dataset.calib.K_cam2[0, 0]
+    fv = dataset.calib.K_cam2[1, 1]
+    cu = dataset.calib.K_cam2[0, 2]
+    cv = dataset.calib.K_cam2[1, 2]
+    b = dataset.calib.b_rgb
 
     print('Focal lengths set to: {},{}. (Orig: {}, {})'.format(fu, fv, dataset.calib.K_cam0[0, 0], dataset.calib.K_cam0[1, 1]))
     print('Principal points set to: {},{}. (Orig: {}, {})'.format(cu, cv, dataset.calib.K_cam0[0, 2], dataset.calib.K_cam0[1, 2]))
     print('Baseline set to: {}. (Orig: {})'.format(b, dataset.calib.b_gray))
     
 
-    h, w = np.array(dataset.get_cam0(0)).shape
+    h, w = np.array(dataset.get_cam2(0).convert('L')).shape
 
-    kitti_camera0 = StereoCamera(cu, cv, fu, fv, b, w, h)
+    kitti_camera2 = StereoCamera(cu, cv, fu, fv, b, w, h)
 
     #Load initial pose and ground truth
-    T_cam_imu = SE3.from_matrix(dataset.calib.T_cam0_imu)
+    T_cam_imu = SE3.from_matrix(dataset.calib.T_cam2_imu)
     T_cam_imu.normalize()
     T_w_0 = SE3.from_matrix(dataset.oxts[0].T_w_imu).dot(T_cam_imu.inv())
     T_w_0.normalize()
@@ -60,7 +60,7 @@ def run_sparse_vo(basedir, date, drive, im_range, metrics_filename=None, saved_t
 
     #Initialize pipeline
     pipeline_params = SparseStereoPipelineParams()
-    pipeline_params.camera = kitti_camera0
+    pipeline_params.camera = kitti_camera2
     pipeline_params.first_pose = T_w_0
     pipeline_params.obs_stiffness = obs_stiffness
     pipeline_params.optimize_trans_only = False
@@ -145,7 +145,8 @@ def main():
                    'frames': range(0, 1201)}}
 
 
-    compute_seqs = ['00', '01', '02', '04', '05', '06', '07', '08', '09', '10']
+    #compute_seqs = ['00', '01', '02', '04', '05', '06', '07', '08', '09', '10']
+    compute_seqs = ['06']
 
     for seq in compute_seqs:
 
