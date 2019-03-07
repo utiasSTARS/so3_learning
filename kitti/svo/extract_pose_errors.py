@@ -104,16 +104,16 @@ def main():
 
     #Set to none to extract new tracks
 
-    kitti_basedir = '/media/m2-drive/datasets/KITTI/raw'
+    #kitti_basedir = '/media/m2-drive/datasets/KITTI/raw'
     #saved_tracks_dir = '/media/raid5-array/datasets/KITTI/extracted_sparse_tracks/'
     #export_dir = '/media/raid5-array/experiments/SO3-learning/stereo_vo_results/baseline_distorted'
 
     saved_tracks_dir = None
-    #kitti_basedir = '/media/datasets/KITTI/raw/'
-    #export_dir = '/media/datasets/KITTI/trajectory_metrics/'
+    kitti_basedir = '/media/datasets/KITTI/raw/'
+    export_dir = '/media/datasets/KITTI/trajectory_metrics/'
 
     #kitti_basedir = '/Users/valentinp/research/data/kitti/'
-    export_dir = './'
+    #export_dir = './'
     seqs = {'00': {'date': '2011_10_03',
                    'drive': '0027',
                    'frames': range(0, 4541)},
