@@ -131,7 +131,7 @@ def main():
                    'frames': range(0, 2761)},
             '06': {'date': '2011_09_30',
                    'drive': '0020',
-                   'frames': range(0, 110)},
+                   'frames': range(0, 1101)},
             '07': {'date': '2011_09_30',
                    'drive': '0027',
                    'frames': range(0, 1101)},
@@ -146,8 +146,8 @@ def main():
                    'frames': range(0, 1201)}}
 
 
-    #compute_seqs = ['00', '01', '02', '04', '05', '06', '07', '08', '09', '10']
-    compute_seqs = ['06']
+    compute_seqs = ['00', '01', '02', '04', '05', '06', '07', '08', '09', '10']
+    #compute_seqs = ['06']
 
     for seq in compute_seqs:
 
