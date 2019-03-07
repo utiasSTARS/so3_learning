@@ -33,7 +33,6 @@ if __name__ == '__main__':
     parser.add_argument('--total_epochs', type=int, default=15)
     parser.add_argument('--num_heads', type=int, default=25)
     parser.add_argument('--q_target_sigma', type=float, default=0.01)
-    parser.add_argument('--scene', type=str, default='chess')
 
     args = parser.parse_args()
     print(args)
@@ -119,24 +118,15 @@ if __name__ == '__main__':
 
             best_valid_nll = valid_nll
 
-            sigma_filename = '7scenes/sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
-            sigma_filename_train = '7scenes/train_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
-            nees_filename = '7scenes/nees_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
+            sigma_filename = 'kitti/plots/sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
+            nees_filename = 'kitti/plots/nees_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
 
             plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
-            plot_errors_with_sigmas(predict_history_train[0], predict_history_train[1], predict_history_train[2], predict_history_train[3],
-                                    filename=sigma_filename_train)
 
-            abs_filename = '7scenes/abs_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads,
+            abs_filename = 'kitti/plots/abs_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads,
                                                                                   epoch + 1)
-            abs_filename_train = '7scenes/train_abs_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene,
-                                                                                              model.num_hydra_heads,
-                                                                                              epoch + 1)
             plot_abs_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3],
                                     filename=abs_filename)
-            plot_abs_with_sigmas(predict_history_train[0], predict_history_train[1], predict_history_train[2],
-                                    predict_history_train[3],
-                                    filename=abs_filename_train)
 
             torch.save({
                 'full_model': model.state_dict(),
