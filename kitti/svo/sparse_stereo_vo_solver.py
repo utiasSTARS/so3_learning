@@ -2,7 +2,7 @@ import numpy as np
 
 from liegroups import SE3
 from pyslam.sensors import StereoCamera
-from pyslam.residuals import PoseResidual, ReprojectionMotionOnlyBatchResidual, ReprojectionTranslationOnlyBatchResidual
+from pyslam.residuals import PoseResidual, ReprojectionMotionOnlyBatchResidual
 from pyslam.problem import Options, Problem
 from collections import OrderedDict
 from pyslam.losses import L2Loss, HuberLoss, TukeyLoss, TDistributionLoss
@@ -61,55 +61,55 @@ class SparseStereoVOSolver(object):
         self.problem_solver.compute_covariance()
         return self.params_final[self.solution_key], self.problem_solver._covariance_matrix
 
-
-    
-class SparseStereoVOSolverTranslationOnly(object):
-    def __init__(self, camera, obs_stiffness):
-        self.camera = camera
-        self.obs_stiffness = obs_stiffness
-
-        # Options
-        options = Options()
-        options.allow_nondecreasing_steps = False
-        options.max_nondecreasing_steps = 3
-        #options.linesearch_max_iters = 0
-
-        self.problem_solver = Problem(options)
-        self.solution_key = 't_12_2'
-        self.params_initial = {self.solution_key: np.zeros(3)}
-
-        self.loss = L2Loss()
-        # self.loss = HuberLoss(5.)
-        # self.loss = TukeyLoss(5.)
-        # self.loss = HuberLoss(0.1)
-        # self.loss = TDistributionLoss(5.0)  # Kerl et al. ICRA 2013
-        """Loss function"""
-
-
-    def set_obs(self, stereo_obs_1, stereo_obs_2, C_21):
-        self.stereo_obs_1 = stereo_obs_1
-        self.stereo_obs_2 = stereo_obs_2
-        self.C_21 = C_21
-
-    def set_initial_guess(self, t_12_2):
-        self.params_initial = {self.solution_key: t_12_2}
-
-    def add_costs(self):
-        cost = ReprojectionTranslationOnlyBatchResidual(self.camera, self.stereo_obs_1, self.stereo_obs_2,self.C_21, self.obs_stiffness)
-        self.problem_solver.add_residual_block(cost, [self.solution_key], loss=self.loss)
-
-        # Non-Batch solution
-        # for i in range(len(self.stereo_obs_1)):
-        #     o_1 = self.stereo_obs_1[i]
-        #     o_2 = self.stereo_obs_2[i]
-        #     cost = ReprojectionResidualFrameToFrame(self.camera, o_1, o_2, self.obs_stiffness)
-        #     self.problem_solver.add_residual_block(cost, [self.solution_key])
-
-    def solve(self):
-        
-        self.add_costs()
-        self.problem_solver.initialize_params(self.params_initial)
-        self.params_final = self.problem_solver.solve()
-        #print(self.problem_solver.summary(format='brief'))
-        
-        return self.params_final[self.solution_key]
+#
+#
+# class SparseStereoVOSolverTranslationOnly(object):
+#     def __init__(self, camera, obs_stiffness):
+#         self.camera = camera
+#         self.obs_stiffness = obs_stiffness
+#
+#         # Options
+#         options = Options()
+#         options.allow_nondecreasing_steps = False
+#         options.max_nondecreasing_steps = 3
+#         #options.linesearch_max_iters = 0
+#
+#         self.problem_solver = Problem(options)
+#         self.solution_key = 't_12_2'
+#         self.params_initial = {self.solution_key: np.zeros(3)}
+#
+#         self.loss = L2Loss()
+#         # self.loss = HuberLoss(5.)
+#         # self.loss = TukeyLoss(5.)
+#         # self.loss = HuberLoss(0.1)
+#         # self.loss = TDistributionLoss(5.0)  # Kerl et al. ICRA 2013
+#         """Loss function"""
+#
+#
+#     def set_obs(self, stereo_obs_1, stereo_obs_2, C_21):
+#         self.stereo_obs_1 = stereo_obs_1
+#         self.stereo_obs_2 = stereo_obs_2
+#         self.C_21 = C_21
+#
+#     def set_initial_guess(self, t_12_2):
+#         self.params_initial = {self.solution_key: t_12_2}
+#
+#     def add_costs(self):
+#         cost = ReprojectionTranslationOnlyBatchResidual(self.camera, self.stereo_obs_1, self.stereo_obs_2,self.C_21, self.obs_stiffness)
+#         self.problem_solver.add_residual_block(cost, [self.solution_key], loss=self.loss)
+#
+#         # Non-Batch solution
+#         # for i in range(len(self.stereo_obs_1)):
+#         #     o_1 = self.stereo_obs_1[i]
+#         #     o_2 = self.stereo_obs_2[i]
+#         #     cost = ReprojectionResidualFrameToFrame(self.camera, o_1, o_2, self.obs_stiffness)
+#         #     self.problem_solver.add_residual_block(cost, [self.solution_key])
+#
+#     def solve(self):
+#
+#         self.add_costs()
+#         self.problem_solver.initialize_params(self.params_initial)
+#         self.params_final = self.problem_solver.solve()
+#         #print(self.problem_solver.summary(format='brief'))
+#
+#         return self.params_final[self.solution_key]
