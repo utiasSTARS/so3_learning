@@ -7,7 +7,6 @@ import math
 from utils import quaternion_from_matrix
 import os
 import os.path as osp
-from skimage import io
 from PIL import Image
 import pickle
 
@@ -107,17 +106,6 @@ class SevenScenesData(Dataset):
 
     def __len__(self):
         return self.poses.shape[0]
-
-    def load_depth(self, filename, loader=default_loader):
-        try:
-            img = torch.from_numpy(io.imread(filename)[:224, :224].astype('float')).unsqueeze(0).float()
-        except IOError as e:
-            print('Could not load image {:s}, IOError: {:s}'.format(filename, e))
-            return None
-        except:
-            print('Could not load image {:s}, unexpected error'.format(filename))
-            return None
-        return img
 
     def load_image(self, filename, loader=default_loader):
         try:
