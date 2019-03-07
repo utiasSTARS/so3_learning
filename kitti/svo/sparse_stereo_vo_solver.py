@@ -58,7 +58,8 @@ class SparseStereoVOSolver(object):
         self.add_costs()
         self.problem_solver.initialize_params(self.params_initial)
         self.params_final = self.problem_solver.solve()
-        return self.params_final[self.solution_key]
+        self.problem_solver.compute_covariance()
+        return self.params_final[self.solution_key], self.problem_solver._covariance_matrix
 
 
     

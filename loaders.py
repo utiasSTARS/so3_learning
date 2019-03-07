@@ -8,6 +8,8 @@ from utils import quaternion_from_matrix
 import os
 import os.path as osp
 from skimage import io
+from PIL import Image
+import pickle
 
 class PlanetariumData(Dataset):
     """Synthetic data"""
@@ -127,3 +129,69 @@ class SevenScenesData(Dataset):
             print('Could not load image {:s}, unexpected error'.format(filename))
             return None
         return img
+
+
+class KITTIVOData(Dataset):
+    """KITTI Odometry Benchmark dataset."""
+
+    def __init__(self, kitti_data_pickle_file, transform_img=None, run_type='train'):
+        """
+        Args:
+            kitti_data_pickle_file (string): Path to saved kitti dataset pickle.
+            run_type (string): 'train', 'validate', or 'test'.
+            transform_img (callable, optional): Optional transform to be applied to images.
+        """
+        self.pickle_file = kitti_data_pickle_file
+        self.transform_img = transform_img
+        self.img_type == 'rgb'
+        self.load_kitti_data(run_type)  # Loads self.image_quad_paths and self.labels
+
+    def load_kitti_data(self, run_type):
+        with open(self.pickle_file, 'rb') as handle:
+            kitti_data = pickle.load(handle)
+
+        if run_type == 'train':
+
+            self.image_quad_paths = kitti_data.train_img_paths_rgb if self.img_type == 'rgb' else kitti_data.train_img_paths_mono
+            self.T_corr = kitti_data.train_T_corr
+            self.T_gt = kitti_data.train_T_gt
+            self.T_est = kitti_data.train_T_est
+            self.sequences = kitti_data.train_sequences
+
+        elif run_type == 'validate' or run_type == 'valid':
+            self.image_quad_paths = kitti_data.val_img_paths_rgb if self.img_type == 'rgb' else kitti_data.val_img_paths_mono
+            self.T_corr = kitti_data.val_T_corr
+            self.T_gt = kitti_data.val_T_gt
+            self.T_est = kitti_data.val_T_est
+            self.sequence = kitti_data.val_sequence
+            self.tm_mat_path = kitti_data.val_tm_mat_path
+
+        elif run_type == 'test':
+            self.image_quad_paths = kitti_data.test_img_paths_rgb if self.img_type == 'rgb' else kitti_data.test_img_paths_mono
+            self.T_corr = kitti_data.test_T_corr
+            self.T_gt = kitti_data.test_T_gt
+            self.T_est = kitti_data.test_T_est
+            self.sequence = kitti_data.test_sequence
+            self.tm_mat_path = kitti_data.test_tm_mat_path
+
+        else:
+            raise ValueError('run_type must be set to `train`, `validate` or `test`. ')
+
+    def __len__(self):
+        return len(self.image_quad_paths)
+
+    def read_image(self, img_path):
+        img = Image.open(img_path).convert('RGB')
+        return img
+
+    def __getitem__(self, idx):
+        # Get all four images in the two pairs
+        image_quad_paths = self.image_quad_paths[idx]
+        target_rot = torch.from_numpy(self.T_gt[idx].rot.as_matrix()).float()
+        # Note: The camera y axis is facing down, hence 'yaw' of the vehicle, is 'pitch' of the camera
+        if self.transform_img:
+            image_quad = [self.transform_img(self.read_image(image_quad_paths[i])) for i in range(4)]
+        else:
+            image_quad = [self.read_image(image_quad_paths[i]) for i in range(4)]
+
+        return image_quad, target_rot

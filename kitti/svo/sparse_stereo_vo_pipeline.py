@@ -44,6 +44,8 @@ class SparseStereoPipeline(object):
         """Camera model"""
         self.T_w_c = [pipeline_params.first_pose]
         """List of camera poses"""
+        self.Sigma = []
+        """List of relative pose uncertainty"""
         self.params = pipeline_params
         """Pipeline parameters"""
 
@@ -94,13 +96,13 @@ class SparseStereoPipeline(object):
     def compute_vo(self, dataset):
 
         start = time.time()
-        disp_freq = 200 
+        disp_freq = 100
 
         #Track features in real time
         if self.params.saved_stereo_tracks_file is None:
             for pose_i, impair in enumerate(dataset.gray):
-                img_l = impair[0]
-                img_r = impair[1]
+                img_l = np.array(impair[0])
+                img_r = np.array(impair[1])
 
                 self.push_back(img_l, img_r)
 
@@ -151,10 +153,10 @@ class SparseStereoPipeline(object):
         else:
             optimizer.set_obs(stereo_obs_1_inliers, stereo_obs_2_inliers)
 
-        T_21 = optimizer.solve()
-
+        T_21, Sigma_21 = optimizer.solve()
         T_w_c = self.T_w_c[-1]
         self.T_w_c.append(T_w_c.dot(T_21.inv()))
+        self.Sigma.append(Sigma_21)
 
         
 

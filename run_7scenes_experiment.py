@@ -131,8 +131,8 @@ if __name__ == '__main__':
             nees_filename = '7scenes/nees_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads, epoch+1)
 
             plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
-            plot_errors_with_sigmas(predict_history_train[0], predict_history_train[1], predict_history_train[2], predict_history_train[3],
-                                    filename=sigma_filename_train)
+            # plot_errors_with_sigmas(predict_history_train[0], predict_history_train[1], predict_history_train[2], predict_history_train[3],
+            #                         filename=sigma_filename_train)
 
             abs_filename = '7scenes/abs_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, model.num_hydra_heads,
                                                                                   epoch + 1)
@@ -141,9 +141,9 @@ if __name__ == '__main__':
                                                                                               epoch + 1)
             plot_abs_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3],
                                     filename=abs_filename)
-            plot_abs_with_sigmas(predict_history_train[0], predict_history_train[1], predict_history_train[2],
-                                    predict_history_train[3],
-                                    filename=abs_filename_train)
+            # plot_abs_with_sigmas(predict_history_train[0], predict_history_train[1], predict_history_train[2],
+            #                         predict_history_train[3],
+            #                         filename=abs_filename_train)
 
             torch.save({
                 'full_model': model.state_dict(),
@@ -154,7 +154,7 @@ if __name__ == '__main__':
             }, '7scenes/best_model_{}_heads_{}_epoch_{}.pt'.format(args.scene, model.num_hydra_heads, epoch + 1))
 
 
-            plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
+            #plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
 
 
         if epoch%args.epoch_display == 0:
