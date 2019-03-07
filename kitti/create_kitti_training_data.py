@@ -150,23 +150,20 @@ def process_ground_truth(trial_strs, tm_path, kitti_path, pose_deltas, eval_type
 
 
         image_paths_rgb = get_image_paths(data_path, trial_str, pose_deltas, 'rgb', eval_type, add_reverse)
-        image_paths_mono = get_image_paths(data_path, trial_str, pose_deltas, 'mono', eval_type, add_reverse)
-    
+
         (T_corr, T_gt, T_est) = compute_vo_pose_errors(tm, pose_deltas, eval_type, add_reverse)
 
         if not len(image_paths_rgb) == len(T_corr):
             raise AssertionError('Number of image paths and number of poses differ. Image quads: {}. Poses: {}.'.format(len(image_paths_rgb), len(T_corr)))
 
         image_quad_paths_rgb.extend(image_paths_rgb)
-        image_quad_paths_mono.extend(image_paths_mono)
-        
         poses_correction.extend(T_corr)
         poses_gt.extend(T_gt)
         poses_est.extend(T_est)
 
         tm_mat_files.append(tm_mat_file)
 
-    return (image_quad_paths_rgb, image_quad_paths_mono, poses_correction, poses_gt, poses_est, tm_mat_files)
+    return (image_quad_paths_rgb, poses_correction, poses_gt, poses_est, tm_mat_files)
 
 
 
@@ -211,13 +208,13 @@ def main():
 
         print('Processing.. Test: {}. Val: {}. Train: {}.'.format(test_trial, val_trial, train_trials))
 
-        (train_img_paths_rgb, train_img_paths_mono, train_corr, train_gt, train_est, train_tm_mat_files) = process_ground_truth(train_trials, tm_path, kitti_path, train_pose_deltas, 'train', add_reverse)
+        (train_img_paths_rgb, train_corr, train_gt, train_est, train_tm_mat_files) = process_ground_truth(train_trials, tm_path, kitti_path, train_pose_deltas, 'train', add_reverse)
         print('Processed {} training image quads.'.format(len(train_corr)))
 
-        (val_img_paths_rgb, val_img_paths_mono, val_corr, val_gt, val_est, val_tm_mat_file) = process_ground_truth([val_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
+        (val_img_paths_rgb, val_corr, val_gt, val_est, val_tm_mat_file) = process_ground_truth([val_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
         print('Processed {} validation image quads.'.format(len(val_corr)))
 
-        (test_img_paths_rgb, test_img_paths_mono, test_corr, test_gt, test_est, test_tm_mat_file) = process_ground_truth([test_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
+        (test_img_paths_rgb, test_corr, test_gt, test_est, test_tm_mat_file) = process_ground_truth([test_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
         print('Processed {} test image quads.'.format(len(test_corr)))
 
         #Save the data!
@@ -228,17 +225,14 @@ def main():
 
         kitti_data.train_sequences = train_trials
         kitti_data.train_img_paths_rgb = train_img_paths_rgb
-        kitti_data.train_img_paths_mono = train_img_paths_mono
         kitti_data.train_T_corr = train_corr
         kitti_data.train_T_gt = train_gt
         kitti_data.train_T_est = train_est
         kitti_data.train_tm_mat_paths = train_tm_mat_files
-        kitti_data.train_se3_precision = compute_se3_precision(train_corr)
 
         kitti_data.val_sequence = val_trial
         kitti_data.val_tm_mat_path = val_tm_mat_file[0] #Path to mat file containing the the trajectory (loaded by TrajectoryMetrics)
         kitti_data.val_img_paths_rgb = val_img_paths_rgb
-        kitti_data.val_img_paths_mono = val_img_paths_mono
         kitti_data.val_T_corr = val_corr
         kitti_data.val_T_gt = val_gt
         kitti_data.val_T_est = val_est
@@ -246,12 +240,11 @@ def main():
         kitti_data.test_sequence = test_trial
         kitti_data.test_tm_mat_path = test_tm_mat_file[0]
         kitti_data.test_img_paths_rgb = test_img_paths_rgb
-        kitti_data.test_img_paths_mono = test_img_paths_mono
         kitti_data.test_T_corr = test_corr
         kitti_data.test_T_gt = test_gt
         kitti_data.test_T_est = test_est
 
-        data_filename = os.path.join(data_path, 'kitti_pose_error_deltap_{}_test_seq_{}_reverse_{}.pickle'.format(test_pose_delta, test_trial, add_reverse))
+        data_filename = os.path.join(data_path, 'kitti_data_sequence_{}.pickle'.format(test_trial))
         print('Saving to {} ....'.format(data_filename))
 
         with open(data_filename, 'wb') as f:
