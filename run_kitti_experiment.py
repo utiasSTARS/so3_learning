@@ -16,7 +16,6 @@ import argparse
 import datetime
 from train_test import *
 from loaders import KITTIVODataset
-
 from torch.utils.data import Dataset, DataLoader
 from vis import *
 import torchvision.transforms as transforms

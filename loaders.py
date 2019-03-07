@@ -9,7 +9,6 @@ import os
 import os.path as osp
 from PIL import Image
 import pickle
-from kitti.utils import KITTIData
 
 
 class PlanetariumData(Dataset):
