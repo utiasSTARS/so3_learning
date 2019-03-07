@@ -182,7 +182,7 @@ class QuaternionCNN(torch.nn.Module):
 
 class QuaternionDualCNN(torch.nn.Module):
     def __init__(self, num_hydra_heads=25):
-        super(QuaternionCNN, self).__init__()
+        super(QuaternionDualCNN, self).__init__()
         self.num_hydra_heads = num_hydra_heads
 
         sensor_feature_dim = 256
