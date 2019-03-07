@@ -104,7 +104,7 @@ def main():
 
     #Set to none to extract new tracks
 
-    kitti_basedir = '/media/m2-drive/datasets/KITTI/'
+    kitti_basedir = '/media/m2-drive/datasets/KITTI/raw'
     #saved_tracks_dir = '/media/raid5-array/datasets/KITTI/extracted_sparse_tracks/'
     #export_dir = '/media/raid5-array/experiments/SO3-learning/stereo_vo_results/baseline_distorted'
 
