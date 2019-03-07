@@ -133,19 +133,20 @@ def main():
     #custom_training = [['00','06',['07','08','09','10']]]
 
 
-    train_pose_deltas = [1,2,3] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
-    test_pose_delta = 2
+    train_pose_deltas = [1] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
+    test_pose_delta = 1
     add_reverse = False #Add reverse transformations
 
     #Where is the KITTI data?
-    kitti_path = '/media/m2-drive/datasets/KITTI/raw'
+    kitti_path = '/media/datasets/KITTI/raw'
 
     #Where are the baseline TrajectoryMetrics mat files stored?
-    tm_path = '/media/raid5-array/experiments/Deep-PC/stereo_vo_results/baseline'
+    tm_path = '/media/datasets/KITTI/trajectory_metrics'
 
     #Where should we output the training files?
     #data_path = '/media/raid5-array/experiments/Deep-PC/training_pose_errors_pytorch'
-    data_path = '/media/raid5-array/experiments/dpc-hydranet/training_data'
+    data_path = './'
+
     
     for t_i, test_trial in enumerate(all_trials):
         if t_i > 2:
