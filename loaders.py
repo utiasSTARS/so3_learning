@@ -178,6 +178,6 @@ class KITTIVODataset(Dataset):
         if self.transform_img:
             image_pair = [self.transform_img(self.read_image(image_quad_paths[i])) for i in [0,2]]
         else:
-            image_pair = [self.transform_img(self.read_image(image_quad_paths[i])) for i in [0,2]]
+            image_pair = [self.read_image(image_quad_paths[i]) for i in [0,2]]
 
         return image_pair, target_quat
