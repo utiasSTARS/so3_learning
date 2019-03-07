@@ -109,11 +109,11 @@ def main():
     #export_dir = '/media/raid5-array/experiments/SO3-learning/stereo_vo_results/baseline_distorted'
 
     saved_tracks_dir = None
-    #kitti_basedir = '/media/datasets/KITTI/raw/'
-    #export_dir = '/media/datasets/KITTI/trajectory_metrics/'
+    kitti_basedir = '/media/datasets/KITTI/raw/'
+    export_dir = '/media/datasets/KITTI/trajectory_metrics/'
 
-    kitti_basedir = '/Users/valentinp/research/data/kitti/'
-    export_dir = './'
+    #kitti_basedir = '/Users/valentinp/research/data/kitti/'
+    #export_dir = './'
     seqs = {'00': {'date': '2011_10_03',
                    'drive': '0027',
                    'frames': range(0, 4541)},
