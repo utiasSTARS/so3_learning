@@ -119,7 +119,7 @@ class SevenScenesData(Dataset):
         return img
 
 
-class KITTIVOData(Dataset):
+class KITTIVODataset(Dataset):
     """KITTI Odometry Benchmark dataset."""
 
     def __init__(self, kitti_data_pickle_file, transform_img=None, run_type='train'):

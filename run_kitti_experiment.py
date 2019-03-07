@@ -15,7 +15,9 @@ import time, sys
 import argparse
 import datetime
 from train_test import *
-from loaders import KITTIVOData
+from loaders import KITTIVODataset
+from kitti.utils import KITTIData
+
 from torch.utils.data import Dataset, DataLoader
 from vis import *
 import torchvision.transforms as transforms
@@ -72,10 +74,10 @@ if __name__ == '__main__':
 
     kitti_data_pickle_file = 'kitti/kitti_data_sequence_00.pickle'
 
-    train_loader = DataLoader(KITTIVOData(kitti_data_pickle_file, transform_img=transform, run_type='train'),
+    train_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='train'),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=True, num_workers=12, drop_last=False)
-    valid_loader = DataLoader(KITTIVOData(kitti_data_pickle_file, transform_img=transform, run_type='valid'),
+    valid_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='valid'),
                               batch_size=args.batch_size, pin_memory=True,
                               shuffle=False, num_workers=12, drop_last=False)
     total_time = 0.
