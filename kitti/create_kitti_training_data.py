@@ -3,7 +3,7 @@ import pickle, csv, glob, os
 import random
 import numpy as np
 from liegroups.numpy import SE3
-from utils import *
+from kitti.utils import *
 
 def compute_vo_pose_errors(tm, pose_deltas, eval_type='train', add_reverse=False):
     """Compute delta pose errors on VO estimates """
