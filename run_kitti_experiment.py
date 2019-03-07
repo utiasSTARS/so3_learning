@@ -70,7 +70,7 @@ if __name__ == '__main__':
                              std=[0.229, 0.224, 0.225])
     ])
 
-    kitti_data_pickle_file = 'kitti/kitti_pose_error_data_test_00.pickle'
+    kitti_data_pickle_file = 'kitti/kitti_data_sequence_00.pickle'
 
     train_loader = DataLoader(KITTIVOData(kitti_data_pickle_file, transform_img=transform, run_type='train'),
                         batch_size=args.batch_size, pin_memory=True,
