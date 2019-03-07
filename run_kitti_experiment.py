@@ -32,7 +32,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=5e-5)
     parser.add_argument('--total_epochs', type=int, default=15)
     parser.add_argument('--num_heads', type=int, default=25)
-    parser.add_argument('--q_target_sigma', type=float, default=0.01)
+    parser.add_argument('--q_target_sigma', type=float, default=0.)
 
     args = parser.parse_args()
     print(args)
@@ -50,7 +50,7 @@ if __name__ == '__main__':
 
     num_hydra_heads=args.num_heads
     model = QuaternionDualCNN(num_hydra_heads=num_hydra_heads)
-    #model.sensor_net.freeze_layers()
+    model.sensor_net.freeze_layers()
 
     model.to(dtype=tensor_type, device=device)
 
