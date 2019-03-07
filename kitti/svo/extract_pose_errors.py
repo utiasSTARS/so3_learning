@@ -146,7 +146,7 @@ def main():
                    'frames': range(0, 1201)}}
 
 
-    compute_seqs = ['00', '01', '02', '04', '05', '06', '07', '08', '09', '10']
+    compute_seqs = ['02', '04', '05', '06', '07', '08', '09', '10']
     #compute_seqs = ['06']
 
     for seq in compute_seqs:
