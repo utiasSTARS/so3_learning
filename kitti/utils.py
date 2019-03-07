@@ -1,20 +1,4 @@
 
-class KITTIData(object):
-    def __init__(self):
-        self.train_sequences = []
-        self.train_img_paths = []
-        self.train_labels = []
-        self.train_se3_precision = []
-
-        self.val_sequence = ''
-        self.val_tm_mat_path = ''  # Path to mat file containing the the trajectory (loaded by TrajectoryMetrics)
-        self.val_img_paths = []
-        self.val_labels = []
-
-        self.test_sequence = ''
-        self.test_tm_mat_path = ''
-        self.test_img_paths = []
-        self.test_labels = []
 
 KITTI_SEQS_DICT = {'00': {'date': '2011_10_03',
                           'drive': '0027',

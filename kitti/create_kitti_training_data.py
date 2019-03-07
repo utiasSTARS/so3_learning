@@ -3,7 +3,7 @@ import pickle, csv, glob, os
 import random
 import numpy as np
 from liegroups.numpy import SE3
-from kitti.utils import *
+from utils import *
 
 def compute_vo_pose_errors(tm, pose_deltas, eval_type='train', add_reverse=False):
     """Compute delta pose errors on VO estimates """
@@ -168,31 +168,28 @@ def main():
         print('Processed {} test image quads.'.format(len(test_corr)))
 
         #Save the data!
-        kitti_data = KITTIData()
+        kitti_data = {}
 
-        kitti_data.train_pose_deltas = train_pose_deltas
-        kitti_data.test_pose_delta = test_pose_delta
 
-        kitti_data.train_sequences = train_trials
-        kitti_data.train_img_paths_rgb = train_img_paths_rgb
-        kitti_data.train_T_corr = train_corr
-        kitti_data.train_T_gt = train_gt
-        kitti_data.train_T_est = train_est
-        kitti_data.train_tm_mat_paths = train_tm_mat_files
+        kitti_data['train_sequences'] = train_trials
+        kitti_data['train_img_paths_rgb'] = train_img_paths_rgb
+        kitti_data['train_T_gt'] = train_gt
+        kitti_data['train_T_est'] = train_est
+        kitti_data['train_tm_mat_paths'] = train_tm_mat_files
 
-        kitti_data.val_sequence = val_trial
-        kitti_data.val_tm_mat_path = val_tm_mat_file[0] #Path to mat file containing the the trajectory (loaded by TrajectoryMetrics)
-        kitti_data.val_img_paths_rgb = val_img_paths_rgb
-        kitti_data.val_T_corr = val_corr
-        kitti_data.val_T_gt = val_gt
-        kitti_data.val_T_est = val_est
+        kitti_data['val_sequence'] = val_trial
+        kitti_data['val_tm_mat_path'] = val_tm_mat_file[0] #Path to mat file containing the the trajectory (loaded by TrajectoryMetrics)
+        kitti_data['val_img_paths_rgb'] = val_img_paths_rgb
+        kitti_data['val_T_corr'] = val_corr
+        kitti_data['val_T_gt'] = val_gt
+        kitti_data['val_T_est'] = val_est
      
-        kitti_data.test_sequence = test_trial
-        kitti_data.test_tm_mat_path = test_tm_mat_file[0]
-        kitti_data.test_img_paths_rgb = test_img_paths_rgb
-        kitti_data.test_T_corr = test_corr
-        kitti_data.test_T_gt = test_gt
-        kitti_data.test_T_est = test_est
+        # kitti_data.test_sequence = test_trial
+        # kitti_data.test_tm_mat_path = test_tm_mat_file[0]
+        # kitti_data.test_img_paths_rgb = test_img_paths_rgb
+        # kitti_data.test_T_corr = test_corr
+        # kitti_data.test_T_gt = test_gt
+        # kitti_data.test_T_est = test_est
 
         data_filename = os.path.join(data_path, 'kitti_data_sequence_{}.pickle'.format(test_trial))
         print('Saving to {} ....'.format(data_filename))
