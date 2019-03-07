@@ -27,7 +27,7 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='3D training arguments.')
     parser.add_argument('--cuda', action='store_true', default=True)
-    parser.add_argument('--batch_size', type=int, default=16)
+    parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--epoch_display', type=int, default=1)
     parser.add_argument('--lr', type=float, default=5e-5)
     parser.add_argument('--total_epochs', type=int, default=15)
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
     #Float or Double?
     tensor_type = torch.float
-    device = torch.device('cuda:0') if args.cuda else torch.device('cpu')
+    device = torch.device('cuda:1') if args.cuda else torch.device('cpu')
 
 
     num_hydra_heads=args.num_heads
