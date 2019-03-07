@@ -121,12 +121,12 @@ if __name__ == '__main__':
 
             best_valid_nll = valid_nll
 
-            sigma_filename = 'kitti/plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
-            nees_filename = 'kitti/plots/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
+            sigma_filename = 'kitti/plots/error_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(args.seq, model.num_hydra_heads, epoch+1)
+            #nees_filename = 'kitti/plots/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
 
             plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
 
-            abs_filename = 'kitti/plots/abs_sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads,
+            abs_filename = 'kitti/plots/abs_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(args.seq, model.num_hydra_heads,
                                                                                   epoch + 1)
             plot_abs_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3],
                                     filename=abs_filename)
@@ -137,10 +137,10 @@ if __name__ == '__main__':
                 'direct_covar_head': model.direct_covar_head.state_dict(),
                 'predict_history': predict_history,
                 'epoch': epoch + 1,
-            }, 'kitti/plots/best_model_heads_{}_epoch_{}.pt'.format(model.num_hydra_heads, epoch + 1))
+            }, 'kitti/plots/best_model_seq_{}_heads_{}_epoch_{}.pt'.format(args.seq, model.num_hydra_heads, epoch + 1))
 
 
-            plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
+            #plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
 
 
         if epoch%args.epoch_display == 0:
