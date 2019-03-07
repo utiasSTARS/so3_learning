@@ -91,7 +91,7 @@ if __name__ == '__main__':
     avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True, output_grid=True)
 
     #Visualize
-    sigma_filename = 'simulation/saved_plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, 0)
+    sigma_filename = 'kitti/plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, 0)
     plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
 
     print('Starting Training \t' 
@@ -134,7 +134,7 @@ if __name__ == '__main__':
                 'direct_covar_head': model.direct_covar_head.state_dict(),
                 'predict_history': predict_history,
                 'epoch': epoch + 1,
-            }, '7scenes/best_model_{}_heads_{}_epoch_{}.pt'.format(args.scene, model.num_hydra_heads, epoch + 1))
+            }, 'kitti/plots/best_model_heads_{}_epoch_{}.pt'.format(model.num_hydra_heads, epoch + 1))
 
 
             plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
