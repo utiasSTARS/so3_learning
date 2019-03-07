@@ -29,7 +29,7 @@ if __name__ == '__main__':
     parser.add_argument('--cuda', action='store_true', default=True)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--epoch_display', type=int, default=1)
-    parser.add_argument('--lr', type=float, default=5e-5)
+    parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--total_epochs', type=int, default=15)
     parser.add_argument('--num_heads', type=int, default=25)
     parser.add_argument('--q_target_sigma', type=float, default=0.)
