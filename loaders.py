@@ -141,14 +141,12 @@ class KITTIVODataset(Dataset):
         if run_type == 'train':
 
             self.image_quad_paths = kitti_data['train_img_paths_rgb']
-            self.T_corr = kitti_data['train_T_corr']
             self.T_gt = kitti_data['train_T_gt']
             self.T_est = kitti_data['train_T_est']
             self.sequences = kitti_data['train_sequences']
 
         elif run_type == 'validate' or run_type == 'valid':
             self.image_quad_paths = kitti_data['val_img_paths_rgb']
-            self.T_corr = kitti_data['val_T_corr']
             self.T_gt = kitti_data['val_T_gt']
             self.T_est = kitti_data['val_T_est']
             self.sequence = kitti_data['val_sequence']
