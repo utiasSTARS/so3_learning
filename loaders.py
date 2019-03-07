@@ -187,7 +187,7 @@ class KITTIVOData(Dataset):
     def __getitem__(self, idx):
         # Get all four images in the two pairs
         image_quad_paths = self.image_quad_paths[idx]
-        target_rot = torch.from_numpy(self.T_gt[idx].rot.as_matrix()).float()
+        target_rot = torch.from_numpy(quaternion_from_matrix(self.T_gt[idx].rot.as_matrix())).float()
         # Note: The camera y axis is facing down, hence 'yaw' of the vehicle, is 'pitch' of the camera
         if self.transform_img:
             image_quad = [self.transform_img(self.read_image(image_quad_paths[i])) for i in range(4)]
