@@ -26,6 +26,7 @@ if __name__ == '__main__':
     #random.seed(72)
 
     parser = argparse.ArgumentParser(description='3D training arguments.')
+    parser.add_argument('--seq', type=str, default='00')
     parser.add_argument('--cuda', action='store_true', default=True)
     parser.add_argument('--batch_size', type=int, default=32)
     parser.add_argument('--epoch_display', type=int, default=1)
@@ -33,6 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('--total_epochs', type=int, default=15)
     parser.add_argument('--num_heads', type=int, default=25)
     parser.add_argument('--q_target_sigma', type=float, default=0.)
+    parser.add_argument('--freeze_body', action='store_true', default=False)
 
     args = parser.parse_args()
     print(args)
@@ -50,7 +52,8 @@ if __name__ == '__main__':
 
     num_hydra_heads=args.num_heads
     model = QuaternionDualCNN(num_hydra_heads=num_hydra_heads)
-    model.sensor_net.freeze_layers()
+    if args.freeze_body:
+        model.sensor_net.freeze_layers()
 
     model.to(dtype=tensor_type, device=device)
 
@@ -69,7 +72,7 @@ if __name__ == '__main__':
                              std=[0.229, 0.224, 0.225])
     ])
 
-    kitti_data_pickle_file = 'kitti/kitti_data_sequence_05.pickle'
+    kitti_data_pickle_file = 'kitti/kitti_data_sequence_{}.pickle'.format(args.seq)
 
     train_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='train'),
                         batch_size=args.batch_size, pin_memory=True,
