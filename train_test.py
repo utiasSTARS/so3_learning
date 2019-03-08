@@ -39,7 +39,7 @@ def validate(model, loader, loss_fn, config, output_history=False, output_grid=F
             batch_size = q_gt.shape[0]
 
             q_est, Rinv, Rinv_direct = model(y_obs)
-
+            print(Rinv)
             loss_b = loss_fn(q_est, q_gt, Rinv).mean()
             loss = loss + loss_b
             angular_error += quat_ang_error(q_est, q_gt).sum()
