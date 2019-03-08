@@ -42,6 +42,7 @@ def plot_errors_with_sigmas(q_gt, q_est, R_est, R_direct_est, filename='sigma_pl
     R_direct_est = R_direct_est.numpy()
 
     print(R_direct_est[:2])
+    print(R_est[:2])
 
     _plot_sigma(x_labels, phi_errs[:, 0], 0., np.sqrt(R_est[:,0,0].flatten()), np.sqrt(R_direct_est[:,0,0].flatten()),  '$\Theta_1$ err', ax[0])
     _plot_sigma(x_labels, phi_errs[:, 1], 0., np.sqrt(R_est[:,1,1].flatten()), np.sqrt(R_direct_est[:,1,1].flatten()), '$\Theta_2$ err', ax[1])
