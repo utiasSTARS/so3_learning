@@ -129,8 +129,8 @@ def main():
     #custom_training = [['00','06',['07','08','09','10']]]
 
 
-    train_pose_deltas = [3] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
-    test_pose_delta = 3
+    train_pose_deltas = [1,3,5] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
+    test_pose_delta = 1
     add_reverse = False #Add reverse transformations
 
     #Where is the KITTI data?
