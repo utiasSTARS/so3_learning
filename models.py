@@ -96,11 +96,11 @@ def conv_unit(in_planes, out_planes, kernel_size=3, stride=1,padding=1):
 
 
 class BasicCNN(torch.nn.Module):
-    def __init__(self, feature_dim=128):
+    def __init__(self, feature_dim=128, channels=3):
         super(BasicCNN, self).__init__()
         self.cnn0 = torch.nn.Sequential(
             # StandardBlock(D_in_sensor, self.sensor_net_dim),
-            conv_unit(1, 64, kernel_size=3, stride=2, padding=1),
+            conv_unit(channels, 64, kernel_size=3, stride=2, padding=1),
             conv_unit(64, 64, kernel_size=3, stride=2, padding=1),
             conv_unit(64, 128, kernel_size=3, stride=2, padding=1),
             conv_unit(128, 128, kernel_size=3, stride=2, padding=1),
@@ -187,7 +187,7 @@ class QuaternionDualCNN(torch.nn.Module):
 
         sensor_feature_dim = 256
         #BasicCNN(feature_dim=sensor_feature_dim) #
-        self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim)#CustomResNet(feature_dim=sensor_feature_dim)
+        self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim, channels=3)#CustomResNet(feature_dim=sensor_feature_dim)
         #self.sensor_net1 = CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(
