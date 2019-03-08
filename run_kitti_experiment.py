@@ -56,12 +56,15 @@ if __name__ == '__main__':
         model.sensor_net.freeze_layers()
 
     model.to(dtype=tensor_type, device=device)
-
-
-
     loss_fn.to(dtype=tensor_type, device=device)
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+
+    optimizer = torch.optim.Adam(
+        [{'params': model.sensor_net0.parameters(), 'lr': 0.1*args.lr},
+        {'params': model.sensor_net1.parameters(), 'lr': 0.1*args.lr},
+        {'params': model.heads.parameters()},
+         {'params': model.direct_covar_head.parameters()}],
+        lr=args.lr)
 
     #Load datasets
     transform = transforms.Compose([
