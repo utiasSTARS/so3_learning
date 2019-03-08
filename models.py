@@ -226,8 +226,9 @@ class QuaternionDualCNN(torch.nn.Module):
                 Rinv = Rinv_direct
 
             R_inv = torch.diag(q_mean.new_ones(3)).expand(batch_size, 3, 3)
+            Rinv_direct = R_inv
 
-            return q_mean, Rinv, 0.*Rinv_direct
+            return q_mean, Rinv, Rinv_direct
 
 
 class GenericHead(torch.nn.Module):
