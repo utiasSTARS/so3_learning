@@ -225,8 +225,8 @@ class QuaternionDualCNN(torch.nn.Module):
             else:
                 Rinv = Rinv_direct
 
-            R_inv = torch.diag(q_mean.new_ones(3)).expand(batch_size, 3, 3)
-            Rinv_direct = R_inv
+            R_inv = 0.05*torch.diag(q_mean.new_ones(3)).expand(batch_size, 3, 3)
+            Rinv_direct = R_inv.clone()
 
             return q_mean, Rinv, Rinv_direct
 
