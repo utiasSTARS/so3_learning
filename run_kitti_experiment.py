@@ -127,7 +127,6 @@ if __name__ == '__main__':
             sigma_filename = 'kitti/plots/error_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(args.seq, model.num_hydra_heads, epoch+1)
             #nees_filename = 'kitti/plots/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
 
-            print(predict_history[3][:3])
             plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
 
             abs_filename = 'kitti/plots/abs_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(args.seq, model.num_hydra_heads,
