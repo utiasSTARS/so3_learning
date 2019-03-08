@@ -224,7 +224,7 @@ class QuaternionDualCNN(torch.nn.Module):
                 Rinv = (Rinv_direct.inverse() + batch_sample_covariance(phi_diff)).inverse()  # Outputs N x D - 1 x D - 1
             else:
                 Rinv = Rinv_direct
-            return q_mean, 0.*Rinv, 0.*Rinv_direct
+            return q_mean, 0.1*Rinv, 0.1*Rinv_direct
 
 
 class GenericHead(torch.nn.Module):
