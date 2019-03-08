@@ -104,7 +104,7 @@ if __name__ == '__main__':
           'Train (Err/NLL) | Valid (Err/NLL) {:3.3f} / {:3.3f} | {:.3f} / {:3.3f}\t'.format(
             train_ang_error, train_nll, valid_ang_error, valid_nll))
 
-    best_valid_nll = valid_nll
+    best_valid_loss = avg_valid_loss
     for epoch in range(args.total_epochs):
         end = time.time()
         avg_train_loss = train(model, train_loader, loss_fn, optimizer, config, q_target_sigma=args.q_target_sigma)
@@ -119,10 +119,10 @@ if __name__ == '__main__':
         #     print('Freezing the ResNet!')
         #     model.sensor_net.freeze_layers()
 
-        if valid_nll < best_valid_nll:
-            print('New best validation nll! Outputting plots and saving model.')
+        if avg_valid_loss < best_valid_loss:
+            print('New best validation loss! Outputting plots and saving model.')
 
-            best_valid_nll = valid_nll
+            best_valid_loss = avg_valid_loss
 
             sigma_filename = 'kitti/plots/error_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(args.seq, model.num_hydra_heads, epoch+1)
             #nees_filename = 'kitti/plots/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
