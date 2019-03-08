@@ -118,7 +118,7 @@ class BasicCNN(torch.nn.Module):
 class CustomResNet(torch.nn.Module):
     def __init__(self, feature_dim):
         super(CustomResNet, self).__init__()
-        self.dnn = models.resnet50(pretrained=True)
+        self.dnn = models.resnet18(pretrained=True)
 
         num_ftrs = self.dnn.fc.in_features
         self.dnn.fc = torch.nn.Linear(num_ftrs, feature_dim)
@@ -185,18 +185,18 @@ class QuaternionDualCNN(torch.nn.Module):
         super(QuaternionDualCNN, self).__init__()
         self.num_hydra_heads = num_hydra_heads
 
-        sensor_feature_dim = 256
+        sensor_feature_dim = 128
         #BasicCNN(feature_dim=sensor_feature_dim) #
-        self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim, channels=3)#CustomResNet(feature_dim=sensor_feature_dim)
-        #self.sensor_net1 = CustomResNet(feature_dim=sensor_feature_dim)
+        self.sensor_net0 = CustomResNet(feature_dim=sensor_feature_dim)
+        self.sensor_net1 = CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(
-            [GenericHead(D_in=2*sensor_feature_dim, D_layers=512, D_out=4, dropout=True, init_large=True) for h in range(self.num_hydra_heads)])
+            [GenericHead(D_in=2*sensor_feature_dim, D_layers=512, D_out=4, dropout=False, init_large=True) for h in range(self.num_hydra_heads)])
         self.direct_covar_head = GenericHead(D_in=2*sensor_feature_dim, D_layers=128, D_out=3, dropout=False)
 
     def forward(self, image_pair):
-        x0 = self.sensor_net(image_pair[0])
-        x1 = self.sensor_net(image_pair[1])
+        x0 = self.sensor_net0(image_pair[0])
+        x1 = self.sensor_net1(image_pair[1])
         x = torch.cat((x0, x1), 1)
 
         q_out = [normalize_vecs(head_net(x)) for head_net in self.heads]
