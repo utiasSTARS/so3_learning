@@ -133,7 +133,6 @@ if __name__ == '__main__':
 
             torch.save({
                 'full_model': model.state_dict(),
-                'sensor_net': model.sensor_net.state_dict(),
                 'direct_covar_head': model.direct_covar_head.state_dict(),
                 'predict_history': predict_history,
                 'epoch': epoch + 1,
