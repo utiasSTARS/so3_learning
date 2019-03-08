@@ -40,7 +40,7 @@ def validate(model, loader, loss_fn, config, output_history=False, output_grid=F
 
             q_est, Rinv, Rinv_direct = model(y_obs)
             print(Rinv[0])
-            print(Rinv_direct)
+            print(Rinv_direct[0])
 
             loss_b = loss_fn(q_est, q_gt, Rinv).mean()
             loss = loss + loss_b
