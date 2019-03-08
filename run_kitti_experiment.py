@@ -41,8 +41,8 @@ if __name__ == '__main__':
 
 
     #loss_fn = SO3FrobNorm()
-    #loss_fn = QuatLoss()
-    loss_fn = QuatNLLLoss()
+    loss_fn = QuatLoss()
+    #loss_fn = QuatNLLLoss()
     #loss_fn = SO3NLLLoss()
 
     #Float or Double?
