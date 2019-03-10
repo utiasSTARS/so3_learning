@@ -60,8 +60,8 @@ if __name__ == '__main__':
 
 
     optimizer = torch.optim.Adam(
-        [{'params': model.sensor_net0.parameters(), 'lr': 0.1*args.lr},
-        {'params': model.sensor_net1.parameters(), 'lr': 0.1*args.lr},
+        [{'params': model.sensor_net0.parameters(), 'lr': args.lr},
+        {'params': model.sensor_net1.parameters(), 'lr': args.lr},
         {'params': model.heads.parameters()},
          {'params': model.direct_covar_head.parameters()}],
         lr=args.lr)
@@ -86,10 +86,10 @@ if __name__ == '__main__':
 
     train_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='train'),
                         batch_size=args.batch_size, pin_memory=True,
-                        shuffle=True, num_workers=8, drop_last=False)
+                        shuffle=True, num_workers=12, drop_last=False)
     valid_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='valid'),
                               batch_size=args.batch_size, pin_memory=True,
-                              shuffle=False, num_workers=8, drop_last=False)
+                              shuffle=False, num_workers=12, drop_last=False)
     total_time = 0.
     now = datetime.datetime.now()
     start_datetime_str = '{}-{}-{}-{}-{}-{}'.format(now.year, now.month, now.day, now.hour, now.minute, now.second)
