@@ -134,14 +134,20 @@ def main():
     add_reverse = False #Add reverse transformations
 
     #Where is the KITTI data?
-    kitti_path = '/media/datasets/KITTI/raw'
+
+
+    #Obelisk
+    #kitti_path = '/media/datasets/KITTI/raw'
+    #Monolith:
+    kitti_path = '/media/m2-drive/datasets/KITTI/raw'
 
     #Where are the baseline TrajectoryMetrics mat files stored?
-    tm_path = '/media/datasets/KITTI/trajectory_metrics'
+    #tm_path = '/media/datasets/KITTI/trajectory_metrics'
+    tm_path = '/media/raid5-array/experiments/Deep-PC/stereo_vo_results/baseline'
 
     #Where should we output the training files?
     #data_path = '/media/raid5-array/experiments/Deep-PC/training_pose_errors_pytorch'
-    data_path = './'
+    data_path = './datasets/monolith'
 
     
     for t_i, test_trial in enumerate(all_trials):
