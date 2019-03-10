@@ -163,7 +163,7 @@ def main():
 
     #for test_trial, val_trial, train_trials in custom_training:
 
-        print('Processing.. Test: {}. Val: {}. Train: {}.'.format(test_trial, val_trial, train_trials))
+        print('Processing.. Test: {}. Train: {}.'.format(test_trial, train_trials))
 
         (train_img_paths_rgb, train_corr, train_gt, train_est, train_tm_mat_files) = process_ground_truth(train_trials, tm_path, kitti_path, train_pose_deltas, 'train', add_reverse)
         print('Processed {} training image quads.'.format(len(train_corr)))
