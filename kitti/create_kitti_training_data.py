@@ -155,11 +155,11 @@ def main():
             break #Only produce trials for 00, 02 and 05
 
         if test_trial == all_trials[-1]:
-            val_trial = all_trials[-2]
-            train_trials = all_trials[:-2]
+            #val_trial = all_trials[-2]
+            train_trials = all_trials[:-1]
         else:
-            val_trial = all_trials[t_i+1]
-            train_trials = all_trials[:t_i] + all_trials[t_i+2 :]
+            #val_trial = all_trials[t_i+1]
+            train_trials = all_trials[:t_i] + all_trials[t_i+1:]
 
     #for test_trial, val_trial, train_trials in custom_training:
 
@@ -168,8 +168,8 @@ def main():
         (train_img_paths_rgb, train_corr, train_gt, train_est, train_tm_mat_files) = process_ground_truth(train_trials, tm_path, kitti_path, train_pose_deltas, 'train', add_reverse)
         print('Processed {} training image quads.'.format(len(train_corr)))
 
-        (val_img_paths_rgb, val_corr, val_gt, val_est, val_tm_mat_file) = process_ground_truth([val_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
-        print('Processed {} validation image quads.'.format(len(val_corr)))
+        # (val_img_paths_rgb, val_corr, val_gt, val_est, val_tm_mat_file) = process_ground_truth([val_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
+        # print('Processed {} validation image quads.'.format(len(val_corr)))
 
         (test_img_paths_rgb, test_corr, test_gt, test_est, test_tm_mat_file) = process_ground_truth([test_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
         print('Processed {} test image quads.'.format(len(test_corr)))
@@ -184,19 +184,19 @@ def main():
         kitti_data['train_T_est'] = train_est
         kitti_data['train_tm_mat_paths'] = train_tm_mat_files
 
-        kitti_data['val_sequence'] = val_trial
-        kitti_data['val_tm_mat_path'] = val_tm_mat_file[0] #Path to mat file containing the the trajectory (loaded by TrajectoryMetrics)
-        kitti_data['val_img_paths_rgb'] = val_img_paths_rgb
-        kitti_data['val_T_corr'] = val_corr
-        kitti_data['val_T_gt'] = val_gt
-        kitti_data['val_T_est'] = val_est
+        # kitti_data['val_sequence'] = val_trial
+        # kitti_data['val_tm_mat_path'] = val_tm_mat_file[0] #Path to mat file containing the the trajectory (loaded by TrajectoryMetrics)
+        # kitti_data['val_img_paths_rgb'] = val_img_paths_rgb
+        # kitti_data['val_T_corr'] = val_corr
+        # kitti_data['val_T_gt'] = val_gt
+        # kitti_data['val_T_est'] = val_est
      
-        # kitti_data.test_sequence = test_trial
-        # kitti_data.test_tm_mat_path = test_tm_mat_file[0]
-        # kitti_data.test_img_paths_rgb = test_img_paths_rgb
-        # kitti_data.test_T_corr = test_corr
-        # kitti_data.test_T_gt = test_gt
-        # kitti_data.test_T_est = test_est
+        kitti_data.test_sequence = test_trial
+        kitti_data.test_tm_mat_path = test_tm_mat_file[0]
+        kitti_data.test_img_paths_rgb = test_img_paths_rgb
+        kitti_data.test_T_corr = test_corr
+        kitti_data.test_T_gt = test_gt
+        kitti_data.test_T_est = test_est
 
         data_filename = os.path.join(data_path, 'kitti_data_sequence_{}.pickle'.format(test_trial))
         print('Saving to {} ....'.format(data_filename))
