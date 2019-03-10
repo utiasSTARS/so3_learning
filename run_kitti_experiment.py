@@ -60,27 +60,21 @@ if __name__ == '__main__':
 
 
     optimizer = torch.optim.Adam(
-        [{'params': model.sensor_net0.parameters(), 'lr': args.lr},
-        {'params': model.sensor_net1.parameters(), 'lr': args.lr},
+        [{'params': model.sensor_net0.parameters(), 'lr': 0.1*args.lr},
+        {'params': model.sensor_net1.parameters(), 'lr': 0.1*args.lr},
         {'params': model.heads.parameters()},
          {'params': model.direct_covar_head.parameters()}],
         lr=args.lr)
 
     #Load datasets
-    # transform = transforms.Compose([
-    #     transforms.Resize(224),
-    #     transforms.CenterCrop(224),
-    #     transforms.ToTensor(),
-    #     transforms.Normalize(mean=[0.485, 0.456, 0.406],
-    #                          std=[0.229, 0.224, 0.225])
-    # ])
-
     transform = transforms.Compose([
-        transforms.Resize((224, 224)),
+        transforms.Resize(224),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
     ])
+
 
     kitti_data_pickle_file = 'kitti/datasets/monolith/kitti_data_sequence_{}.pickle'.format(args.seq)
 
