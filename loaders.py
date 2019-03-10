@@ -145,20 +145,20 @@ class KITTIVODataset(Dataset):
             self.T_est = kitti_data['train_T_est']
             self.sequences = kitti_data['train_sequences']
 
-        elif run_type == 'validate' or run_type == 'valid':
-            self.image_quad_paths = kitti_data['val_img_paths_rgb']
-            self.T_gt = kitti_data['val_T_gt']
-            self.T_est = kitti_data['val_T_est']
-            self.sequence = kitti_data['val_sequence']
-            self.tm_mat_path = kitti_data['val_tm_mat_path']
+        # elif run_type == 'validate' or run_type == 'valid':
+        #     self.image_quad_paths = kitti_data['val_img_paths_rgb']
+        #     self.T_gt = kitti_data['val_T_gt']
+        #     self.T_est = kitti_data['val_T_est']
+        #     self.sequence = kitti_data['val_sequence']
+        #     self.tm_mat_path = kitti_data['val_tm_mat_path']
 
-        # elif run_type == 'test':
-        #     self.image_quad_paths = kitti_data.test_img_paths_rgb
-        #     self.T_corr = kitti_data.test_T_corr
-        #     self.T_gt = kitti_data.test_T_gt
-        #     self.T_est = kitti_data.test_T_est
-        #     self.sequence = kitti_data.test_sequence
-        #     self.tm_mat_path = kitti_data.test_tm_mat_path
+        elif run_type == 'test':
+            self.image_quad_paths = kitti_data['test_img_paths_rgb']
+            self.T_corr = kitti_data['test_T_corr']
+            self.T_gt = kitti_data['test_T_gt']
+            self.T_est = kitti_data['test_T_est']
+            self.sequence = kitti_data['test_sequence']
+            self.tm_mat_path = kitti_data['test_tm_mat_path']
 
         else:
             raise ValueError('run_type must be set to `train`, `validate` or `test`. ')
