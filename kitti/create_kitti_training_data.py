@@ -191,12 +191,12 @@ def main():
         # kitti_data['val_T_gt'] = val_gt
         # kitti_data['val_T_est'] = val_est
      
-        kitti_data.test_sequence = test_trial
-        kitti_data.test_tm_mat_path = test_tm_mat_file[0]
-        kitti_data.test_img_paths_rgb = test_img_paths_rgb
-        kitti_data.test_T_corr = test_corr
-        kitti_data.test_T_gt = test_gt
-        kitti_data.test_T_est = test_est
+        kitti_data['test_sequence'] = test_trial
+        kitti_data['test_tm_mat_path'] = test_tm_mat_file[0]
+        kitti_data['test_img_paths_rgb'] = test_img_paths_rgb
+        kitti_data['test_T_corr'] = test_corr
+        kitti_data['test_T_gt'] = test_gt
+        kitti_data['test_T_est'] = test_est
 
         data_filename = os.path.join(data_path, 'kitti_data_sequence_{}.pickle'.format(test_trial))
         print('Saving to {} ....'.format(data_filename))
