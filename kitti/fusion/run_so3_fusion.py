@@ -2,11 +2,10 @@ import pykitti
 from matplotlib import pyplot as plt
 import numpy as np
 from liegroups import SE3, SO3
-from pyslam.sensors import StereoCamera
 from pyslam.utils import invsqrt
 from pyslam.metrics import TrajectoryMetrics
-from sparse_stereo_vo_pipeline_dpc import *
 from optparse import OptionParser
+from fusion_pipeline import SO3FusionPipeline
 
 import copy
 import time
@@ -16,67 +15,34 @@ import csv
 
 import argparse
 
-parser = argparse.ArgumentParser(description='PyTorch PoseCorrectorNet Training')
+parser = argparse.ArgumentParser(description='SO(3) Fusion')
 parser.add_argument('--seq', '-s', default='00', type=str,
                     help='which sequence to test')
-parser.add_argument('--type', '-t', default='pose', type=str, 
-                    help='correction type (`rotation`, `pose` or `yaw`)')
 
 
+def run_fusion(basedir, date, drive, im_range, saved_tracks_filename, corrected_metrics_file):
 
-def run_sparse_vo(basedir, date, drive, im_range, saved_tracks_filename, corrected_metrics_file):
+    # Load data
+    dataset = pykitti.raw(basedir, date, drive, frames=im_range)
 
-    #Observation Noise
-    obs_var = [1, 1, 2]  # [u,v,d]
-    obs_stiffness = invsqrt(np.diagflat(obs_var))
 
-    #Motion Model
-    use_const_vel_model = False
-    motion_stiffness = invsqrt(np.diagflat(0.05*np.ones(6)))
-
-    #Load data
-    dataset = pykitti.raw(basedir, date, drive, frames=im_range, imformat='cv2')
-    dataset_len = len(dataset)
-
-    #Setup KITTI Camera parameters
-    test_im = next(dataset.cam0)
-    fu = dataset.calib.K_cam0[0, 0]
-    fv = dataset.calib.K_cam0[1, 1]
-    cu = dataset.calib.K_cam0[0, 2]
-    cv = dataset.calib.K_cam0[1, 2]
-    b = dataset.calib.b_gray
-    h, w = test_im.shape
-
-    kitti_camera0 = StereoCamera(cu, cv, fu, fv, b, w, h)
-
-    #Load initial pose and ground truth
-    first_oxts = next(dataset.oxts)
-    T_cam_imu = SE3.from_matrix(dataset.calib.T_cam0_imu)
+    # Load initial pose and ground truth
+    T_cam_imu = SE3.from_matrix(dataset.calib.T_cam2_imu)
     T_cam_imu.normalize()
-    T_w_0 = SE3.from_matrix(first_oxts.T_w_imu).dot(T_cam_imu.inv())
+    T_w_0 = SE3.from_matrix(dataset.oxts[0].T_w_imu).dot(T_cam_imu.inv())
     T_w_0.normalize()
     T_w_c_gt = [SE3.from_matrix(o.T_w_imu).dot(T_cam_imu.inv())
-        for o in dataset.oxts]
+                for o in dataset.oxts]
 
-    #Initialize pipeline
-    pipeline_params = SparseStereoPipelineParams()
-    pipeline_params.camera = kitti_camera0
-    pipeline_params.first_pose = T_w_0
-    pipeline_params.obs_stiffness = obs_stiffness
-    pipeline_params.optimize_trans_only = False
-    pipeline_params.use_constant_velocity_motion_model = use_const_vel_model
-    pipeline_params.motion_stiffness = motion_stiffness
-    pipeline_params.dataset_date_drive = date + '_' + drive
-    pipeline_params.saved_stereo_tracks_file = saved_tracks_filename
 
     tm_corr = TrajectoryMetrics.loadmat(corrected_metrics_file)
-    svo = SparseStereoPipelineDPC(tm_corr.Twv_est, pipeline_params)
+    fusion_pipeline = SO3FusionPipeline(tm_corr.Twv_est)
     
     #The magic!
-    svo.compute_vo(dataset)    
+    fusion_pipeline.compute_fused_estimates(dataset)
     
     #Compute statistics
-    T_w_c_est = [T for T in svo.T_w_c]
+    T_w_c_est = [T for T in fusion_pipeline.T_w_c]
     tm = TrajectoryMetrics(T_w_c_gt, T_w_c_est, convention='Twv')
     # # Save to file
     # if metrics_filename:
@@ -201,18 +167,15 @@ def main():
     orig_metrics_file = os.path.join(metrics_path, 'baseline/{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
 
     saved_tracks_filename = os.path.join(saved_tracks_dir, '{}_{}_frames_{}-{}_saved_tracks.pickle'.format(seqs[seq]['date'], seqs[seq]['drive'], seqs[seq]['frames'][0], seqs[seq]['frames'][-1]))
-    tm_resolve = run_sparse_vo(kitti_basedir, seqs[seq]['date'], seqs[seq]['drive'], seqs[seq]['frames'], saved_tracks_filename, corrected_metrics_file)
-    tm_dpc = TrajectoryMetrics.loadmat(corrected_metrics_file)
+    tm_fusion = run_fusion(kitti_basedir, seqs[seq]['date'], seqs[seq]['drive'], seqs[seq]['frames'], saved_tracks_filename, corrected_metrics_file)
     tm_baseline = TrajectoryMetrics.loadmat(orig_metrics_file)
     
     # Compute errors
-    trans_armse_resolve, rot_armse_resolve = tm_resolve.mean_err()
-    trans_armse_dpc, rot_armse_dpc= tm_dpc.mean_err()
+    trans_armse_fusion, rot_armse_fusion = tm_fusion.mean_err()
     trans_armse_baseline, rot_armse_baseline = tm_baseline.mean_err()
     
     print('VO Only ARMSE (Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_baseline, rot_armse_baseline))
-    print('DPC ARMSE (Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_dpc, rot_armse_dpc))
-    print('DPC + ReSolve ARMSE (Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_resolve, rot_armse_resolve))
+    print('SO(3) Fusion ARMSE (Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_fusion, rot_armse_fusion))
 
    
 
