@@ -22,7 +22,7 @@ parser.add_argument('--seq', '-s', default='00', type=str,
 
 
 def run_fusion(baseline_metrics_file, hydranet_output_file):
-
+    print(baseline_metrics_file)
     tm_vo = TrajectoryMetrics.loadmat(baseline_metrics_file)
     T_w_c_vo = tm_vo.Twv_est
     Sigma_21_vo = tm_vo.tm_dict['Sigma_21']
@@ -146,9 +146,9 @@ def main():
 
 
     seq = '00'
-    tm_path = '../datasets/monolith'
+    tm_path = '../datasets/monolith/'
 
-    orig_metrics_file = os.path.join(tm_path, '/{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
+    orig_metrics_file = os.path.join(tm_path, '{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
     hydranet_output_file = 'hydranet_output_model_seq_{}.pt'.format(seq)
 
     tm_fusion = run_fusion(orig_metrics_file, hydranet_output_file)
