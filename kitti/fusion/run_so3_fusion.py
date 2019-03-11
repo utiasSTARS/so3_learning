@@ -148,7 +148,7 @@ def main():
     seq = '00'
     tm_path = '../datasets/monolith'
 
-    orig_metrics_file = os.path.join(tm_path, 'baseline/{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
+    orig_metrics_file = os.path.join(tm_path, '/{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
     hydranet_output_file = 'hydranet_output_model_seq_{}.pt'.format(seq)
 
     tm_fusion = run_fusion(orig_metrics_file, hydranet_output_file)
