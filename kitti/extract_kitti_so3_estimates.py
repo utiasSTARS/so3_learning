@@ -63,7 +63,7 @@ if __name__ == '__main__':
                             'best_model_seq_02_heads_25_epoch_11.pt',
                             'best_model_seq_05_heads_25_epoch_12.pt'
                             ]
-    base_path = 'plots'
+    base_path = './plots/'
     for model_path, seq in zip(trained_models_paths, seqs):
-        run_so3_hydranet(model_path, seq)
+        run_so3_hydranet(base_path + model_path, seq)
 
