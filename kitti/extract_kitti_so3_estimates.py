@@ -53,13 +53,15 @@ def run_so3_hydranet(trained_file_path, seq):
     avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, test_loader, loss_fn, config, output_history=True)
 
     q_12 = predict_history[1]
-    R_12 = SO3.from_quaternion(q_12).as_matrix()
+    C_12 = SO3.from_quaternion(q_12).as_matrix()
     Sigma_12 = predict_history[2]
 
+    file_name = 'fusion/hydranet_output_model_seq_{}.pt'.format(seq)
+    print('Outputting: {}'.format())
     torch.save({
-        'R_12': R_12,
+        'Rot_12': C_12,
         'Sigma_12': Sigma_12,
-    }, 'fusion/hydranet_output_model_seq_{}.pt'.format(seq))
+    }, file_name)
 
 
 if __name__ == '__main__':
