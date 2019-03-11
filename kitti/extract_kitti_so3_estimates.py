@@ -46,7 +46,7 @@ def run_so3_hydranet(trained_file_path, seq):
     kitti_data_pickle_file = 'datasets/monolith/kitti_data_sequence_{}.pickle'.format(seq)
     test_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='test'),
                               batch_size=batch_size, pin_memory=True,
-                              shuffle=False, num_workers=8, drop_last=False)
+                              shuffle=False, num_workers=4, drop_last=False)
     config = {
         'device': device
     }
@@ -57,7 +57,7 @@ def run_so3_hydranet(trained_file_path, seq):
     Sigma_12 = predict_history[2]
 
     file_name = 'fusion/hydranet_output_model_seq_{}.pt'.format(seq)
-    print('Outputting: {}'.format())
+    print('Outputting: {}'.format(file_name))
     torch.save({
         'Rot_12': C_12,
         'Sigma_12': Sigma_12,
