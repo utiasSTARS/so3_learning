@@ -43,7 +43,7 @@ def run_so3_hydranet(trained_file_path, seq):
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
     ])
-    kitti_data_pickle_file = 'kitti/datasets/monolith/kitti_data_sequence_{}.pickle'.format(seq)
+    kitti_data_pickle_file = 'datasets/monolith/kitti_data_sequence_{}.pickle'.format(seq)
     test_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='test'),
                               batch_size=batch_size, pin_memory=True,
                               shuffle=False, num_workers=8, drop_last=False)
