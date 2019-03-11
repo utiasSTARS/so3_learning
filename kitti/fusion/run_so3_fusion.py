@@ -26,7 +26,9 @@ def run_fusion(baseline_metrics_file, hydranet_output_file):
     tm_vo = TrajectoryMetrics.loadmat(baseline_metrics_file)
     T_w_c_vo = tm_vo.Twv_est
     Sigma_21_vo = tm_vo.mdict['Sigma_21']
-    hn_data =  torch.load(hydranet_output_file)
+    hn_data = torch.load(hydranet_output_file)
+    print(hydranet_output_file)
+    print(hn_data)
     fusion_pipeline = SO3FusionPipeline(T_w_c_vo, Sigma_21_vo,  hn_data['Rot_21'],  hn_data['Sigma_21'], first_pose=T_w_c_vo[0])
     
     #The magic!
