@@ -3,7 +3,37 @@ import pickle, csv, glob, os
 import random
 import numpy as np
 from liegroups.numpy import SE3
-from utils import *
+
+KITTI_SEQS_DICT = {'00': {'date': '2011_10_03',
+                          'drive': '0027',
+                          'frames': range(0, 4541)},
+                   '01': {'date': '2011_10_03',
+                          'drive': '0042',
+                          'frames': range(0, 1101)},
+                   '02': {'date': '2011_10_03',
+                          'drive': '0034',
+                          'frames': range(0, 4661)},
+                   '04': {'date': '2011_09_30',
+                          'drive': '0016',
+                          'frames': range(0, 271)},
+                   '05': {'date': '2011_09_30',
+                          'drive': '0018',
+                          'frames': range(0, 2761)},
+                   '06': {'date': '2011_09_30',
+                          'drive': '0020',
+                          'frames': range(0, 1101)},
+                   '07': {'date': '2011_09_30',
+                          'drive': '0027',
+                          'frames': range(0, 1101)},
+                   '08': {'date': '2011_09_30',
+                          'drive': '0028',
+                          'frames': range(1100, 5171)},
+                   '09': {'date': '2011_09_30',
+                          'drive': '0033',
+                          'frames': range(0, 1591)},
+                   '10': {'date': '2011_09_30',
+                          'drive': '0034',
+                          'frames': range(0, 1201)}}
 
 def compute_vo_pose_errors(tm, pose_deltas, eval_type='train', add_reverse=False):
     """Compute delta pose errors on VO estimates """
