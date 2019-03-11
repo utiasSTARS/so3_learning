@@ -1,6 +1,7 @@
 import pykitti
 from matplotlib import pyplot as plt
 import numpy as np
+import torch
 from liegroups import SE3, SO3
 from pyslam.utils import invsqrt
 from pyslam.metrics import TrajectoryMetrics
@@ -20,30 +21,20 @@ parser.add_argument('--seq', '-s', default='00', type=str,
                     help='which sequence to test')
 
 
-def run_fusion(basedir, date, drive, im_range, saved_tracks_filename, corrected_metrics_file):
+def run_fusion(baseline_metrics_file, hydranet_output_file):
 
-    # Load data
-    dataset = pykitti.raw(basedir, date, drive, frames=im_range)
-
-
-    # Load initial pose and ground truth
-    T_cam_imu = SE3.from_matrix(dataset.calib.T_cam2_imu)
-    T_cam_imu.normalize()
-    T_w_0 = SE3.from_matrix(dataset.oxts[0].T_w_imu).dot(T_cam_imu.inv())
-    T_w_0.normalize()
-    T_w_c_gt = [SE3.from_matrix(o.T_w_imu).dot(T_cam_imu.inv())
-                for o in dataset.oxts]
-
-
-    tm_corr = TrajectoryMetrics.loadmat(corrected_metrics_file)
-    fusion_pipeline = SO3FusionPipeline(tm_corr.Twv_est)
+    tm_vo = TrajectoryMetrics.loadmat(baseline_metrics_file)
+    T_w_c_vo = tm_vo.Twv_est
+    Sigma_21_vo = tm_vo.tm_dict['Sigma_21']
+    hn_data =  torch.load(hydranet_output_file)
+    fusion_pipeline = SO3FusionPipeline(T_w_c_vo, Sigma_21_vo,  hn_data['Rot_21'],  hn_data['Sigma_21'], first_pose=T_w_c_vo[0])
     
     #The magic!
-    fusion_pipeline.compute_fused_estimates(dataset)
+    fusion_pipeline.compute_fused_estimates()
     
     #Compute statistics
     T_w_c_est = [T for T in fusion_pipeline.T_w_c]
-    tm = TrajectoryMetrics(T_w_c_gt, T_w_c_est, convention='Twv')
+    tm = TrajectoryMetrics(tm_vo.Twv_gt, T_w_c_est, convention='Twv')
     # # Save to file
     # if metrics_filename:
     #     print('Saving to {}'.format(metrics_filename))
@@ -153,21 +144,14 @@ def main():
                    'drive': '0034',
                    'frames': range(0, 1201)}}
 
-    #parse args
-    args = parser.parse_args()
-    seq = args.seq
-    corr_type = args.type
 
+    seq = '00'
+    tm_path = '/media/raid5-array/experiments/Deep-PC/stereo_vo_results/baseline'
 
-    kitti_basedir = '/media/m2-drive/datasets/KITTI/raw'
-    saved_tracks_dir = '/media/raid5-array/datasets/KITTI/extracted_sparse_tracks'
-    metrics_path = '/media/raid5-array/experiments/Deep-PC/stereo_vo_results'
-    
-    corrected_metrics_file = glob.glob(os.path.join(metrics_path, 'corrected/seq_{}_corr_{}_epoch_*.mat'.format(seq,corr_type)))[0]
-    orig_metrics_file = os.path.join(metrics_path, 'baseline/{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
+    orig_metrics_file = os.path.join(tm_path, 'baseline/{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
+    hydranet_output_file = 'fusion/hydranet_output_model_seq_{}.pt'.format(seq)
 
-    saved_tracks_filename = os.path.join(saved_tracks_dir, '{}_{}_frames_{}-{}_saved_tracks.pickle'.format(seqs[seq]['date'], seqs[seq]['drive'], seqs[seq]['frames'][0], seqs[seq]['frames'][-1]))
-    tm_fusion = run_fusion(kitti_basedir, seqs[seq]['date'], seqs[seq]['drive'], seqs[seq]['frames'], saved_tracks_filename, corrected_metrics_file)
+    tm_fusion = run_fusion(orig_metrics_file, hydranet_output_file)
     tm_baseline = TrajectoryMetrics.loadmat(orig_metrics_file)
     
     # Compute errors

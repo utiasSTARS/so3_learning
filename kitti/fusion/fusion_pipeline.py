@@ -13,8 +13,8 @@ import pickle
 
 
 class SO3FusionPipeline(object):
-    def __init__(self, T_w_c_vo, Sigma_21_vo,  C_21_hydranet, Sigma_21_hydranet, pipeline_params=None):
-        self.T_w_c = [pipeline_params.first_pose] #corrected
+    def __init__(self, T_w_c_vo, Sigma_21_vo,  C_21_hydranet, Sigma_21_hydranet, first_pose=SE3.identity()):
+        self.T_w_c = [first_pose] #corrected
         self.T_w_c_vo = T_w_c_vo
         self.Sigma_21_vo = Sigma_21_vo
 
@@ -24,17 +24,15 @@ class SO3FusionPipeline(object):
         assert(Sigma_21_vo.shape[0] == len(self.T_w_c_vo) - 1)
         assert(Sigma_21_hydranet.shape[0] == C_21_hydranet.shape[0])
 
-        self.params = pipeline_params
-
         self.optimizer = VOFusionSolver()
 
 
-    def compute_fused_estimates(self, dataset):
+    def compute_fused_estimates(self):
 
         start = time.time()
         
         #Start at the second image
-        for pose_i in np.arange(1, len(dataset)):
+        for pose_i in np.arange(1, len(self.T_w_c_vo)):
             self.fuse()
 
             if pose_i % 100 == 0:

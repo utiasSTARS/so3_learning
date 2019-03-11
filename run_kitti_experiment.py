@@ -137,7 +137,6 @@ if __name__ == '__main__':
 
             torch.save({
                 'full_model': model.state_dict(),
-                'direct_covar_head': model.direct_covar_head.state_dict(),
                 'predict_history': predict_history,
                 'epoch': epoch + 1,
             }, 'kitti/plots/best_model_seq_{}_heads_{}_epoch_{}.pt'.format(args.seq, model.num_hydra_heads, epoch + 1))
