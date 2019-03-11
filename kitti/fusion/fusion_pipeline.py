@@ -48,7 +48,7 @@ class SO3FusionPipeline(object):
 
         #Set initial guess to the corrected guess
         self.optimizer.reset_solver()
-        self.optimizer.set_priors(self.T_w_c_vo[pose_i].inv(). self.T_w_c_vo[pose_i+1].inv())
+        self.optimizer.set_priors(self.T_w_c_vo[pose_i].inv(), self.T_w_c_vo[pose_i+1].inv())
         self.optimizer.add_costs(T_21_vo, self.Sigma_21_vo, self.C_12_hydranet, self.Sigma_12_hydranet)
 
         T_21 = self.optimizer.solve()
