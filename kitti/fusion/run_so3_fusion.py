@@ -27,9 +27,7 @@ def run_fusion(baseline_metrics_file, hydranet_output_file):
     T_w_c_vo = tm_vo.Twv_est
     Sigma_21_vo = tm_vo.mdict['Sigma_21']
     hn_data = torch.load(hydranet_output_file)
-    print(hydranet_output_file)
-    print(hn_data)
-    fusion_pipeline = SO3FusionPipeline(T_w_c_vo, Sigma_21_vo,  hn_data['Rot_21'],  hn_data['Sigma_21'], first_pose=T_w_c_vo[0])
+    fusion_pipeline = SO3FusionPipeline(T_w_c_vo, Sigma_21_vo,  hn_data['Rot_12'],  hn_data['Sigma_21'], first_pose=T_w_c_vo[0])
     
     #The magic!
     fusion_pipeline.compute_fused_estimates()
@@ -155,7 +153,7 @@ def main():
 
     tm_fusion = run_fusion(orig_metrics_file, hydranet_output_file)
     tm_baseline = TrajectoryMetrics.loadmat(orig_metrics_file)
-    
+
     # Compute errors
     trans_armse_fusion, rot_armse_fusion = tm_fusion.mean_err()
     trans_armse_baseline, rot_armse_baseline = tm_baseline.mean_err()

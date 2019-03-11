@@ -13,16 +13,16 @@ import pickle
 
 
 class SO3FusionPipeline(object):
-    def __init__(self, T_w_c_vo, Sigma_21_vo,  C_21_hydranet, Sigma_21_hydranet, first_pose=SE3.identity()):
+    def __init__(self, T_w_c_vo, Sigma_21_vo,  C_12_hydranet, Sigma_12_hydranet, first_pose=SE3.identity()):
         self.T_w_c = [first_pose] #corrected
         self.T_w_c_vo = T_w_c_vo
         self.Sigma_21_vo = Sigma_21_vo
 
-        self.C_21_hydranet = C_21_hydranet
-        self.Sigma_21_hydranet = Sigma_21_hydranet
+        self.C_12_hydranet = C_12_hydranet
+        self.Sigma_12_hydranet = Sigma_12_hydranet
 
         assert(Sigma_21_vo.shape[0] == len(self.T_w_c_vo) - 1)
-        assert(Sigma_21_hydranet.shape[0] == C_21_hydranet.shape[0])
+        assert(Sigma_12_hydranet.shape[0] == C_12_hydranet.shape[0])
 
         self.optimizer = VOFusionSolver()
 
@@ -37,7 +37,7 @@ class SO3FusionPipeline(object):
 
             if pose_i % 100 == 0:
                 end = time.time()
-                print('Processing {}. Pose: {} / {}. Avg. proc. freq.: {:.3f} [Hz]'.format(self.params.dataset_date_drive, pose_i, len(dataset), 100.0/(end - start)))
+                print('Processing {}. Pose: {} / {}. Avg. proc. freq.: {:.3f} [Hz]'.format(self.params.dataset_date_drive, pose_i, len(self.T_w_c_vo), 100.0/(end - start)))
                 start = time.time()
 
         
@@ -49,7 +49,7 @@ class SO3FusionPipeline(object):
         #Set initial guess to the corrected guess
         self.optimizer.reset_solver()
         self.optimizer.set_priors(self.T_w_c_baseline[pose_i].inv(). self.T_w_c_baseline[pose_i+1].inv())
-        self.optimizer.add_costs(T_21_vo, self.Sigma_21_vo, self.C_21_hydranet, self.Sigma_21_hydranet)
+        self.optimizer.add_costs(T_21_vo, self.Sigma_21_vo, self.C_12_hydranet, self.Sigma_12_hydranet)
 
         T_21 = self.optimizer.solve()
         T_w_c = self.T_w_c[-1]
@@ -82,11 +82,11 @@ class VOFusionSolver(object):
         prior_residual = PoseResidual(T_1_0, self.prior_stiffness)
         self.problem_solver.add_residual_block(prior_residual, self.pose_keys[0])
 
-    def add_costs(self, T_21_obs, odom_stiffness, C_21_obs, rot_stiffness):
+    def add_costs(self, T_21_obs, odom_stiffness, C_12_obs, rot_stiffness):
         residual_pose = PoseToPoseResidual(T_21_obs, odom_stiffness)
-        residual_rot = PoseToPoseOrientationResidual(C_21_obs, rot_stiffness)
+        residual_rot = PoseToPoseOrientationResidual(C_12_obs, rot_stiffness)
         self.problem_solver.add_residual_block(residual_pose, self.pose_keys)
-        self.problem_solver.add_residual_block(residual_rot, self.pose_keys)
+        self.problem_solver.add_residual_block(residual_rot, self.pose_keys.reverse())
 
     def solve(self):
         self.params_final = self.problem_solver.solve()
