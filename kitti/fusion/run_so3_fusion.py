@@ -149,7 +149,7 @@ def main():
     tm_path = '/media/raid5-array/experiments/Deep-PC/stereo_vo_results/baseline'
 
     orig_metrics_file = os.path.join(tm_path, 'baseline/{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
-    hydranet_output_file = 'fusion/hydranet_output_model_seq_{}.pt'.format(seq)
+    hydranet_output_file = 'hydranet_output_model_seq_{}.pt'.format(seq)
 
     tm_fusion = run_fusion(orig_metrics_file, hydranet_output_file)
     tm_baseline = TrajectoryMetrics.loadmat(orig_metrics_file)
