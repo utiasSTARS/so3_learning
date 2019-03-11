@@ -81,6 +81,7 @@ class VOFusionSolver(object):
         self.params_initial = {self.pose_keys[0]: T_1_0, self.pose_keys[1]: T_2_0}
         prior_residual = PoseResidual(T_1_0, self.prior_stiffness)
         self.problem_solver.add_residual_block(prior_residual, self.pose_keys[0])
+        self.problem_solver.initialize_params(self.params_initial)
 
     def add_costs(self, T_21_obs, odom_stiffness, C_12_obs, rot_stiffness):
         residual_pose = PoseToPoseResidual(T_21_obs, odom_stiffness)
