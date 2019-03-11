@@ -81,7 +81,7 @@ def run_sparse_vo(basedir, date, drive, im_range, metrics_filename=None, saved_t
     # # Save to file
     if metrics_filename:
         print('Saving to {}'.format(metrics_filename))
-        tm.savemat(metrics_filename, {'Sigma_21': svo.Sigma})
+        tm.savemat(metrics_filename, extras={'Sigma_21': svo.Sigma})
 
     return tm
 
