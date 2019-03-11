@@ -65,5 +65,5 @@ if __name__ == '__main__':
                             ]
     base_path = 'plots'
     for model_path, seq in zip(trained_models_paths, seqs):
-        run_so3_hydranet(model_path)
+        run_so3_hydranet(model_path, seq)
 
