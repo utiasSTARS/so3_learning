@@ -53,7 +53,7 @@ def get_image_paths(data_path, trial_str, img_type='rgb'):
     imfiles_r = [imfiles_r[i] for i in KITTI_SEQS_DICT[trial_str]['frames']]
 
 
-    return [imfiles_l, imfiles_r]
+    return (imfiles_l, imfiles_r)
 
 def read_and_transform(img_path, transform):
     return transform(Image.open(img_path).convert('RGB'))
@@ -64,7 +64,7 @@ def save_images(image_paths_rgb, transform, img_dims, file_name):
     left_image_data = torch.empty(num_images, 3, img_dims[1], img_dims[0])
     right_image_data = torch.empty(num_images, 3, img_dims[1], img_dims[0])
 
-    for idx, [im_l, im_r] in enumerate(zip(image_paths_rgb)):
+    for idx, (im_l, im_r) in enumerate(zip(*image_paths_rgb)):
         left_image_data[idx] = read_and_transform(im_l, transform)
         right_image_data[idx] = read_and_transform(im_r, transform)
 
