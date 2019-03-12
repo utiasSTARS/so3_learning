@@ -77,10 +77,10 @@ if __name__ == '__main__':
 
     train_loader = DataLoader(PlanetariumData(train_dataset, k_range=k_range_train, normalization=normalization, mat_targets=False),
                         batch_size=args.batch_size, pin_memory=True, 
-                        shuffle=True, num_workers=1, drop_last=False)
+                        shuffle=True, num_workers=8, drop_last=False)
     valid_loader = DataLoader(PlanetariumData(valid_dataset, k_range=k_range_valid,normalization=normalization, mat_targets=False),
                         batch_size=args.batch_size, pin_memory=True,
-                        shuffle=False, num_workers=1, drop_last=False)
+                        shuffle=False, num_workers=8, drop_last=False)
     total_time = 0.
     now = datetime.datetime.now()
     start_datetime_str = '{}-{}-{}-{}-{}-{}'.format(now.year, now.month, now.day, now.hour, now.minute, now.second)
