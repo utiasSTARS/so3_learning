@@ -57,7 +57,7 @@ def get_image_paths(data_path, trial_str, img_type='rgb'):
 
 def read_and_transform(img_path, transform):
     img = Image.open(img_path).convert('RGB')
-    return transform(img)
+    return torch.from_numpy(np.array(transform(img)), type=torch.uint8)
 
 def save_images(image_paths_rgb, transform, img_dims, file_name):
 
