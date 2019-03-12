@@ -37,7 +37,7 @@ class SO3FusionPipeline(object):
 
             if pose_i % 100 == 0:
                 end = time.time()
-                print('Processing {}. Pose: {} / {}. Avg. proc. freq.: {:.3f} [Hz]'.format(self.params.dataset_date_drive, pose_i, len(self.T_w_c_vo), 100.0/(end - start)))
+                print('Processing pose: {} / {}. Avg. proc. freq.: {:.3f} [Hz]'.format(pose_i, len(self.T_w_c_vo), 100.0/(end - start)))
                 start = time.time()
 
         
@@ -49,7 +49,7 @@ class SO3FusionPipeline(object):
         #Set initial guess to the corrected guess
         self.optimizer.reset_solver()
         self.optimizer.set_priors(self.T_w_c_vo[pose_i].inv(), self.T_w_c_vo[pose_i+1].inv())
-        self.optimizer.add_costs(T_21_vo, self.Sigma_21_vo, self.C_12_hydranet, self.Sigma_12_hydranet)
+        self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), SO3.from_matrix(self.C_12_hydranet[pose_i], normalize=True), invsqrt(self.Sigma_12_hydranet[pose_i]))
 
         T_21 = self.optimizer.solve()
         T_w_c = self.T_w_c[-1]
@@ -80,14 +80,16 @@ class VOFusionSolver(object):
     def set_priors(self, T_1_0, T_2_0):
         self.params_initial = {self.pose_keys[0]: T_1_0, self.pose_keys[1]: T_2_0}
         prior_residual = PoseResidual(T_1_0, self.prior_stiffness)
-        self.problem_solver.add_residual_block(prior_residual, self.pose_keys[0])
+        self.problem_solver.add_residual_block(prior_residual, [self.pose_keys[0]])
         self.problem_solver.initialize_params(self.params_initial)
 
     def add_costs(self, T_21_obs, odom_stiffness, C_12_obs, rot_stiffness):
         residual_pose = PoseToPoseResidual(T_21_obs, odom_stiffness)
         residual_rot = PoseToPoseOrientationResidual(C_12_obs, rot_stiffness)
         self.problem_solver.add_residual_block(residual_pose, self.pose_keys)
-        self.problem_solver.add_residual_block(residual_rot, self.pose_keys.reverse())
+
+        #Pose keys reverse due to C_12 targets (not C_21) ... dumb
+        self.problem_solver.add_residual_block(residual_rot, self.pose_keys[::-1])
 
     def solve(self):
         self.params_final = self.problem_solver.solve()
