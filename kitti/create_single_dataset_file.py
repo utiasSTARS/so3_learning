@@ -65,6 +65,7 @@ def save_images(image_paths_rgb, transform, img_dims, file_name):
     right_image_data = torch.empty(num_images, 3, img_dims[1], img_dims[0])
 
     for idx, (im_l, im_r) in enumerate(zip(*image_paths_rgb)):
+        print(idx)
         left_image_data[idx] = read_and_transform(im_l, transform)
         right_image_data[idx] = read_and_transform(im_r, transform)
 
