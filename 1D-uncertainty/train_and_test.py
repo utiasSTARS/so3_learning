@@ -60,10 +60,11 @@ def train_nn_dropout(x_train, y_train, batch_size, num_epochs=5000, use_cuda=Tru
 #    y_test = exp_data.y_test
 
     N = x_train.shape[0]
-    dropout_p = 0.01
+    dropout_p = 0.03
     l2 = 5e-8
     tau_inv = 0.01
     l2_decay = l2 * (1 - dropout_p)* tau_inv / (2 * N)
+#    l2_decay = l2 * (1)* tau_inv / (2 * N)
     N = x_train.shape[0]
 
     model = build_NN(dropout_p, num_outputs=1)
@@ -75,13 +76,15 @@ def train_nn_dropout(x_train, y_train, batch_size, num_epochs=5000, use_cuda=Tru
         y_train = y_train.cuda()
         model.cuda()
 
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.5, weight_decay=l2_decay)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.05, momentum=0.5, weight_decay=l2_decay)
 
     for e in range(num_epochs):
         num_batches = N // batch_size
         cost = 0.
         for k in range(num_batches):
             start, end = k * batch_size, (k + 1) * batch_size
+            if e == 2000:
+                optimizer = torch.optim.SGD(model.parameters(), lr=0.008, momentum=0.5, weight_decay=l2_decay)
             cost += (1/num_batches)*train_minibatch(model, loss, optimizer, x_train[start:end], y_train[start:end])
         
         if e%100 == 0:

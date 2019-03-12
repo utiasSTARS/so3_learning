@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import torch
 from visualize import visualize
 
-data = torch.load('figs/noise_experiment/noise_experiment_run_0_noise_0.01.pt')
+data = torch.load('figs/noise_experiment/noise_experiment_run_9_noise_0.pt')
 x_train = data['x_train']
 x_test = data['x_test']  
 y_train = data['y_train'] 
