@@ -56,7 +56,9 @@ def get_image_paths(data_path, trial_str, img_type='rgb'):
     return (imfiles_l, imfiles_r)
 
 def read_and_transform(img_path, transform):
-    return transform(Image.open(img_path).convert('RGB'))
+    img = Image.open(img_path).convert('RGB')
+    print(img)
+    return None #transform(img)
 
 def save_images(image_paths_rgb, transform, img_dims, file_name):
 
@@ -69,7 +71,6 @@ def save_images(image_paths_rgb, transform, img_dims, file_name):
             print(idx)
         left_image_data[idx] = read_and_transform(im_l, transform)
         right_image_data[idx] = read_and_transform(im_r, transform)
-        print(left_image_data[idx])
 
     torch.save({
         'im_l': left_image_data,
