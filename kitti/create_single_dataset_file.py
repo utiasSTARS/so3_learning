@@ -94,7 +94,7 @@ def main():
 
         image_paths_rgb = get_image_paths(data_path, trial_str, 'rgb')
         file_name = 'seq_{}.pt'.format(trial_str)
-        save_images(image_paths_rgb, transform, file_name)
+        save_images(image_paths_rgb, transform, [224, 224], file_name)
 
 
 if __name__ == '__main__':
