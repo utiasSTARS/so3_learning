@@ -153,14 +153,14 @@ def main():
     # train_trials = ['04', '02', '05', '06', '07', '08', '09', '10']
     
     #Removed 01 and 04 (road trials)
-    all_trials = ['00','02','05','06', '07', '08', '09', '10']
+    all_trials = ['00','02']#,'06', '07', '08', '09', '10']
     #all_trials = ['00', '02', '05', '06']
 
     #custom_training = [['00','06',['07','08','09','10']]]
 
 
-    train_pose_deltas = [5] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
-    test_pose_delta = 5
+    train_pose_deltas = [4] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
+    test_pose_delta = 4
     add_reverse = False #Add reverse transformations
 
     #Where is the KITTI data?
@@ -179,7 +179,7 @@ def main():
 
     
     for t_i, test_trial in enumerate(all_trials):
-        if t_i > 2:
+        if t_i > 0:
             break #Only produce trials for 00, 02 and 05
 
         if test_trial == all_trials[-1]:
