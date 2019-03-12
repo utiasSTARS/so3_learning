@@ -1,5 +1,8 @@
 import numpy as np
 import torch
+import pickle, csv, glob, os
+import torchvision.transforms as transforms
+from PIL import Image
 
 KITTI_SEQS_DICT = {'00': {'date': '2011_10_03',
                           'drive': '0027',
@@ -33,7 +36,7 @@ KITTI_SEQS_DICT = {'00': {'date': '2011_10_03',
                           'frames': range(0, 1201)}}
 
 
-def get_image_paths(data_path, trial_str, pose_deltas, img_type='rgb', eval_type='train', add_reverse=False):
+def get_image_paths(data_path, trial_str, img_type='rgb'):
     if img_type == 'rgb':
         impath_l = os.path.join(data_path, 'image_02', 'data', '*.png')
         impath_r = os.path.join(data_path, 'image_03', 'data', '*.png')
@@ -49,31 +52,50 @@ def get_image_paths(data_path, trial_str, pose_deltas, img_type='rgb', eval_type
     imfiles_l = [imfiles_l[i] for i in KITTI_SEQS_DICT[trial_str]['frames']]
     imfiles_r = [imfiles_r[i] for i in KITTI_SEQS_DICT[trial_str]['frames']]
 
-    image_paths = []
-    for p_delta in pose_deltas:
-        if eval_type == 'train':
-            image_paths.extend([[imfiles_l[i], imfiles_r[i], imfiles_l[i + p_delta], imfiles_r[i + p_delta]] for i in
-                                range(len(imfiles_l) - p_delta)])
-            if add_reverse:
-                image_paths.extend(
-                    [[imfiles_l[i + p_delta], imfiles_r[i + p_delta], imfiles_l[i], imfiles_r[i]] for i in
-                     range(len(imfiles_l) - p_delta)])
 
-        elif eval_type == 'test':
-            # Only add every p_delta'th quad
-            image_paths.extend([[imfiles_l[i], imfiles_r[i], imfiles_l[i + p_delta], imfiles_r[i + p_delta]] for i in
-                                range(0, len(imfiles_l) - p_delta, p_delta)])
+    return [imfiles_l, imfiles_r]
 
-        print('Adding {} image quads from trial {} for pose_delta: {}. Total quads: {}.'.format(img_type, trial_str,
-                                                                                                p_delta,
-                                                                                                len(image_paths)))
-    return image_paths
+def read_and_transform(img_path, transform):
+    return transform(Image.open(img_path).convert('RGB'))
 
-# Load datasets
-transform = transforms.Compose([
-    transforms.Resize(224),
-    transforms.CenterCrop(224),
-    transforms.ToTensor(),
-    transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                         std=[0.229, 0.224, 0.225])
-])
+def save_images(image_paths_rgb, transform, img_dims, file_name):
+
+    num_images = len(image_paths_rgb[0])
+    left_image_data = torch.empty(num_images, 3, img_dims[1], img_dims[0])
+    right_image_data = torch.empty(num_images, 3, img_dims[1], img_dims[0])
+
+    for idx, [im_l, im_r] in enumerate(zip(image_paths_rgb)):
+        left_image_data[idx] = read_and_transform(im_l, transform)
+        right_image_data[idx] = read_and_transform(im_r, transform)
+
+    torch.save({
+        'im_l': left_image_data,
+        'im_r': right_image_data
+    }, file_name)
+
+def main():
+    # Obelisk
+    kitti_path = '/media/datasets/KITTI/raw'
+    trial_strs = ['00']
+
+    # Load datasets
+    transform = transforms.Compose([
+        transforms.Resize(224),
+        transforms.CenterCrop(224),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                             std=[0.229, 0.224, 0.225])
+    ])
+
+    for t_id, trial_str in enumerate(trial_strs):
+
+        drive_folder = KITTI_SEQS_DICT[trial_str]['date'] + '_drive_' + KITTI_SEQS_DICT[trial_str]['drive'] + '_sync'
+        data_path = os.path.join(kitti_path, KITTI_SEQS_DICT[trial_str]['date'], drive_folder)
+
+        image_paths_rgb = get_image_paths(data_path, trial_str, 'rgb')
+        file_name = 'seq_{}.pt'.format(trial_str)
+        save_images(image_paths_rgb, transform, file_name)
+
+
+if __name__ == '__main__':
+    main()
