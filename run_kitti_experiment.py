@@ -67,27 +67,21 @@ if __name__ == '__main__':
         lr=args.lr)
 
     #Load datasets
-    # transform = transforms.Compose([
-    #     transforms.Resize(224),
-    #     transforms.CenterCrop(224),
-    #     transforms.ToTensor(),
-    #     transforms.Normalize(mean=[0.485, 0.456, 0.406],
-    #                          std=[0.229, 0.224, 0.225])
-    # ])
-
     transform = transforms.Compose([
-        transforms.Resize((224, 224)),
+        transforms.Resize(224),
+        transforms.CenterCrop(224),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
     ])
 
-    kitti_data_pickle_file = 'kitti/kitti_data_sequence_{}.pickle'.format(args.seq)
+
+    kitti_data_pickle_file = 'kitti/datasets/monolith/kitti_data_sequence_{}.pickle'.format(args.seq)
 
     train_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='train'),
                         batch_size=args.batch_size, pin_memory=True,
                         shuffle=True, num_workers=8, drop_last=False)
-    valid_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='valid'),
+    valid_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='test'),
                               batch_size=args.batch_size, pin_memory=True,
                               shuffle=False, num_workers=8, drop_last=False)
     total_time = 0.
@@ -143,7 +137,6 @@ if __name__ == '__main__':
 
             torch.save({
                 'full_model': model.state_dict(),
-                'direct_covar_head': model.direct_covar_head.state_dict(),
                 'predict_history': predict_history,
                 'epoch': epoch + 1,
             }, 'kitti/plots/best_model_seq_{}_heads_{}_epoch_{}.pt'.format(args.seq, model.num_hydra_heads, epoch + 1))

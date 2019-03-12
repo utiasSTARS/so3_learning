@@ -3,7 +3,37 @@ import pickle, csv, glob, os
 import random
 import numpy as np
 from liegroups.numpy import SE3
-from utils import *
+
+KITTI_SEQS_DICT = {'00': {'date': '2011_10_03',
+                          'drive': '0027',
+                          'frames': range(0, 4541)},
+                   '01': {'date': '2011_10_03',
+                          'drive': '0042',
+                          'frames': range(0, 1101)},
+                   '02': {'date': '2011_10_03',
+                          'drive': '0034',
+                          'frames': range(0, 4661)},
+                   '04': {'date': '2011_09_30',
+                          'drive': '0016',
+                          'frames': range(0, 271)},
+                   '05': {'date': '2011_09_30',
+                          'drive': '0018',
+                          'frames': range(0, 2761)},
+                   '06': {'date': '2011_09_30',
+                          'drive': '0020',
+                          'frames': range(0, 1101)},
+                   '07': {'date': '2011_09_30',
+                          'drive': '0027',
+                          'frames': range(0, 1101)},
+                   '08': {'date': '2011_09_30',
+                          'drive': '0028',
+                          'frames': range(1100, 5171)},
+                   '09': {'date': '2011_09_30',
+                          'drive': '0033',
+                          'frames': range(0, 1591)},
+                   '10': {'date': '2011_09_30',
+                          'drive': '0034',
+                          'frames': range(0, 1201)}}
 
 def compute_vo_pose_errors(tm, pose_deltas, eval_type='train', add_reverse=False):
     """Compute delta pose errors on VO estimates """
@@ -129,19 +159,23 @@ def main():
     #custom_training = [['00','06',['07','08','09','10']]]
 
 
-    train_pose_deltas = [1] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
+    train_pose_deltas = [1,5] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
     test_pose_delta = 1
     add_reverse = False #Add reverse transformations
 
     #Where is the KITTI data?
-    kitti_path = '/media/datasets/KITTI/raw'
 
-    #Where are the baseline TrajectoryMetrics mat files stored?
+
+    #Obelisk
+    kitti_path = '/media/datasets/KITTI/raw'
     tm_path = '/media/datasets/KITTI/trajectory_metrics'
 
+    #Monolith:
+    #kitti_path = '/media/m2-drive/datasets/KITTI/raw'
+    #tm_path = '/media/raid5-array/experiments/Deep-PC/stereo_vo_results/baseline'
+
     #Where should we output the training files?
-    #data_path = '/media/raid5-array/experiments/Deep-PC/training_pose_errors_pytorch'
-    data_path = './'
+    data_path = './datasets/obelisk'
 
     
     for t_i, test_trial in enumerate(all_trials):
@@ -149,21 +183,21 @@ def main():
             break #Only produce trials for 00, 02 and 05
 
         if test_trial == all_trials[-1]:
-            val_trial = all_trials[-2]
-            train_trials = all_trials[:-2]
+            #val_trial = all_trials[-2]
+            train_trials = all_trials[:-1]
         else:
-            val_trial = all_trials[t_i+1]
-            train_trials = all_trials[:t_i] + all_trials[t_i+2 :]
+            #val_trial = all_trials[t_i+1]
+            train_trials = all_trials[:t_i] + all_trials[t_i+1:]
 
     #for test_trial, val_trial, train_trials in custom_training:
 
-        print('Processing.. Test: {}. Val: {}. Train: {}.'.format(test_trial, val_trial, train_trials))
+        print('Processing.. Test: {}. Train: {}.'.format(test_trial, train_trials))
 
         (train_img_paths_rgb, train_corr, train_gt, train_est, train_tm_mat_files) = process_ground_truth(train_trials, tm_path, kitti_path, train_pose_deltas, 'train', add_reverse)
         print('Processed {} training image quads.'.format(len(train_corr)))
 
-        (val_img_paths_rgb, val_corr, val_gt, val_est, val_tm_mat_file) = process_ground_truth([val_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
-        print('Processed {} validation image quads.'.format(len(val_corr)))
+        # (val_img_paths_rgb, val_corr, val_gt, val_est, val_tm_mat_file) = process_ground_truth([val_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
+        # print('Processed {} validation image quads.'.format(len(val_corr)))
 
         (test_img_paths_rgb, test_corr, test_gt, test_est, test_tm_mat_file) = process_ground_truth([test_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
         print('Processed {} test image quads.'.format(len(test_corr)))
@@ -178,19 +212,19 @@ def main():
         kitti_data['train_T_est'] = train_est
         kitti_data['train_tm_mat_paths'] = train_tm_mat_files
 
-        kitti_data['val_sequence'] = val_trial
-        kitti_data['val_tm_mat_path'] = val_tm_mat_file[0] #Path to mat file containing the the trajectory (loaded by TrajectoryMetrics)
-        kitti_data['val_img_paths_rgb'] = val_img_paths_rgb
-        kitti_data['val_T_corr'] = val_corr
-        kitti_data['val_T_gt'] = val_gt
-        kitti_data['val_T_est'] = val_est
+        # kitti_data['val_sequence'] = val_trial
+        # kitti_data['val_tm_mat_path'] = val_tm_mat_file[0] #Path to mat file containing the the trajectory (loaded by TrajectoryMetrics)
+        # kitti_data['val_img_paths_rgb'] = val_img_paths_rgb
+        # kitti_data['val_T_corr'] = val_corr
+        # kitti_data['val_T_gt'] = val_gt
+        # kitti_data['val_T_est'] = val_est
      
-        # kitti_data.test_sequence = test_trial
-        # kitti_data.test_tm_mat_path = test_tm_mat_file[0]
-        # kitti_data.test_img_paths_rgb = test_img_paths_rgb
-        # kitti_data.test_T_corr = test_corr
-        # kitti_data.test_T_gt = test_gt
-        # kitti_data.test_T_est = test_est
+        kitti_data['test_sequence'] = test_trial
+        kitti_data['test_tm_mat_path'] = test_tm_mat_file[0]
+        kitti_data['test_img_paths_rgb'] = test_img_paths_rgb
+        kitti_data['test_T_corr'] = test_corr
+        kitti_data['test_T_gt'] = test_gt
+        kitti_data['test_T_est'] = test_est
 
         data_filename = os.path.join(data_path, 'kitti_data_sequence_{}.pickle'.format(test_trial))
         print('Saving to {} ....'.format(data_filename))

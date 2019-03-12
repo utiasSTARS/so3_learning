@@ -145,20 +145,20 @@ class KITTIVODataset(Dataset):
             self.T_est = kitti_data['train_T_est']
             self.sequences = kitti_data['train_sequences']
 
-        elif run_type == 'validate' or run_type == 'valid':
-            self.image_quad_paths = kitti_data['val_img_paths_rgb']
-            self.T_gt = kitti_data['val_T_gt']
-            self.T_est = kitti_data['val_T_est']
-            self.sequence = kitti_data['val_sequence']
-            self.tm_mat_path = kitti_data['val_tm_mat_path']
+        # elif run_type == 'validate' or run_type == 'valid':
+        #     self.image_quad_paths = kitti_data['val_img_paths_rgb']
+        #     self.T_gt = kitti_data['val_T_gt']
+        #     self.T_est = kitti_data['val_T_est']
+        #     self.sequence = kitti_data['val_sequence']
+        #     self.tm_mat_path = kitti_data['val_tm_mat_path']
 
-        # elif run_type == 'test':
-        #     self.image_quad_paths = kitti_data.test_img_paths_rgb
-        #     self.T_corr = kitti_data.test_T_corr
-        #     self.T_gt = kitti_data.test_T_gt
-        #     self.T_est = kitti_data.test_T_est
-        #     self.sequence = kitti_data.test_sequence
-        #     self.tm_mat_path = kitti_data.test_tm_mat_path
+        elif run_type == 'test':
+            self.image_quad_paths = kitti_data['test_img_paths_rgb']
+            self.T_corr = kitti_data['test_T_corr']
+            self.T_gt = kitti_data['test_T_gt']
+            self.T_est = kitti_data['test_T_est']
+            self.sequence = kitti_data['test_sequence']
+            self.tm_mat_path = kitti_data['test_tm_mat_path']
 
         else:
             raise ValueError('run_type must be set to `train`, `validate` or `test`. ')
@@ -173,7 +173,8 @@ class KITTIVODataset(Dataset):
     def __getitem__(self, idx):
         # Get all four images in the two pairs
         image_quad_paths = self.image_quad_paths[idx]
-        target_quat = torch.from_numpy(quaternion_from_matrix(self.T_gt[idx].rot.as_matrix())).float()
+        #Note: transpose necessary so that targets are C_21 and not C_12
+        target_quat = torch.from_numpy(quaternion_from_matrix(self.T_gt[idx].rot.as_matrix().transpose(0,1))).float()
         # Note: The camera y axis is facing down, hence 'yaw' of the vehicle, is 'pitch' of the camera
         if self.transform_img:
             image_pair = [self.transform_img(self.read_image(image_quad_paths[i])) for i in [0,2]]

@@ -19,6 +19,7 @@ import collections
 from pyslam.visualizers import TrajectoryVisualizer
 
 
+
 def run_sparse_vo(basedir, date, drive, im_range, metrics_filename=None, saved_tracks_filename=None):
 
     #Observation Noise
@@ -80,7 +81,7 @@ def run_sparse_vo(basedir, date, drive, im_range, metrics_filename=None, saved_t
     # # Save to file
     if metrics_filename:
         print('Saving to {}'.format(metrics_filename))
-        tm.savemat(metrics_filename)
+        tm.savemat(metrics_filename, extras={'Sigma_21': svo.Sigma})
 
     return tm
 
@@ -102,18 +103,17 @@ def main():
     # 09: 2011_09_30_drive_0033 000000 001590
     # 10: 2011_09_30_drive_0034 000000 001200
 
-    #Set to none to extract new tracks
+    kitti_basedir = '/media/m2-drive/datasets/KITTI/raw'
+    saved_tracks_dir = None
 
-    #kitti_basedir = '/media/m2-drive/datasets/KITTI/raw'
     #saved_tracks_dir = '/media/raid5-array/datasets/KITTI/extracted_sparse_tracks/'
     #export_dir = '/media/raid5-array/experiments/SO3-learning/stereo_vo_results/baseline_distorted'
 
-    saved_tracks_dir = None
-    kitti_basedir = '/media/datasets/KITTI/raw/'
-    export_dir = '/media/datasets/KITTI/trajectory_metrics/'
+    #kitti_basedir = '/media/datasets/KITTI/raw/'
+    #export_dir = '/media/datasets/KITTI/trajectory_metrics/'
 
-    #kitti_basedir = '/Users/valentinp/research/data/kitti/'
-    #export_dir = './'
+    export_dir = '../datasets/monolith'
+
     seqs = {'00': {'date': '2011_10_03',
                    'drive': '0027',
                    'frames': range(0, 4541)},
@@ -146,7 +146,7 @@ def main():
                    'frames': range(0, 1201)}}
 
 
-    compute_seqs = ['02', '04', '05', '06', '07', '08', '09', '10']
+    compute_seqs = ['00', '02', '05', '06', '07', '08', '09', '10']
     #compute_seqs = ['06']
 
     for seq in compute_seqs:
