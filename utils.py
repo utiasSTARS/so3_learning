@@ -57,6 +57,8 @@ def normalize_vecs(vecs):
 def set_quat_sign(q):
 
     #This function assumes there a re multiple heads so we have an input of  H x B x 4 (Heads x Batch x 4)
+    if q.dim() < 3:
+        q = q.unsqueeze(1)
 
     # Check for negative scalars first, then substitute q for -q whenever that is the case (this accounts for the double cover of S3 over SO(3))
     neg_angle_mask = q[:, :, 0] < 0.
@@ -65,7 +67,7 @@ def set_quat_sign(q):
     if len(neg_angle_inds) > 0:
         q[neg_angle_mask, :] = -1. * q[neg_angle_mask, :]
 
-    return q
+    return q.squeeze(1)
 
 
 #NxMxD -> NxDxD
