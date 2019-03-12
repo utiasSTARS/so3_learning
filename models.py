@@ -118,7 +118,7 @@ class BasicCNN(torch.nn.Module):
 class CustomResNet(torch.nn.Module):
     def __init__(self, feature_dim):
         super(CustomResNet, self).__init__()
-        self.dnn = models.resnet18(pretrained=True)
+        self.dnn = models.resnet34(pretrained=True)
 
         num_ftrs = self.dnn.fc.in_features
         self.dnn.fc = torch.nn.Linear(num_ftrs, feature_dim)
@@ -188,7 +188,7 @@ class QuaternionDualCNN(torch.nn.Module):
         sensor_feature_dim = 128
         #BasicCNN(feature_dim=sensor_feature_dim) #
         self.sensor_net0 = CustomResNet(feature_dim=sensor_feature_dim)
-        self.sensor_net1 = CustomResNet(feature_dim=sensor_feature_dim)
+        self.sensor_net1 = self.sensor_net0#CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(
             [GenericHead(D_in=2*sensor_feature_dim, D_layers=512, D_out=4, dropout=False, init_large=True) for h in range(self.num_hydra_heads)])
