@@ -167,17 +167,15 @@ def main():
 
 
     #Obelisk
-    #kitti_path = '/media/datasets/KITTI/raw'
-    #Monolith:
-    kitti_path = '/media/m2-drive/datasets/KITTI/raw'
+    kitti_path = '/media/datasets/KITTI/raw'
+    tm_path = '/media/datasets/KITTI/trajectory_metrics'
 
-    #Where are the baseline TrajectoryMetrics mat files stored?
-    #tm_path = '/media/datasets/KITTI/trajectory_metrics'
-    tm_path = '/media/raid5-array/experiments/Deep-PC/stereo_vo_results/baseline'
+    #Monolith:
+    #kitti_path = '/media/m2-drive/datasets/KITTI/raw'
+    #tm_path = '/media/raid5-array/experiments/Deep-PC/stereo_vo_results/baseline'
 
     #Where should we output the training files?
-    #data_path = '/media/raid5-array/experiments/Deep-PC/training_pose_errors_pytorch'
-    data_path = './datasets/monolith'
+    data_path = './datasets/obelisk'
 
     
     for t_i, test_trial in enumerate(all_trials):
