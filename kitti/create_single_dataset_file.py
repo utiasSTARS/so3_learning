@@ -69,11 +69,11 @@ def save_images(image_paths_rgb, transform, img_dims, file_name):
         if idx%100==0:
             print(idx)
         left_image_data[idx] = read_and_transform(im_l, transform)
-        right_image_data[idx] = read_and_transform(im_r, transform)
+        #right_image_data[idx] = read_and_transform(im_r, transform)
 
     torch.save({
-        'im_l': left_image_data,
-        'im_r': right_image_data
+        'im_l': left_image_data
+        #'im_r': right_image_data
     }, file_name)
 
 def main():
