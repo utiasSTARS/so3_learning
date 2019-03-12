@@ -57,8 +57,7 @@ def get_image_paths(data_path, trial_str, img_type='rgb'):
 
 def read_and_transform(img_path, transform):
     img = Image.open(img_path).convert('RGB')
-    print(transform(img))
-    return None #transform(img)
+    return transform(img)
 
 def save_images(image_paths_rgb, transform, img_dims, file_name):
 
@@ -88,7 +87,7 @@ def main():
         transforms.CenterCrop(224),
         transforms.ToTensor(),
         # transforms.Normalize(mean=[0.485, 0.456, 0.406],
-        #                      std=[0.229, 0.224, 0.225])
+        #                       std=[0.229, 0.224, 0.225])
     ])
 
     for t_id, trial_str in enumerate(trial_strs):
