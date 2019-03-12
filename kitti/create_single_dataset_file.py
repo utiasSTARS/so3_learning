@@ -61,8 +61,8 @@ def read_and_transform(img_path, transform):
 def save_images(image_paths_rgb, transform, img_dims, file_name):
 
     num_images = len(image_paths_rgb[0])
-    left_image_data = torch.empty(num_images, 3, img_dims[1], img_dims[0])
-    right_image_data = torch.empty(num_images, 3, img_dims[1], img_dims[0])
+    left_image_data = torch.empty(num_images, 3, img_dims[1], img_dims[0]).float()
+    right_image_data = torch.empty(num_images, 3, img_dims[1], img_dims[0]).float()
 
     for idx, (im_l, im_r) in enumerate(zip(*image_paths_rgb)):
         if idx%100==0:
