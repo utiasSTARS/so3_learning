@@ -76,7 +76,7 @@ if __name__ == '__main__':
     ])
 
 
-    kitti_data_pickle_file = 'kitti/datasets/monolith/kitti_data_sequence_{}.pickle'.format(args.seq)
+    kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_data_sequence_{}.pickle'.format(args.seq)
 
     train_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='train'),
                         batch_size=args.batch_size, pin_memory=True,
