@@ -24,11 +24,16 @@ def validate(model, loader, loss_fn, config, output_history=False, output_grid=F
             R_direct_hist = []
 
         for batch_idx, (y_obs, q_gt) in enumerate(loader):
-            y_obs = y_obs.to(config['device'])
 
-            if batch_idx == int(len(loader)/2) + 1 and output_grid:
-                print('SAVING IMAGE GRID')
-                torchvision.utils.save_image(torchvision.utils.make_grid(y_obs), '7scenes/jittered_image.png')
+            if isinstance(y_obs, list):
+                y_obs[0] = y_obs[0].to(config['device'])
+                y_obs[1] = y_obs[1].to(config['device'])
+            else:
+                y_obs = y_obs.to(config['device'])
+
+            # if batch_idx == int(len(loader)/2) + 1 and output_grid:
+            #     print('SAVING IMAGE GRID')
+            #     torchvision.utils.save_image(torchvision.utils.make_grid(y_obs), '7scenes/jittered_image.png')
 
             q_gt = q_gt.to(config['device'])
             batch_size = q_gt.shape[0]
@@ -75,7 +80,12 @@ def train(model, loader, loss_fn, optimizer, config, q_target_sigma=0.):
 
     for batch_idx, (y_obs, q_gt) in enumerate(loader):
         #Identity matrix as the initialization
-        y_obs = y_obs.to(config['device'])
+        if isinstance(y_obs, list):
+            y_obs[0] = y_obs[0].to(config['device'])
+            y_obs[1] = y_obs[1].to(config['device'])
+        else:
+            y_obs = y_obs.to(config['device'])
+
         q_gt = q_gt.to(config['device'])
         q_est, Rinv = model(y_obs)
 
