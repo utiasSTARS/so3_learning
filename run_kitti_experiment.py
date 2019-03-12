@@ -60,8 +60,8 @@ if __name__ == '__main__':
 
 
     optimizer = torch.optim.Adam(
-        [{'params': model.sensor_net0.parameters(), 'lr': 0.1*args.lr},
-        {'params': model.sensor_net1.parameters(), 'lr': 0.1*args.lr},
+        [{'params': model.sensor_net.parameters(), 'lr': 0.1*args.lr},
+        #{'params': model.sensor_net1.parameters(), 'lr': 0.1*args.lr},
         {'params': model.heads.parameters()},
          {'params': model.direct_covar_head.parameters()}],
         lr=args.lr)
