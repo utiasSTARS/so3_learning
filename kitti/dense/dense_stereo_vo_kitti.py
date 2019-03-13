@@ -81,8 +81,8 @@ def main():
     # 09: 2011_09_30_drive_0033 000000 001590
     # 10: 2011_09_30_drive_0034 000000 001200
 
-    #basedir = '/media/m2-drive/datasets/KITTI/raw/'
-    basedir = '/media/datasets/KITTI/raw/'
+    basedir = '/media/m2-drive/datasets/KITTI/raw/'
+    #basedir = '/media/datasets/KITTI/raw/'
     outdir = '/home/valentinp/Desktop/'
     os.makedirs(outdir, exist_ok=True)
 
