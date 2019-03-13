@@ -48,8 +48,6 @@ def compute_vo_pose_errors(tm, pose_deltas, seq, eval_type='train', add_reverse=
             pose_ids = range(len(tm.Twv_gt) - p_delta)
         elif eval_type=='test':
             pose_ids = range(0, len(tm.Twv_gt) - p_delta, p_delta)
-        else:
-            raise('Unrecognized eval_type')
 
         for p_idx in pose_ids:
             T_21_gt = tm.Twv_gt[p_idx + p_delta].inv().dot(tm.Twv_gt[p_idx])
@@ -91,7 +89,7 @@ def process_ground_truth(trial_strs, tm_path, kitti_path, pose_deltas, eval_type
             tm = TrajectoryMetrics.loadmat(tm_mat_file)
 
 
-        (T_21_gt, T_21_est, pair_pose_ids, seqs) = compute_vo_pose_errors(tm, pose_deltas, eval_type, add_reverse)
+        (T_21_gt, T_21_est, pair_pose_ids, seqs) = compute_vo_pose_errors(tm, pose_deltas, trial_str, eval_type, add_reverse)
 
         T_21_gt_all.append(T_21_gt)
         T_21_est_all.append(T_21_est)
