@@ -52,19 +52,19 @@ def compute_vo_pose_errors(tm, pose_deltas, seq, eval_type='train', add_reverse=
         for p_idx in pose_ids:
             T_21_gt = tm.Twv_gt[p_idx + p_delta].inv().dot(tm.Twv_gt[p_idx])
             T_21_est = tm.Twv_est[p_idx + p_delta].inv().dot(tm.Twv_est[p_idx])
-            T_21_gts.extend(T_21_gt)
-            T_21_ests.extend(T_21_est)
-            pair_pose_ids.extend([p_idx, p_idx + p_delta])
-            seqs.extend(seq)
+            T_21_gts.append(T_21_gt)
+            T_21_ests.append(T_21_est)
+            pair_pose_ids.append([p_idx, p_idx + p_delta])
+            seqs.append(seq)
 
         if add_reverse and eval_type=='train':
             for p_idx in pose_ids:
                 T_21_gt = tm.Twv_gt[p_idx].inv().dot(tm.Twv_gt[p_idx + p_delta])
                 T_21_est = tm.Twv_est[p_idx].inv().dot(tm.Twv_est[p_idx + p_delta])
-                T_21_gts.extend(T_21_gt)
-                T_21_ests.extend(T_21_est)
-                pair_pose_ids.extend([p_idx + p_delta, p_idx])
-                seqs.extend(seq)
+                T_21_gts.append(T_21_gt)
+                T_21_ests.append(T_21_est)
+                pair_pose_ids.append([p_idx + p_delta, p_idx])
+                seqs.append(seq)
 
     return (T_21_gts, T_21_ests, pair_pose_ids, seqs)
 
@@ -89,11 +89,11 @@ def process_ground_truth(trial_strs, tm_path, pose_deltas, eval_type='train', ad
 
         (T_21_gt, T_21_est, pair_pose_ids, seqs) = compute_vo_pose_errors(tm, pose_deltas, trial_str, eval_type, add_reverse)
 
-        T_21_gt_all.append(T_21_gt)
-        T_21_est_all.append(T_21_est)
-        pose_ids.append(pair_pose_ids)
-        sequences.append(seqs)
-        tm_mat_files.append(tm_mat_file)
+        T_21_gt_all.extend(T_21_gt)
+        T_21_est_all.extend(T_21_est)
+        pose_ids.extend(pair_pose_ids)
+        sequences.extend(seqs)
+        tm_mat_files.extend(tm_mat_file)
 
 
     return (pose_ids, sequences, T_21_gt_all, T_21_est_all, tm_mat_files)
