@@ -155,8 +155,8 @@ class DenseVOPipeline:
 
     def _compute_frame_to_frame_motion(self, ref_frame, track_frame,
                                        guess=SE3.identity()):
-        # params = {'T_1_0': guess}
-        params = {'R_1_0': guess.rot, 't_1_0_1': guess.trans}
+        params = {'T_1_0': guess}
+        # params = {'R_1_0': guess.rot, 't_1_0_1': guess.trans}
 
         for (pyrlevel, pyr_camera) in zip(
                 self.pyrlevel_sequence, self.pyr_cameras):
