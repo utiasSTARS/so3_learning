@@ -211,7 +211,7 @@ class KITTIVODatasetPreTransformed(Dataset):
             self.T_21_vo = kitti_data['test_T_21_vo']
 
         else:
-            raise ValueError('run_type must be set to `train`, `validate` or `test`. ')
+            raise ValueError('run_type must be set to `train`, or `test`. ')
 
         print('Loading sequences...{}'.format(list(set(self.seqs))))
         self.seq_images = {seq: self.import_seq(seq) for seq in list(set(self.seqs))}
