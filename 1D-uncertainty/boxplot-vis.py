@@ -6,7 +6,7 @@ import torch
 from visualize import boxplot
 
 noise_test = True
-sigma_n=[0,0.01,0.05]
+sigma_n=[0,0.01,0.05,0.25]
 models = ['Ensemble', 'HydraNet', 'HydraNet-Sigma']
 nll_losses = []
 mse_losses = []
@@ -22,7 +22,7 @@ if noise_test:
         nll_losses.append(np.hstack((nll)))
         mse_losses.append(np.hstack((mse)))
 
-    positions = [[1,2,3], [5,6,7], [9,10,11]]
+    positions = [[1,2,3,4], [6,7,8,9], [11, 12, 13, 14]]
     
     boxplot(nll_losses, title='NLL',legend=models, positions=positions, save_path='figs/noise_experiment/uncertainty-NLL-noise-{}.pdf'.format(sigma_n))
     boxplot(mse_losses, title='MSE', legend=models, positions=positions, save_path='figs/noise_experiment/uncertainty-MSE-noise-{}.pdf'.format(sigma_n))

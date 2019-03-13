@@ -57,8 +57,16 @@ def boxplot(data, title='', legend=None, positions=None, save_path=None):
     plt.rc('font', family='serif')
     xtick_loc = []
     for bp, p in zip(data,positions):
-        plt.boxplot(bp,vert=True, positions=p)
+        plot = plt.boxplot(bp,vert=True, positions=p)
         xtick_loc.append(p[int((len(p))/2)])
+        plt.setp(plot['boxes'][0],color='lightcoral')
+        plt.setp(plot['boxes'][1],color='indianred')
+        plt.setp(plot['boxes'][2],color='brown')
+        plt.setp(plot['boxes'][3],color='firebrick')
+#        plot['boxes'][0].set_fillstyle('full')
+#        plot['boxes'][0].set_markerfacecolor('lightcoral')
+
+
 #    plt.ylim(10^0,10^2)
     print(xtick_loc)
     plt.title(title)
@@ -67,6 +75,17 @@ def boxplot(data, title='', legend=None, positions=None, save_path=None):
     plt.xticks(xtick_loc, legend)
 #    plt.xticks(rotation=20)
     plt.yscale('log')
+    
+    h1, = plt.plot([1,1],'lightcoral')
+    h2, = plt.plot([1,1],'indianred')
+    h3, = plt.plot([1,1],'brown')
+    h4, = plt.plot([1,1],'firebrick')
+    plt.legend((h1, h2, h3, h4),('0', '0.01', '0.05', '0.25'))
+    h1.set_visible(False)
+    h2.set_visible(False)  
+    h3.set_visible(False) 
+    h4.set_visible(False) 
+    
     
     if save_path:
         plt.savefig(save_path, format='pdf', dpi=800, bbox_inches='tight')
