@@ -26,10 +26,10 @@ def validate(model, loader, loss_fn, config, output_history=False, output_grid=F
         for batch_idx, (y_obs, q_gt) in enumerate(loader):
 
             if isinstance(y_obs, list):
-                y_obs[0] = y_obs[0].to(config['device'])
-                y_obs[1] = y_obs[1].to(config['device'])
+                y_obs[0] = y_obs[0].to(config['device'], non_blocking=True)
+                y_obs[1] = y_obs[1].to(config['device'], non_blocking=True)
             else:
-                y_obs = y_obs.to(config['device'])
+                y_obs = y_obs.to(config['device'], non_blocking=True)
 
             # if batch_idx == int(len(loader)/2) + 1 and output_grid:
             #     print('SAVING IMAGE GRID')
@@ -82,10 +82,10 @@ def train(model, loader, loss_fn, optimizer, config, q_target_sigma=0.):
     for batch_idx, (y_obs, q_gt) in enumerate(loader):
         #Identity matrix as the initialization
         if isinstance(y_obs, list):
-            y_obs[0] = y_obs[0].to(config['device'])
-            y_obs[1] = y_obs[1].to(config['device'])
+            y_obs[0] = y_obs[0].to(config['device'], non_blocking=True)
+            y_obs[1] = y_obs[1].to(config['device'], non_blocking=True)
         else:
-            y_obs = y_obs.to(config['device'])
+            y_obs = y_obs.to(config['device'], non_blocking=True)
 
         q_gt = q_gt.to(config['device'])
         q_est, Rinv = model(y_obs)
