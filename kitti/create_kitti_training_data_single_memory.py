@@ -110,7 +110,7 @@ def main():
     #all_trials = ['00', '02', '05', '06']
 
 
-    train_pose_deltas = [3] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
+    train_pose_deltas = [1,3] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
     test_pose_delta = 3
     add_reverse = False #Add reverse transformations
 
@@ -130,7 +130,7 @@ def main():
 
     
     for t_i, test_trial in enumerate(all_trials):
-        if t_i > 0:
+        if t_i > 2:
             break #Only produce trials for 00, 02 and 05
 
         if test_trial == all_trials[-1]:
