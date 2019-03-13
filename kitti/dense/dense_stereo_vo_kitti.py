@@ -27,13 +27,12 @@ def run_vo_kitti(basedir, date, drive, frames, outfile=None):
     T_0_w.normalize()
 
     # Create the camera
-    test_im = next(dataset.cam0)
+    h, w = np.array(dataset.get_cam0(0).convert('L')).shape
     fu = dataset.calib.K_cam0[0, 0]
     fv = dataset.calib.K_cam0[1, 1]
     cu = dataset.calib.K_cam0[0, 2]
     cv = dataset.calib.K_cam0[1, 2]
     b = dataset.calib.b_gray
-    h, w = test_im.shape
     camera = StereoCamera(cu, cv, fu, fv, b, w, h)
 
     # Ground truth
