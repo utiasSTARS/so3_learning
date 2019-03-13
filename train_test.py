@@ -1,4 +1,4 @@
-import torch
+import torch, time
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from liegroups.torch import SO3
@@ -24,6 +24,8 @@ def validate(model, loader, loss_fn, config, output_history=False, output_grid=F
             R_direct_hist = []
 
         for batch_idx, (y_obs, q_gt) in enumerate(loader):
+
+            start = time.time()
 
             if isinstance(y_obs, list):
                 y_obs[0] = y_obs[0].to(config['device'])
@@ -52,6 +54,8 @@ def validate(model, loader, loss_fn, config, output_history=False, output_grid=F
                 R_direct_hist.append(Rinv_direct.inverse())
 
             total_samples += batch_size
+
+            print('Single mini batch in: {:3.3f}'.format(time.time() - start))
 
     avg_loss = loss.item() / len(loader)
     avg_err = (angular_error/total_samples)*(180./3.1415)
