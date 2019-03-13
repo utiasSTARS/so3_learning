@@ -25,7 +25,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='3D training arguments.')
     parser.add_argument('--seq', type=str, default='00')
     parser.add_argument('--cuda', action='store_true', default=True)
-    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--epoch_display', type=int, default=1)
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--total_epochs', type=int, default=15)
