@@ -196,9 +196,9 @@ class DenseVOPipeline:
             # problem.set_parameters_constant('R_1_0')
 
             params = problem.solve()
-            problem.compute_covariance()
-
-            print(problem._covariance_matrix.shape)
+            if pyrlevel == self.pyrlevels:
+                problem.compute_covariance()
+                print(problem._covariance_matrix.shape)
             # print(problem.summary(format='brief'))
 
             # # DEBUG: Store residuals for later
@@ -209,7 +209,7 @@ class DenseVOPipeline:
             #     self.residuals = residual.evaluate([guess])
 
         # return params['T_1_0']
-        return SE3(params['R_1_0'], params['t_1_0_1']), problem._covariance_matrix()
+        return SE3(params['R_1_0'], params['t_1_0_1']), problem._covariance_matrix
 
 
 class DenseStereoPipeline(DenseVOPipeline):
