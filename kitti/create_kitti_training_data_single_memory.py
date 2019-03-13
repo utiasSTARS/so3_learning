@@ -52,23 +52,23 @@ def compute_vo_pose_errors(tm, pose_deltas, seq, eval_type='train', add_reverse=
         for p_idx in pose_ids:
             T_21_gt = tm.Twv_gt[p_idx + p_delta].inv().dot(tm.Twv_gt[p_idx])
             T_21_est = tm.Twv_est[p_idx + p_delta].inv().dot(tm.Twv_est[p_idx])
-            T_21_gts.append(T_21_gt)
-            T_21_ests.append(T_21_est)
-            pair_pose_ids.append([p_idx, p_idx + p_delta])
-            seqs.append(seq)
+            T_21_gts.extend(T_21_gt)
+            T_21_ests.extend(T_21_est)
+            pair_pose_ids.extend([p_idx, p_idx + p_delta])
+            seqs.extend(seq)
 
         if add_reverse and eval_type=='train':
             for p_idx in pose_ids:
                 T_21_gt = tm.Twv_gt[p_idx].inv().dot(tm.Twv_gt[p_idx + p_delta])
                 T_21_est = tm.Twv_est[p_idx].inv().dot(tm.Twv_est[p_idx + p_delta])
-                T_21_gts.append(T_21_gt)
-                T_21_ests.append(T_21_est)
-                pair_pose_ids.append([p_idx + p_delta, p_idx])
-                seqs.append(seq)
+                T_21_gts.extend(T_21_gt)
+                T_21_ests.extend(T_21_est)
+                pair_pose_ids.extend([p_idx + p_delta, p_idx])
+                seqs.extend(seq)
 
     return (T_21_gts, T_21_ests, pair_pose_ids, seqs)
 
-def process_ground_truth(trial_strs, tm_path, kitti_path, pose_deltas, eval_type='train', add_reverse=False):
+def process_ground_truth(trial_strs, tm_path, pose_deltas, eval_type='train', add_reverse=False):
     
     T_21_gt_all = []
     T_21_est_all = []
@@ -78,8 +78,6 @@ def process_ground_truth(trial_strs, tm_path, kitti_path, pose_deltas, eval_type
 
     for t_id, trial_str in enumerate(trial_strs):
 
-        drive_folder = KITTI_SEQS_DICT[trial_str]['date'] + '_drive_' + KITTI_SEQS_DICT[trial_str]['drive'] + '_sync'
-        data_path = os.path.join(kitti_path, KITTI_SEQS_DICT[trial_str]['date'], drive_folder)
         tm_mat_file = os.path.join(tm_path, KITTI_SEQS_DICT[trial_str]['date'] + '_drive_' + KITTI_SEQS_DICT[trial_str]['drive'] + '.mat')
 
         try:
@@ -150,13 +148,13 @@ def main():
 
         #(pose_ids, sequences, T_21_gt_all, T_21_est_all, tm_mat_files)
 
-        (train_pose_ids, train_sequences, train_T_21_gt, train_T_21_est, train_tm_mat_files) = process_ground_truth(train_trials, tm_path, kitti_path, train_pose_deltas, 'train', add_reverse)
+        (train_pose_ids, train_sequences, train_T_21_gt, train_T_21_est, train_tm_mat_files) = process_ground_truth(train_trials, tm_path, train_pose_deltas, 'train', add_reverse)
         print('Processed {} training poses.'.format(len(train_T_21_gt)))
 
         # (val_img_paths_rgb, val_corr, val_gt, val_est, val_tm_mat_file) = process_ground_truth([val_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
         # print('Processed {} validation image quads.'.format(len(val_corr)))
 
-        (test_pose_ids, test_sequences, test_T_21_gt, test_T_21_est, test_tm_mat_files) = process_ground_truth(test_trial, tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
+        (test_pose_ids, test_sequences, test_T_21_gt, test_T_21_est, test_tm_mat_files) = process_ground_truth(test_trial, tm_path, [test_pose_delta], 'test', add_reverse)
         print('Processed {} test poses.'.format(len(test_T_21_gt)))
 
         #Save the data!
