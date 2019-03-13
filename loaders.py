@@ -229,7 +229,7 @@ class KITTIVODatasetPreTransformed(Dataset):
     def __getitem__(self, idx):
         seq = self.seqs[idx]
         p_ids = self.pose_indices[idx]
-        C_21_gt = self.C_21_gt[idx]
+        C_21_gt = self.T_21_gt[idx].rot.as_matrix()
 
         image_pair = [self.prep_img(self.seq_images[seq][p_ids[0]]),
                       self.prep_img(self.seq_images[seq][p_ids[1]])]
