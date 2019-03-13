@@ -185,9 +185,9 @@ class DenseVOPipeline:
                                               self.min_grad)
 
             problem = Problem(self.motion_options)
-            # problem.add_residual_block(residual, ['T_1_0'], loss=self.loss)
-            problem.add_residual_block(
-                residual, ['R_1_0', 't_1_0_1'], loss=self.loss)
+            problem.add_residual_block(residual, ['T_1_0'], loss=self.loss)
+            # problem.add_residual_block(
+            #     residual, ['R_1_0', 't_1_0_1'], loss=self.loss)
             problem.initialize_params(params)
 
             #if pyrlevel > 2:
@@ -198,8 +198,8 @@ class DenseVOPipeline:
             params = problem.solve()
             if pyrlevel == self.pyrlevels - 1:
                 problem.compute_covariance()
-                print(problem._covariance_matrix.shape)
-                print(problem._covariance_matrix)
+                #print(problem._covariance_matrix.shape)
+                #print(problem._covariance_matrix)
 
             # print(problem.summary(format='brief'))
 
@@ -210,8 +210,8 @@ class DenseVOPipeline:
             # except AttributeError:
             #     self.residuals = residual.evaluate([guess])
 
-        # return params['T_1_0']
-        return SE3(params['R_1_0'], params['t_1_0_1']), problem._covariance_matrix
+        return params['T_1_0'], problem._covariance_matrix
+        # return SE3(params['R_1_0'], params['t_1_0_1']), problem._covariance_matrix
 
 
 class DenseStereoPipeline(DenseVOPipeline):
