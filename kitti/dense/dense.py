@@ -198,7 +198,7 @@ class DenseVOPipeline:
             params = problem.solve()
             problem.compute_covariance()
 
-
+            print(problem._covariance_matrix().shape)
             # print(problem.summary(format='brief'))
 
             # # DEBUG: Store residuals for later
