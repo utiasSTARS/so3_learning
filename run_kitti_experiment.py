@@ -90,12 +90,12 @@ if __name__ == '__main__':
 
     seqs_base_path = 'kitti'
     train_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='train'),
-                              batch_size=args.batch_size, pin_memory=True,
-                              shuffle=True, num_workers=4, drop_last=True)
+                              batch_size=args.batch_size, pin_memory=False,
+                              shuffle=True, num_workers=8, drop_last=True)
 
     valid_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test'),
-                              batch_size=args.batch_size, pin_memory=True,
-                              shuffle=False, num_workers=4, drop_last=False)
+                              batch_size=args.batch_size, pin_memory=False,
+                              shuffle=False, num_workers=8, drop_last=False)
     total_time = 0.
     now = datetime.datetime.now()
     start_datetime_str = '{}-{}-{}-{}-{}-{}'.format(now.year, now.month, now.day, now.hour, now.minute, now.second)
