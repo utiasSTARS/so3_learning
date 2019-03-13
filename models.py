@@ -188,7 +188,7 @@ class QuaternionDualCNN(torch.nn.Module):
 
         sensor_feature_dim = 256
         #BasicCNN(feature_dim=sensor_feature_dim) #
-        self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim) #CustomResNet(feature_dim=sensor_feature_dim)
+        self.sensor_net = CustomResNet(feature_dim=sensor_feature_dim)
         #self.sensor_net1 = self.sensor_net0#CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(

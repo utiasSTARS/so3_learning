@@ -57,7 +57,7 @@ if __name__ == '__main__':
 
 
     optimizer = torch.optim.Adam(
-        [{'params': model.sensor_net.parameters(), 'lr': 0.1*args.lr},
+        [{'params': model.sensor_net.parameters(), 'lr': args.lr},
         #{'params': model.sensor_net1.parameters(), 'lr': 0.1*args.lr},
         {'params': model.heads.parameters()},
          {'params': model.direct_covar_head.parameters()}],
@@ -83,8 +83,8 @@ if __name__ == '__main__':
     #                           batch_size=args.batch_size, pin_memory=True,
     #                           shuffle=False, num_workers=12, drop_last=False)
 
-    transform = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                             std=[0.229, 0.224, 0.225])
+    transform = None #transforms.Normalize(mean=[0.485, 0.456, 0.406],
+    #                          std=[0.229, 0.224, 0.225])
 
     kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_singlefile_data_sequence_{}.pickle'.format(args.seq)
 

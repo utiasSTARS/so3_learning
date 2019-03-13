@@ -226,7 +226,10 @@ class KITTIVODatasetPreTransformed(Dataset):
         return len(self.T_21_gt)
 
     def prep_img(self, img):
-        return self.transform_img(img.float()/255.)
+        if self.transform_img is not None:
+            return self.transform_img(img.float()/255.)
+        else:
+            return img.float() / 255.
 
     def __getitem__(self, idx):
         seq = self.seqs[idx]
