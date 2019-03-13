@@ -213,7 +213,9 @@ class KITTIVODatasetPreTransformed(Dataset):
         else:
             raise ValueError('run_type must be set to `train`, `validate` or `test`. ')
 
-        self.seq_images = {seq: self.import_seq(seq) for seq in list(set(self.sequences))}
+        print('Loading sequences...{}'.format(list(set(self.seqs))))
+        self.seq_images = {seq: self.import_seq(seq) for seq in list(set(self.seqs))}
+        print('...done loading images into memory.')
 
     def import_seq(self, seq):
         file_path = self.seqs_base_path + '/seq_{}.pt'.format(seq)
