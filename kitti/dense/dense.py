@@ -196,9 +196,11 @@ class DenseVOPipeline:
             # problem.set_parameters_constant('R_1_0')
 
             params = problem.solve()
-            if pyrlevel == self.pyrlevels:
+            if pyrlevel == self.pyrlevels - 1:
                 problem.compute_covariance()
                 print(problem._covariance_matrix.shape)
+                print(problem._covariance_matrix)
+
             # print(problem.summary(format='brief'))
 
             # # DEBUG: Store residuals for later
