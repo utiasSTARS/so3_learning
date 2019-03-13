@@ -157,11 +157,10 @@ def quat_log(q):
 
 def positive_fn(x):
     large_num = 10
-    y = torch.empty_like(x)
-    large_mask = x > large_num
-    small_mask = 1 - large_mask
-    y[large_mask] = x[large_mask]
-    y[small_mask] = torch.log(1. + torch.exp(x[small_mask]))
+    eps = 1e-12
+    y = x.clone()
+    small_mask = x < large_num
+    y[small_mask] = torch.log(1. + eps + torch.exp(x[small_mask]))
     return y
 
 def quat_inv(q):
