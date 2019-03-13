@@ -91,7 +91,7 @@ class QuaternionNet(torch.nn.Module):
 def conv_unit(in_planes, out_planes, kernel_size=3, stride=1,padding=1):
         return torch.nn.Sequential(
             torch.nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=padding),
-            torch.nn.BatchNorm2d(channels=out_planes),
+            torch.nn.BatchNorm2d(out_planes),
             torch.nn.PReLU()
         )
 
