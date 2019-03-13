@@ -91,6 +91,7 @@ class QuaternionNet(torch.nn.Module):
 def conv_unit(in_planes, out_planes, kernel_size=3, stride=1,padding=1):
         return torch.nn.Sequential(
             torch.nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=padding),
+            torch.nn.BatchNorm2d(channels=out_planes),
             torch.nn.PReLU()
         )
 
@@ -187,7 +188,7 @@ class QuaternionDualCNN(torch.nn.Module):
 
         sensor_feature_dim = 256
         #BasicCNN(feature_dim=sensor_feature_dim) #
-        self.sensor_net = CustomResNet(feature_dim=sensor_feature_dim)
+        self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim) #CustomResNet(feature_dim=sensor_feature_dim)
         #self.sensor_net1 = self.sensor_net0#CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(
