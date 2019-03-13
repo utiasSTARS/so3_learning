@@ -195,7 +195,7 @@ class KITTIVODatasetPreTransformed(Dataset):
         self.load_kitti_data(run_type)  # Loads self.image_quad_paths and self.labels
 
     def load_kitti_data(self, run_type):
-        with open(self.pickle_file, 'rb') as handle:
+        with open(self.kitti_dataset_file, 'rb') as handle:
             kitti_data = pickle.load(handle)
 
         if run_type == 'train':
