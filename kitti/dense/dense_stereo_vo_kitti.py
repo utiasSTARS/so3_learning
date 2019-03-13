@@ -17,9 +17,9 @@ import os
 
 def run_vo_kitti(basedir, date, drive, frames, outfile=None):
     # Load KITTI data
-    dataset = pykitti.raw(basedir, date, drive, frames=frames, imformat='cv2')
+    dataset = pykitti.raw(basedir, date, drive, frames=frames)
 
-    first_oxts = next(dataset.oxts)
+    first_oxts = dataset.oxts[0]
     T_cam0_imu = SE3.from_matrix(dataset.calib.T_cam0_imu)
     T_cam0_imu.normalize()
     T_0_w = T_cam0_imu.dot(
