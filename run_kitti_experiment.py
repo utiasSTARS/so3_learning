@@ -83,21 +83,19 @@ if __name__ == '__main__':
     #                           batch_size=args.batch_size, pin_memory=True,
     #                           shuffle=False, num_workers=12, drop_last=False)
 
-    transform = transforms.Compose([
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
+    transform = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
-    ])
 
     kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_singlefile_data_sequence_{}.pickle'.format(args.seq)
 
     seqs_base_path = 'kitti'
     train_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='train'),
                               batch_size=args.batch_size, pin_memory=True,
-                              shuffle=True, num_workers=0, drop_last=True)
+                              shuffle=True, num_workers=4, drop_last=True)
 
     valid_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test'),
                               batch_size=args.batch_size, pin_memory=True,
-                              shuffle=False, num_workers=0, drop_last=False)
+                              shuffle=False, num_workers=4, drop_last=False)
     total_time = 0.
     now = datetime.datetime.now()
     start_datetime_str = '{}-{}-{}-{}-{}-{}'.format(now.year, now.month, now.day, now.hour, now.minute, now.second)
