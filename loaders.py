@@ -236,4 +236,4 @@ class KITTIVODatasetPreTransformed(Dataset):
         image_pair = [self.prep_img(self.seq_images[seq][p_ids[0]]),
                       self.prep_img(self.seq_images[seq][p_ids[1]])]
 
-        return image_pair, quaternion_from_matrix(C_21_gt)
+        return image_pair, torch.from_numpy(quaternion_from_matrix(C_21_gt)).float()
