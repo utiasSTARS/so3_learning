@@ -234,9 +234,10 @@ class KITTIVODatasetPreTransformed(Dataset):
     def __getitem__(self, idx):
         seq = self.seqs[idx]
         p_ids = self.pose_indices[idx]
-        C_21_gt = self.T_21_gt[idx].rot.as_matrix()
+        #C_21_gt = self.T_21_gt[idx].rot.as_matrix()
+        C_21_err = self.T_21_gt[idx].rot.as_matrix().dot(self.T_21_vo[idx].rot.as_matrix().transpose())
 
         image_pair = [self.prep_img(self.seq_images[seq][p_ids[0]]),
                       self.prep_img(self.seq_images[seq][p_ids[1]])]
-        q_target = torch.from_numpy(quaternion_from_matrix(C_21_gt)).float()
+        q_target = torch.from_numpy(quaternion_from_matrix(C_21_err)).float()
         return image_pair, q_target
