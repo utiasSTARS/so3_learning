@@ -47,7 +47,8 @@ def run_vo_kitti(basedir, date, drive, frames, outfile=None):
 
     start = time.perf_counter()
     for c_idx, impair in enumerate(dataset.gray):
-        vo.track(impair[0], impair[1])
+
+        vo.track(np.array(impair[0]), np.array(impair[1]))
         # vo.track(impair[0], impair[1], guess=T_w_c_gt[c_idx].inv())
         end = time.perf_counter()
         print('Image {}/{} | {:.3f} s'.format(c_idx, len(dataset), end - start))
