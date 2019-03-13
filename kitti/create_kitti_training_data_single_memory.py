@@ -109,8 +109,6 @@ def main():
     all_trials = ['00','02','05','06', '07', '08', '09', '10']
     #all_trials = ['00', '02', '05', '06']
 
-    #custom_training = [['00','06',['07','08','09','10']]]
-
 
     train_pose_deltas = [3,4,5] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
     test_pose_delta = 4
@@ -154,7 +152,7 @@ def main():
         # (val_img_paths_rgb, val_corr, val_gt, val_est, val_tm_mat_file) = process_ground_truth([val_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
         # print('Processed {} validation image quads.'.format(len(val_corr)))
 
-        (test_pose_ids, test_sequences, test_T_21_gt, test_T_21_est, test_tm_mat_files) = process_ground_truth(test_trial, tm_path, [test_pose_delta], 'test', add_reverse)
+        (test_pose_ids, test_sequences, test_T_21_gt, test_T_21_est, test_tm_mat_files) = process_ground_truth([test_trial], tm_path, [test_pose_delta], 'test', add_reverse)
         print('Processed {} test poses.'.format(len(test_T_21_gt)))
 
         #Save the data!
