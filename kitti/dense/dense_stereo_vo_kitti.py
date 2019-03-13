@@ -6,7 +6,7 @@ import numpy as np
 import pykitti
 
 from liegroups import SE3
-from pyslam.pipelines import DenseStereoPipeline
+from dense import DenseStereoPipeline
 from pyslam.sensors import StereoCamera
 from pyslam.metrics import TrajectoryMetrics
 from pyslam.visualizers import TrajectoryVisualizer
