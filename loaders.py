@@ -215,6 +215,7 @@ class KITTIVODatasetPreTransformed(Dataset):
             raise ValueError('run_type must be set to `train`, or `test`. ')
 
         print('Loading sequences...{}'.format(list(set(self.seqs))))
+        print('Pose delta: {}'.format(self.pose_indices[0][1] - self.pose_indices[0][0]))
         self.seq_images = {seq: self.import_seq(seq) for seq in list(set(self.seqs))}
         print('...done loading images into memory.')
 
