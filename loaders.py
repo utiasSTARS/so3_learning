@@ -236,9 +236,6 @@ class KITTIVODatasetPreTransformed(Dataset):
         #Convert back to W x H x C
         np_img1 = cv2.cvtColor(img1.permute(1,2,0).numpy(), cv2.COLOR_RGB2GRAY)
         np_img2 = cv2.cvtColor(img2.permute(1,2,0).numpy(), cv2.COLOR_RGB2GRAY)
-        print(np_img1.shape)
-        print(np_img2.shape)
-        #print(np_img1)
         flow = cv2.calcOpticalFlowFarneback(np_img1, np_img2, None, 0.5, 3, 15, 3, 5, 1.2, 0)
         return torch.from_numpy(flow)
 
