@@ -238,7 +238,9 @@ class KITTIVODatasetPreTransformed(Dataset):
         np_img2 = img2.permute(1,2,0).numpy()
         print(np_img1.shape)
         print(np_img2.shape)
+        print(np_img1)
         flow = cv2.calcOpticalFlowFarneback(np_img1, np_img2, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+        print(flow)
         return flow
 
 
