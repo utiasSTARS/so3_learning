@@ -156,10 +156,11 @@ def quat_log(q):
     return phi.squeeze()
 
 def positive_fn(x):
-    large_num = 30
-    y = torch.empty_like(x)
-    y[x>large_num] = x[x>large_num]
-    y[x<=large_num] = torch.log(1. + torch.exp(x[x<=large_num]))
+    large_num = 10
+    eps = 1e-12
+    y = x.clone()
+    small_mask = x < large_num
+    y[small_mask] = torch.log(1. + eps + torch.exp(x[small_mask]))
     return y
 
 def quat_inv(q):

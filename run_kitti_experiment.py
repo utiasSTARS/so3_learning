@@ -12,7 +12,7 @@ import time, sys
 import argparse
 import datetime
 from train_test import *
-from loaders import KITTIVODataset
+from loaders import KITTIVODataset, KITTIVODatasetPreTransformed
 from torch.utils.data import Dataset, DataLoader
 from vis import *
 import torchvision.transforms as transforms
@@ -25,7 +25,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='3D training arguments.')
     parser.add_argument('--seq', type=str, default='00')
     parser.add_argument('--cuda', action='store_true', default=True)
-    parser.add_argument('--batch_size', type=int, default=32)
+    parser.add_argument('--batch_size', type=int, default=64)
     parser.add_argument('--epoch_display', type=int, default=1)
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--total_epochs', type=int, default=15)
@@ -64,23 +64,38 @@ if __name__ == '__main__':
         lr=args.lr)
 
     #Load datasets
-    transform = transforms.Compose([
-        transforms.Resize(224),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                             std=[0.229, 0.224, 0.225])
-    ])
+    # transform = transforms.Compose([
+    #     transforms.Resize(224),
+    #     transforms.CenterCrop(224),
+    #     transforms.ToTensor(),
+    #     transforms.Normalize(mean=[0.485, 0.456, 0.406],
+    #                          std=[0.229, 0.224, 0.225])
+    # ])
 
 
-    kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_data_sequence_{}.pickle'.format(args.seq)
 
-    train_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='train'),
-                        batch_size=args.batch_size, pin_memory=True,
-                        shuffle=True, num_workers=12, drop_last=True)
-    valid_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='test'),
-                              batch_size=args.batch_size, pin_memory=True,
-                              shuffle=False, num_workers=12, drop_last=False)
+    # kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_data_sequence_{}.pickle'.format(args.seq)
+
+    # train_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='train'),
+    #                     batch_size=args.batch_size, pin_memory=True,
+    #                     shuffle=True, num_workers=12, drop_last=True)
+    # valid_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='test'),
+    #                           batch_size=args.batch_size, pin_memory=True,
+    #                           shuffle=False, num_workers=12, drop_last=False)
+
+    transform = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                              std=[0.229, 0.224, 0.225])
+
+    kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_singlefile_data_sequence_{}.pickle'.format(args.seq)
+
+    seqs_base_path = 'kitti'
+    train_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='train'),
+                              batch_size=args.batch_size, pin_memory=False,
+                              shuffle=True, num_workers=4, drop_last=True)
+
+    valid_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test'),
+                              batch_size=args.batch_size, pin_memory=False,
+                              shuffle=False, num_workers=4, drop_last=False)
     total_time = 0.
     now = datetime.datetime.now()
     start_datetime_str = '{}-{}-{}-{}-{}-{}'.format(now.year, now.month, now.day, now.hour, now.minute, now.second)

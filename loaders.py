@@ -9,7 +9,7 @@ import os
 import os.path as osp
 from PIL import Image
 import pickle
-
+import time
 
 class PlanetariumData(Dataset):
     """Synthetic data"""
@@ -182,3 +182,62 @@ class KITTIVODataset(Dataset):
             image_pair = [self.read_image(image_quad_paths[i]) for i in [0,2]]
 
         return image_pair, target_quat
+
+
+class KITTIVODatasetPreTransformed(Dataset):
+    """KITTI Odometry Benchmark dataset with full memory read-ins."""
+
+    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train'):
+        self.kitti_dataset_file = kitti_dataset_file
+        self.seqs_base_path = seqs_base_path
+
+        self.transform_img = transform_img
+        self.load_kitti_data(run_type)  # Loads self.image_quad_paths and self.labels
+
+    def load_kitti_data(self, run_type):
+        with open(self.kitti_dataset_file, 'rb') as handle:
+            kitti_data = pickle.load(handle)
+
+        if run_type == 'train':
+            self.seqs = kitti_data['train_seqs']
+            self.pose_indices = kitti_data['train_pose_indices']
+            self.T_21_gt = kitti_data['train_T_21_gt']
+            self.T_21_vo = kitti_data['train_T_21_vo']
+
+        elif run_type == 'test':
+            self.seqs = kitti_data['test_seqs']
+            self.pose_indices = kitti_data['test_pose_indices']
+            self.T_21_gt = kitti_data['test_T_21_gt']
+            self.T_21_vo = kitti_data['test_T_21_vo']
+
+        else:
+            raise ValueError('run_type must be set to `train`, or `test`. ')
+
+        print('Loading sequences...{}'.format(list(set(self.seqs))))
+        self.seq_images = {seq: self.import_seq(seq) for seq in list(set(self.seqs))}
+        print('...done loading images into memory.')
+
+    def import_seq(self, seq):
+        file_path = self.seqs_base_path + '/seq_{}.pt'.format(seq)
+        data = torch.load(file_path)
+        return data['im_l']
+
+    def __len__(self):
+        return len(self.T_21_gt)
+
+    def prep_img(self, img):
+        if self.transform_img is not None:
+            return self.transform_img(img.float()/255.)
+        else:
+            return img.float() / 255.
+
+    def __getitem__(self, idx):
+        seq = self.seqs[idx]
+        p_ids = self.pose_indices[idx]
+        C_21_gt = self.T_21_gt[idx].rot.as_matrix()
+        #C_21_err = self.T_21_gt[idx].rot.as_matrix().dot(self.T_21_vo[idx].rot.as_matrix().transpose())
+
+        image_pair = [self.prep_img(self.seq_images[seq][p_ids[0]]),
+                      self.prep_img(self.seq_images[seq][p_ids[1]])]
+        q_target = torch.from_numpy(quaternion_from_matrix(C_21_gt)).float()
+        return image_pair, q_target

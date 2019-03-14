@@ -1,4 +1,4 @@
-import torch
+import torch, time
 import numpy as np
 from torch.utils.data import Dataset, DataLoader
 from liegroups.torch import SO3
@@ -52,6 +52,7 @@ def validate(model, loader, loss_fn, config, output_history=False, output_grid=F
                 R_direct_hist.append(Rinv_direct.inverse())
 
             total_samples += batch_size
+
 
     avg_loss = loss.item() / len(loader)
     avg_err = (angular_error/total_samples)*(180./3.1415)

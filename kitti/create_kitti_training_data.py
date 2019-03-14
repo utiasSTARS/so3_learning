@@ -37,9 +37,9 @@ KITTI_SEQS_DICT = {'00': {'date': '2011_10_03',
 
 def compute_vo_pose_errors(tm, pose_deltas, eval_type='train', add_reverse=False):
     """Compute delta pose errors on VO estimates """
-    T_12_errs = []
-    T_12_gts = []
-    T_12_ests = []
+    T_21_errs = []
+    T_21_gts = []
+    T_21_ests = []
 
     for p_delta in pose_deltas:
         if eval_type=='train':
@@ -50,9 +50,9 @@ def compute_vo_pose_errors(tm, pose_deltas, eval_type='train', add_reverse=False
             T_12_gt = tm.Twv_gt[p_idx].inv().dot(tm.Twv_gt[p_idx+p_delta])
             T_12_est = tm.Twv_est[p_idx].inv().dot(tm.Twv_est[p_idx+p_delta])
             T_12_corr = T_12_gt.dot(T_12_est.inv())
-            T_12_errs.append(T_12_corr)
-            T_12_gts.append(T_12_gt)
-            T_12_ests.append(T_12_est)
+            T_21_errs.append(T_12_corr.inv())
+            T_21_gts.append(T_12_gt.inv())
+            T_21_ests.append(T_12_est.inv())
 
         if add_reverse and eval_type=='train':
             for p_idx in pose_ids:
@@ -61,12 +61,12 @@ def compute_vo_pose_errors(tm, pose_deltas, eval_type='train', add_reverse=False
                 T_21_gt = T_12_gt.inv()
                 T_21_est = T_12_est.inv()
                 T_21_corr = T_21_gt.dot(T_21_est.inv())
-                T_12_errs.append(T_21_corr)
-                T_12_gts.append(T_21_gt)
-                T_12_ests.append(T_21_est)
+                T_21_errs.append(T_21_corr.inv())
+                T_21_gts.append(T_21_gt.inv())
+                T_21_ests.append(T_21_est.inv())
 
 
-    return (T_12_errs, T_12_gts, T_12_ests)
+    return (T_21_errs, T_21_gts, T_21_ests)
 
 def get_image_paths(data_path, trial_str, pose_deltas, img_type='rgb', eval_type='train', add_reverse=False):
 
@@ -78,7 +78,7 @@ def get_image_paths(data_path, trial_str, pose_deltas, img_type='rgb', eval_type
         impath_r = os.path.join(data_path, 'image_01', 'data', '*.png')
     else:
         raise ValueError('img_type must be `rgb` or `mono`')
-    
+
     imfiles_l = sorted(glob.glob(impath_l))
     imfiles_r = sorted(glob.glob(impath_r))
 
@@ -91,7 +91,7 @@ def get_image_paths(data_path, trial_str, pose_deltas, img_type='rgb', eval_type
             image_paths.extend([[imfiles_l[i], imfiles_r[i], imfiles_l[i+p_delta], imfiles_r[i+p_delta]] for i in range(len(imfiles_l) - p_delta)])
             if add_reverse:
                 image_paths.extend([[imfiles_l[i + p_delta], imfiles_r[i + p_delta], imfiles_l[i], imfiles_r[i]] for i in range(len(imfiles_l) - p_delta)])
-                
+
         elif eval_type=='test':
             #Only add every p_delta'th quad
             image_paths.extend([[imfiles_l[i], imfiles_r[i], imfiles_l[i+p_delta], imfiles_r[i+p_delta]] for i in range(0, len(imfiles_l) - p_delta, p_delta)])
@@ -113,8 +113,9 @@ def process_ground_truth(trial_strs, tm_path, kitti_path, pose_deltas, eval_type
     poses_gt = []
     poses_est = []
     image_quad_paths_rgb = []
-    image_quad_paths_mono = []
-    
+    sequences = []
+    pose_ids = []
+
     tm_mat_files = []
     for t_id, trial_str in enumerate(trial_strs):
     
@@ -140,7 +141,8 @@ def process_ground_truth(trial_strs, tm_path, kitti_path, pose_deltas, eval_type
         poses_correction.extend(T_corr)
         poses_gt.extend(T_gt)
         poses_est.extend(T_est)
-
+        # for p_delta in pose_deltas:
+        #     pose_ids.extend([[] for i in range(len(T_corr) - p_delta)])
         tm_mat_files.append(tm_mat_file)
 
     return (image_quad_paths_rgb, poses_correction, poses_gt, poses_est, tm_mat_files)
