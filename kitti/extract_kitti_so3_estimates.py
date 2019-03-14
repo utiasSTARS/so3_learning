@@ -17,7 +17,7 @@ import time, sys
 import argparse
 import datetime
 from train_test import *
-from loaders import KITTIVODataset
+from loaders import KITTIVODatasetPreTransformed
 from torch.utils.data import Dataset, DataLoader
 from vis import *
 import torchvision.transforms as transforms
@@ -30,7 +30,7 @@ def run_so3_hydranet(trained_file_path, seq):
     loss_fn = QuatNLLLoss()
     batch_size = 32
 
-    model = QuaternionDualCNN(num_hydra_heads=25)
+    model = QuaternionCNN(num_hydra_heads=25)
     checkpoint = torch.load(trained_file_path)
     model.load_state_dict(checkpoint['full_model'])
     model.to(dtype=tensor_type, device=device)
@@ -43,9 +43,12 @@ def run_so3_hydranet(trained_file_path, seq):
         transforms.Normalize(mean=[0.485, 0.456, 0.406],
                              std=[0.229, 0.224, 0.225])
     ])
-    kitti_data_pickle_file = 'datasets/monolith/kitti_data_sequence_{}.pickle'.format(seq)
-    test_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='test'),
-                              batch_size=batch_size, pin_memory=True,
+    kitti_data_pickle_file = 'datasets/obelisk/kitti_singlefile_data_sequence_{}.pickle'.format(seq)
+    seqs_base_path = 'kitti'
+    transform = None
+
+    test_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test'),
+                              batch_size=batch_size, pin_memory=False,
                               shuffle=False, num_workers=4, drop_last=False)
     config = {
         'device': device
@@ -69,9 +72,9 @@ if __name__ == '__main__':
     #torch.manual_seed(7)
     #random.seed(72)
     seqs = ['00', '02', '05']
-    trained_models_paths = ['best_model_seq_00_heads_25_epoch_9.pt',
-                            'best_model_seq_02_heads_25_epoch_11.pt',
-                            'best_model_seq_05_heads_25_epoch_12.pt'
+    trained_models_paths = ['best_model_seq_00_heads_25_epoch_15.pt',
+                            'best_model_seq_02_heads_25_epoch_24.pt',
+                            'best_model_seq_05_heads_25_epoch_25.pt'
                             ]
     base_path = './plots/'
     for model_path, seq in zip(trained_models_paths, seqs):
