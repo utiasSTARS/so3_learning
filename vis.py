@@ -62,7 +62,7 @@ def plot_abs_with_sigmas(q_gt, q_est, R_est, R_direct_est, filename='sigma_plot.
     R_direct_est = R_direct_est.numpy()
 
     _plot_sigma_with_gt(x_labels, phi_est[:, 0], phi_gt[:, 0], np.sqrt(R_est[:,0,0].flatten()), np.sqrt(R_direct_est[:,0,0].flatten()),  '$\Theta_1$', ax[0], [-0.05, 0.05])
-    _plot_sigma_with_gt(x_labels, phi_est[:, 1], phi_gt[:, 1], np.sqrt(R_est[:,1,1].flatten()), np.sqrt(R_direct_est[:,1,1].flatten()), '$\Theta_2$', ax[1], [-0.2, 0.2])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 1], phi_gt[:, 1], np.sqrt(R_est[:,1,1].flatten()), np.sqrt(R_direct_est[:,1,1].flatten()), '$\Theta_2$', ax[1], [-0.1, 0.1])
     _plot_sigma_with_gt(x_labels, phi_est[:, 2], phi_gt[:, 2], np.sqrt(R_est[:,2,2].flatten()), np.sqrt(R_direct_est[:,2,2].flatten()), '$\Theta_3$', ax[2], [-0.05, 0.05])
 
     ax[2].legend()
