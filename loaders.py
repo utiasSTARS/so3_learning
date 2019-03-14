@@ -10,6 +10,7 @@ import os.path as osp
 from PIL import Image
 import pickle
 import time
+import cv2
 
 class PlanetariumData(Dataset):
     """Synthetic data"""
@@ -231,13 +232,22 @@ class KITTIVODatasetPreTransformed(Dataset):
         else:
             return img.float() / 255.
 
+    def compute_flow(self, img1, img2):
+        #Convert back to W x H x C
+        img1 = img1.permute(1,2,0).numpy()
+        img2 = img2.permute(1,2,0).numpy()
+        flow = cv2.calcOpticalFlowFarneback(img1, img2, None, 0.5, 3, 15, 3, 5, 1.2, 0)
+        return
+
+
     def __getitem__(self, idx):
         seq = self.seqs[idx]
         p_ids = self.pose_indices[idx]
         C_21_gt = self.T_21_gt[idx].rot.as_matrix()
         #C_21_err = self.T_21_gt[idx].rot.as_matrix().dot(self.T_21_vo[idx].rot.as_matrix().transpose())
 
-        image_pair = [self.prep_img(self.seq_images[seq][p_ids[0]]),
-                      self.prep_img(self.seq_images[seq][p_ids[1]])]
+        # image_pair = [self.prep_img(self.seq_images[seq][p_ids[0]]),
+        #               self.prep_img(self.seq_images[seq][p_ids[1]])]
+        flow_img = self.compute_flow(self.seq_images[seq][p_ids[0]], self.seq_images[seq][p_ids[1]])
         q_target = torch.from_numpy(quaternion_from_matrix(C_21_gt)).float()
-        return image_pair, q_target
+        return flow_img, q_target
