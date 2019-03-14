@@ -25,12 +25,13 @@ def _plot_sigma(x, y, y_mean, y_sigma, y_sigma_2, label, ax):
     ax.set_ylabel(label)
     return
 
-def _plot_sigma_with_gt(x, y_est, y_gt, y_sigma, y_sigma_2, label, ax):
+def _plot_sigma_with_gt(x, y_est, y_gt, y_sigma, y_sigma_2, label, ax, y_lim):
     ax.fill_between(x, y_est-3*y_sigma, y_est+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$ Total')
     ax.fill_between(x, y_est - 3 * y_sigma_2, y_est + 3 * y_sigma_2, alpha=0.5, color='red', label='$\pm 3\sigma$ Direct')
     ax.scatter(x, y_est, s=0.5, c='green')
     ax.scatter(x, y_gt, s=0.5, c='black')
     ax.set_ylabel(label)
+    ax.set_ylim(y_lim)
     return
 
 def plot_errors_with_sigmas(q_gt, q_est, R_est, R_direct_est, filename='sigma_plot.pdf'):
@@ -60,9 +61,9 @@ def plot_abs_with_sigmas(q_gt, q_est, R_est, R_direct_est, filename='sigma_plot.
     R_est = R_est.numpy()
     R_direct_est = R_direct_est.numpy()
 
-    _plot_sigma_with_gt(x_labels, phi_est[:, 0], phi_gt[:, 0], np.sqrt(R_est[:,0,0].flatten()), np.sqrt(R_direct_est[:,0,0].flatten()),  '$\Theta_1$', ax[0])
-    _plot_sigma_with_gt(x_labels, phi_est[:, 1], phi_gt[:, 1], np.sqrt(R_est[:,1,1].flatten()), np.sqrt(R_direct_est[:,1,1].flatten()), '$\Theta_2$', ax[1])
-    _plot_sigma_with_gt(x_labels, phi_est[:, 2], phi_gt[:, 2], np.sqrt(R_est[:,2,2].flatten()), np.sqrt(R_direct_est[:,2,2].flatten()), '$\Theta_3$', ax[2])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 0], phi_gt[:, 0], np.sqrt(R_est[:,0,0].flatten()), np.sqrt(R_direct_est[:,0,0].flatten()),  '$\Theta_1$', ax[0], [-0.05, 0.05])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 1], phi_gt[:, 1], np.sqrt(R_est[:,1,1].flatten()), np.sqrt(R_direct_est[:,1,1].flatten()), '$\Theta_2$', ax[1], [-0.2, 0.2])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 2], phi_gt[:, 2], np.sqrt(R_est[:,2,2].flatten()), np.sqrt(R_direct_est[:,2,2].flatten()), '$\Theta_3$', ax[2], [-0.05, 0.05])
 
     ax[2].legend()
     #image_array = canvas_to_array(fig)
