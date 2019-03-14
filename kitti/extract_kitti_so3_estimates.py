@@ -73,8 +73,8 @@ if __name__ == '__main__':
     #random.seed(72)
     seqs = ['00', '02', '05']
     trained_models_paths = ['best_model_seq_00_heads_25_epoch_15.pt',
-                            'best_model_seq_02_heads_25_epoch_24.pt',
-                            'best_model_seq_05_heads_25_epoch_25.pt'
+                            'best_model_seq_02_heads_25_epoch_25.pt',
+                            'best_model_seq_05_heads_25_epoch_24.pt'
                             ]
     base_path = './plots/'
     for model_path, seq in zip(trained_models_paths, seqs):
