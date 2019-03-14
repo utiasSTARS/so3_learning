@@ -32,7 +32,7 @@ class SO3FusionPipeline(object):
         start = time.time()
         
         #Start at the second image
-        for pose_i in np.arange(1, len(self.T_w_c_vo)):
+        for pose_i in np.arange(1, 500):#len(self.T_w_c_vo)):
             self.fuse()
 
             if pose_i % 100 == 0:
@@ -55,7 +55,9 @@ class SO3FusionPipeline(object):
             print(self.Sigma_12_hydranet[pose_i])
             T_21 = T_21_vo
         else:
-            self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), SO3.from_matrix(self.C_12_hydranet[pose_i], normalize=True), invsqrt(self.Sigma_12_hydranet[pose_i]))
+            Sigma_rot = invsqrt(self.Sigma_12_hydranet[pose_i])
+            #Sigma_rot = invsqrt(1e-12*np.eye(3))
+            self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), SO3.from_matrix(self.C_12_hydranet[pose_i], normalize=True), Sigma_rot)
             T_21 = self.optimizer.solve()
 
         T_w_c = self.T_w_c[-1]
@@ -67,7 +69,7 @@ class VOFusionSolver(object):
 
         # Options
         self.problem_options = Options()
-        self.problem_options.allow_nondecreasing_steps = True
+        self.problem_options.allow_nondecreasing_steps = False
         self.problem_options.max_nondecreasing_steps = 3
         self.problem_options.max_iters = 10
 
@@ -97,6 +99,7 @@ class VOFusionSolver(object):
 
     def solve(self):
         self.params_final = self.problem_solver.solve()
+        #print(self.problem_solver.summary())
         #self.problem_solver.compute_covariance()
         T_1_0 = self.params_final[self.pose_keys[0]]
         T_2_0 = self.params_final[self.pose_keys[1]]
