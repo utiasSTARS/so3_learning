@@ -49,9 +49,15 @@ class SO3FusionPipeline(object):
         #Set initial guess to the corrected guess
         self.optimizer.reset_solver()
         self.optimizer.set_priors(self.T_w_c_vo[pose_i].inv(), self.T_w_c_vo[pose_i+1].inv())
-        self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), SO3.from_matrix(self.C_12_hydranet[pose_i], normalize=True), invsqrt(self.Sigma_12_hydranet[pose_i]))
 
-        T_21 = self.optimizer.solve()
+        if np.iscomplex(invsqrt(self.Sigma_12_hydranet[pose_i])).any() or np.linalg.det(self.Sigma_12_hydranet[pose_i]) > 1e-12:
+            print('Warning: found bad covariance! invsqrt is complex.')
+            print(self.Sigma_12_hydranet[pose_i])
+            T_21 = T_21_vo
+        else:
+            self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), SO3.from_matrix(self.C_12_hydranet[pose_i], normalize=True), invsqrt(self.Sigma_12_hydranet[pose_i]))
+            T_21 = self.optimizer.solve()
+
         T_w_c = self.T_w_c[-1]
         self.T_w_c.append(T_w_c.dot(T_21.inv()))
 
@@ -83,17 +89,15 @@ class VOFusionSolver(object):
         self.problem_solver.add_residual_block(prior_residual, [self.pose_keys[0]])
         self.problem_solver.initialize_params(self.params_initial)
 
-    def add_costs(self, T_21_obs, odom_stiffness, C_12_obs, rot_stiffness):
+    def add_costs(self, T_21_obs, odom_stiffness, C_21_obs, rot_stiffness):
         residual_pose = PoseToPoseResidual(T_21_obs, odom_stiffness)
-        residual_rot = PoseToPoseOrientationResidual(C_12_obs, rot_stiffness)
+        residual_rot = PoseToPoseOrientationResidual(C_21_obs, rot_stiffness)
         self.problem_solver.add_residual_block(residual_pose, self.pose_keys)
-
-        #Pose keys reverse due to C_12 targets (not C_21) ... dumb
-        self.problem_solver.add_residual_block(residual_rot, self.pose_keys[::-1])
+        self.problem_solver.add_residual_block(residual_rot, self.pose_keys)
 
     def solve(self):
         self.params_final = self.problem_solver.solve()
-        self.problem_solver.compute_covariance()
+        #self.problem_solver.compute_covariance()
         T_1_0 = self.params_final[self.pose_keys[0]]
         T_2_0 = self.params_final[self.pose_keys[1]]
         T_2_1 = T_2_0.dot(T_1_0.inv())

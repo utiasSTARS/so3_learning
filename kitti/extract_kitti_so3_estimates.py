@@ -36,13 +36,13 @@ def run_so3_hydranet(trained_file_path, seq):
     model.to(dtype=tensor_type, device=device)
 
     # Load datasets
-    transform = transforms.Compose([
-        transforms.Resize(224),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize(mean=[0.485, 0.456, 0.406],
-                             std=[0.229, 0.224, 0.225])
-    ])
+    # transform = transforms.Compose([
+    #     transforms.Resize(224),
+    #     transforms.CenterCrop(224),
+    #     transforms.ToTensor(),
+    #     transforms.Normalize(mean=[0.485, 0.456, 0.406],
+    #                          std=[0.229, 0.224, 0.225])
+    # ])
     kitti_data_pickle_file = 'datasets/obelisk/kitti_singlefile_data_sequence_{}.pickle'.format(seq)
     seqs_base_path = './'
     transform = None
@@ -54,6 +54,11 @@ def run_so3_hydranet(trained_file_path, seq):
         'device': device
     }
     avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, test_loader, loss_fn, config, output_history=True)
+
+
+    print('Extracted sequence {} \t' 
+          '(Err/NLL) {:3.3f} / {:3.3f} | {:.3f} / {:3.3f}\t'.format(
+            seq, valid_ang_error, valid_nll))
 
     q_12 = predict_history[1]
     C_12 = SO3.from_quaternion(q_12).as_matrix()
