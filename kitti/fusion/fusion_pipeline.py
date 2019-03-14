@@ -13,16 +13,16 @@ import pickle
 
 
 class SO3FusionPipeline(object):
-    def __init__(self, T_w_c_vo, Sigma_21_vo,  C_12_hydranet, Sigma_12_hydranet, first_pose=SE3.identity()):
+    def __init__(self, T_w_c_vo, Sigma_21_vo,  C_21_hydranet, Sigma_21_hydranet, first_pose=SE3.identity()):
         self.T_w_c = [first_pose] #corrected
         self.T_w_c_vo = T_w_c_vo
         self.Sigma_21_vo = Sigma_21_vo
 
-        self.C_12_hydranet = C_12_hydranet
-        self.Sigma_12_hydranet = Sigma_12_hydranet
+        self.C_21_hydranet = C_21_hydranet
+        self.Sigma_21_hydranet = Sigma_21_hydranet
 
         assert(Sigma_21_vo.shape[0] == len(self.T_w_c_vo) - 1)
-        assert(Sigma_12_hydranet.shape[0] == C_12_hydranet.shape[0])
+        assert(Sigma_21_hydranet.shape[0] == C_21_hydranet.shape[0])
 
         self.optimizer = VOFusionSolver()
 
@@ -32,7 +32,7 @@ class SO3FusionPipeline(object):
         start = time.time()
         
         #Start at the second image
-        for pose_i in np.arange(1, 500):#len(self.T_w_c_vo)):
+        for pose_i in np.arange(1, len(self.T_w_c_vo)):
             self.fuse()
 
             if pose_i % 100 == 0:
@@ -50,14 +50,14 @@ class SO3FusionPipeline(object):
         self.optimizer.reset_solver()
         self.optimizer.set_priors(self.T_w_c_vo[pose_i].inv(), self.T_w_c_vo[pose_i+1].inv())
 
-        if np.iscomplex(invsqrt(self.Sigma_12_hydranet[pose_i])).any() or np.linalg.det(self.Sigma_12_hydranet[pose_i]) > 1e-12:
+        if np.iscomplex(invsqrt(self.Sigma_21_hydranet[pose_i])).any() or np.linalg.det(self.Sigma_21_hydranet[pose_i]) > 1e-12:
             print('Warning: found bad covariance! invsqrt is complex.')
-            print(self.Sigma_12_hydranet[pose_i])
+            print(self.Sigma_21_hydranet[pose_i])
             T_21 = T_21_vo
         else:
-            Sigma_rot = invsqrt(self.Sigma_12_hydranet[pose_i])
-            #Sigma_rot = invsqrt(1e-12*np.eye(3))
-            self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), SO3.from_matrix(self.C_12_hydranet[pose_i], normalize=True), Sigma_rot)
+            #Sigma_rot = invsqrt(self.Sigma_21_hydranet[pose_i])
+            Sigma_rot = invsqrt(1e-12*np.eye(3))
+            self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True).inv(), Sigma_rot)
             T_21 = self.optimizer.solve()
 
         T_w_c = self.T_w_c[-1]

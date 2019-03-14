@@ -62,12 +62,16 @@ def run_so3_hydranet(trained_file_path, seq):
 
     q_21 = predict_history[1]
     C_21 = SO3.from_quaternion(q_21).as_matrix()
+    q_21_gt = predict_history[0]
+    C_21_gt = SO3.from_quaternion(q_21_gt).as_matrix()
+
     Sigma_21 = predict_history[2]
 
     file_name = 'fusion/hydranet_output_model_seq_{}.pt'.format(seq)
     print('Outputting: {}'.format(file_name))
     torch.save({
         'Rot_21': C_21,
+        'Rot_21_gt': C_21_gt,
         'Sigma_21': Sigma_21,
     }, file_name)
 
