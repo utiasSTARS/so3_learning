@@ -57,7 +57,7 @@ def run_so3_hydranet(trained_file_path, seq):
 
 
     print('Extracted sequence {} \t' 
-          '(Err/NLL) {:3.3f} / {:3.3f} | {:.3f} / {:3.3f}\t'.format(
+          '(Err/NLL) {:3.3f} / {:3.3f} \t'.format(
             seq, valid_ang_error, valid_nll))
 
     q_12 = predict_history[1]
