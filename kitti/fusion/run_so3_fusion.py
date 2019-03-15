@@ -145,7 +145,7 @@ def main():
                    'frames': range(0, 1201)}}
 
 
-    seq = '00'
+    seq = '05'
     tm_path = '../svo/baseline_tm/'
 
     orig_metrics_file = os.path.join(tm_path, '{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
