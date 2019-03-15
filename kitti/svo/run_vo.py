@@ -170,7 +170,7 @@ def main():
         tm = run_sparse_vo(kitti_basedir, date, drive, frames, metrics_filename, saved_tracks_filename, apply_blur=apply_blur)
 
         # # Compute errors
-        trans_err_norm, rot_err_norm = tm.mean_err(error_type='traj')
+        trans_err_norm, rot_err_norm = tm.mean_err(error_type='rel', rot_unit='deg')
         print('Mean Norm Error (Trans / Rot): {:.5f} (m) / {:.5f} (a-a)'.format(trans_err_norm, rot_err_norm))
 
 
