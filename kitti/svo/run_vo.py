@@ -104,16 +104,16 @@ def main():
     # 09: 2011_09_30_drive_0033 000000 001590
     # 10: 2011_09_30_drive_0034 000000 001200
 
-    kitti_basedir = '/media/m2-drive/datasets/KITTI/raw'
+    #kitti_basedir = '/media/m2-drive/datasets/KITTI/raw'
     saved_tracks_dir = None
 
     #saved_tracks_dir = '/media/raid5-array/datasets/KITTI/extracted_sparse_tracks/'
     #export_dir = '/media/raid5-array/experiments/SO3-learning/stereo_vo_results/baseline_distorted'
 
-    #kitti_basedir = '/media/datasets/KITTI/raw/'
-    #export_dir = '/media/datasets/KITTI/trajectory_metrics/'
+    kitti_basedir = '/media/datasets/KITTI/raw/'
+    export_dir = '/media/datasets/KITTI/trajectory_metrics/'
 
-    export_dir = '../datasets/monolith'
+    export_dir = './baseline_tm'
 
     seqs = {'00': {'date': '2011_10_03',
                    'drive': '0027',
@@ -157,7 +157,10 @@ def main():
         frames = seqs[seq]['frames']
 
         print('Odometry sequence {} | {} {}'.format(seq, date, drive))
-        metrics_filename = os.path.join(export_dir, date + '_drive_' + drive + '_gaussian_blur.mat')
+        if apply_blur:
+            metrics_filename = os.path.join(export_dir, date + '_drive_' + drive + '_gaussian_blur.mat')
+        else:
+            metrics_filename = os.path.join(export_dir, date + '_drive_' + drive + '.mat')
 
         if saved_tracks_dir is None:
             saved_tracks_filename = None
