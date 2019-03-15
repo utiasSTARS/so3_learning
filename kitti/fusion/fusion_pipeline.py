@@ -51,15 +51,17 @@ class SO3FusionPipeline(object):
         self.optimizer.set_priors(self.T_w_c_vo[pose_i].inv(), self.T_w_c_vo[pose_i+1].inv())
 
         if np.iscomplex(invsqrt(self.Sigma_21_hydranet[pose_i])).any() or np.linalg.det(self.Sigma_21_hydranet[pose_i]) > 1e-12:
-            print('Warning: found bad covariance! invsqrt is complex.')
-            print(self.Sigma_21_hydranet[pose_i])
+            #print('Warning: found bad covariance!')
+            #print(self.Sigma_21_hydranet[pose_i])
             T_21 = T_21_vo
         else:
-            Sigma_rot = invsqrt(self.Sigma_21_hydranet[pose_i])
-            #Sigma_rot = invsqrt(1e-12*np.eye(3))
-            self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True), Sigma_rot)
+            Sigma_hn = invsqrt(self.Sigma_21_hydranet[pose_i])
+            C_hn = SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True)
+            #Sigma_hn = invsqrt(1e-12*np.eye(3))
+            self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), C_hn, Sigma_hn)
             T_21 = self.optimizer.solve()
-
+            #T_21 = T_21_vo
+            #T_21.rot = C_hn
         T_w_c = self.T_w_c[-1]
         self.T_w_c.append(T_w_c.dot(T_21.inv()))
 
