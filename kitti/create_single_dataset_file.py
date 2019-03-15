@@ -79,7 +79,7 @@ def save_images(image_paths_rgb, transform, img_dims, file_name):
 def main():
     # Obelisk
     kitti_path = '/media/datasets/KITTI/raw'
-    trial_strs = ['00','02','05','06', '07', '08', '09', '10']
+    trial_strs = ['01', '04']#['00','02','05','06', '07', '08', '09', '10']
 
     # Load datasets
     transform = transforms.Compose([
