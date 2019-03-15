@@ -69,7 +69,7 @@ def run_so3_hydranet(trained_file_path, seq):
 
     Sigma_21 = predict_history[2]
 
-    file_name = 'fusion/hydranet_output_model_seq_{}.pt'.format(seq)
+    file_name = 'fusion/hydranet_output_blurred_model_seq_{}.pt'.format(seq)
     print('Outputting: {}'.format(file_name))
     torch.save({
         'Rot_21': C_21,
