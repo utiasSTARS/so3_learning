@@ -204,12 +204,14 @@ class KITTIVODatasetPreTransformed(Dataset):
             self.pose_indices = kitti_data['train_pose_indices']
             self.T_21_gt = kitti_data['train_T_21_gt']
             self.T_21_vo = kitti_data['train_T_21_vo']
+            self.pose_deltas = kitti_data['train_pose_deltas']
 
         elif run_type == 'test':
             self.seqs = kitti_data['test_seqs']
             self.pose_indices = kitti_data['test_pose_indices']
             self.T_21_gt = kitti_data['test_T_21_gt']
             self.T_21_vo = kitti_data['test_T_21_vo']
+            self.pose_delta = kitti_data['test_pose_delta']
 
         else:
             raise ValueError('run_type must be set to `train`, or `test`. ')

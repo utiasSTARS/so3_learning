@@ -166,12 +166,14 @@ def main():
         kitti_data['train_T_21_gt'] = train_T_21_gt
         kitti_data['train_T_21_vo'] = train_T_21_est
         kitti_data['train_tm_mat_paths'] = train_tm_mat_files
+        kitti_data['train_pose_deltas'] = train_pose_deltas
 
         kitti_data['test_seqs'] = test_sequences
         kitti_data['test_pose_indices'] = test_pose_ids
         kitti_data['test_T_21_gt'] = test_T_21_gt
         kitti_data['test_T_21_vo'] = test_T_21_est
         kitti_data['test_tm_mat_paths'] = test_tm_mat_files
+        kitti_data['test_pose_delta'] = test_pose_delta
 
         data_filename = os.path.join(data_path, 'kitti_singlefile_data_sequence_{}_delta_{}.pickle'.format(test_trial, test_pose_delta))
         print('Saving to {} ....'.format(data_filename))

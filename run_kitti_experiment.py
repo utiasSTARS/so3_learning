@@ -151,7 +151,7 @@ if __name__ == '__main__':
                 'full_model': model.state_dict(),
                 'predict_history': predict_history,
                 'epoch': epoch + 1,
-            }, 'kitti/plots/best_model_seq_{}_heads_{}_epoch_{}.pt'.format(args.seq, model.num_hydra_heads, epoch + 1))
+            }, 'kitti/plots/best_model_seq_{}_delta_{}_heads_{}_epoch_{}.pt'.format(args.seq, valid_loader.dataset.pose_delta, model.num_hydra_heads, epoch + 1))
 
 
             #plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
