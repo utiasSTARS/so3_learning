@@ -20,7 +20,7 @@ from pyslam.visualizers import TrajectoryVisualizer
 
 
 
-def run_sparse_vo(basedir, date, drive, im_range, metrics_filename=None, saved_tracks_filename=None):
+def run_sparse_vo(basedir, date, drive, im_range, metrics_filename=None, saved_tracks_filename=None, apply_blur=False):
 
     #Observation Noise
     obs_var = [1, 1, 2]  # [u,v,d]
@@ -69,6 +69,7 @@ def run_sparse_vo(basedir, date, drive, im_range, metrics_filename=None, saved_t
     pipeline_params.motion_stiffness = motion_stiffness
     pipeline_params.dataset_date_drive = date + '_' + drive
     pipeline_params.saved_stereo_tracks_file = saved_tracks_filename
+    pipeline_params.apply_gaussian_blur = apply_blur #Use to make estimates worse
 
     svo = SparseStereoPipeline(pipeline_params)
     
@@ -146,9 +147,9 @@ def main():
                    'frames': range(0, 1201)}}
 
 
-    compute_seqs = ['00', '02', '05', '06', '07', '08', '09', '10']
+    compute_seqs = ['00', '02', '05']#, '06', '07', '08', '09', '10']
     #compute_seqs = ['06']
-
+    apply_blur = True
     for seq in compute_seqs:
 
         date = seqs[seq]['date']
@@ -156,14 +157,14 @@ def main():
         frames = seqs[seq]['frames']
 
         print('Odometry sequence {} | {} {}'.format(seq, date, drive))
-        metrics_filename = os.path.join(export_dir, date + '_drive_' + drive + '.mat')
+        metrics_filename = os.path.join(export_dir, date + '_drive_' + drive + '_gaussian_blur.mat')
 
         if saved_tracks_dir is None:
             saved_tracks_filename = None
         else:
             saved_tracks_filename = os.path.join(saved_tracks_dir, '{}_{}_frames_{}-{}_saved_tracks.pickle'.format(date, drive, frames[0], frames[-1]))
         
-        tm = run_sparse_vo(kitti_basedir, date, drive, frames, metrics_filename, saved_tracks_filename)
+        tm = run_sparse_vo(kitti_basedir, date, drive, frames, metrics_filename, saved_tracks_filename, apply_blur=apply_blur)
 
         # # Compute errors
         trans_err_norm, rot_err_norm = tm.mean_err(error_type='traj')

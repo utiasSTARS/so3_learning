@@ -8,7 +8,7 @@ from pyslam.problem import Options, Problem
 from collections import OrderedDict, namedtuple
 
 # Optional imports
-#import cv2
+import cv2
 #import pyopengv
 
 import sys
@@ -92,6 +92,8 @@ class SparseStereoPipeline(object):
         
         return (cam_vec_1, cam_vec_2)
 
+    def apply_blur(self, img):
+        return cv2.GaussianBlur(img, (5, 5), 0)
 
     def compute_vo(self, dataset):
 
@@ -104,6 +106,10 @@ class SparseStereoPipeline(object):
             for pose_i, impair in enumerate(dataset.rgb):
                 img_l = np.array(impair[0].convert('L'))
                 img_r = np.array(impair[1].convert('L'))
+
+                if self.params.apply_gaussian_blur:
+                    img_l = self.apply_blur(img_l)
+                    img_r = self.apply_blur(img_r)
 
                 self.push_back(img_l, img_r)
 
