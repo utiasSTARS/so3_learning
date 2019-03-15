@@ -238,8 +238,8 @@ class KITTIVODatasetPreTransformed(Dataset):
         np_img1 = cv2.cvtColor(img1.permute(1,2,0).numpy(), cv2.COLOR_RGB2GRAY)
         np_img2 = cv2.cvtColor(img2.permute(1,2,0).numpy(), cv2.COLOR_RGB2GRAY)
         if apply_blur:
-            np_img1 = cv2.GaussianBlur(np_img1, (5, 5), 0)
-            np_img2 = cv2.GaussianBlur(np_img2, (5, 5), 0)
+            np_img1 = cv2.GaussianBlur(np_img1, (13, 13), 0)
+            np_img2 = cv2.GaussianBlur(np_img2, (13, 13), 0)
 
         flow_cv2 = cv2.calcOpticalFlowFarneback(np_img1, np_img2, None, 0.5, 3, 15, 3, 5, 1.2, 0)
         flow_img = torch.from_numpy(flow_cv2).permute(2,0,1)
