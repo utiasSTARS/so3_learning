@@ -109,7 +109,7 @@ class BasicCNN(torch.nn.Module):
             conv_unit(512, 1024, kernel_size=3, stride=2, padding=1),
             conv_unit(1024, 1024, kernel_size=3, stride=2, padding=1)
         )
-        self.fc = torch.nn.Linear(3*7*7, feature_dim)
+        self.fc = torch.nn.Linear(4096, feature_dim)
 
 
     def forward(self, x):
