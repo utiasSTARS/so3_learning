@@ -149,7 +149,7 @@ def main():
 
     compute_seqs = ['05']#, '06', '07', '08', '09', '10']
     #compute_seqs = ['06']
-    apply_blur = True
+    apply_blur = False
     for seq in compute_seqs:
 
         date = seqs[seq]['date']

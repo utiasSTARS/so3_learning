@@ -108,12 +108,12 @@ def main():
     # train_trials = ['04', '02', '05', '06', '07', '08', '09', '10']
     
     #Removed 01 and 04 (road trials)
-    all_trials = ['01','04','00','02','05','06', '07', '08', '09', '10']
+    all_trials = ['00','02','05','06', '07', '08', '09', '10','01','04']
     #all_trials = ['00', '02', '05', '06']
 
 
-    train_pose_deltas = [1] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
-    test_pose_delta = 1
+    train_pose_deltas = [3] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
+    test_pose_delta = 3
     add_reverse = False #Add reverse transformations
 
     #Where is the KITTI data?
@@ -132,7 +132,7 @@ def main():
 
     
     for t_i, test_trial in enumerate(all_trials):
-        if t_i > 1:
+        if t_i > 2:
             break #Only produce trials for 00, 02 and 05
 
         if test_trial == all_trials[-1]:
@@ -173,7 +173,7 @@ def main():
         kitti_data['test_T_21_vo'] = test_T_21_est
         kitti_data['test_tm_mat_paths'] = test_tm_mat_files
 
-        data_filename = os.path.join(data_path, 'kitti_singlefile_data_sequence_{}.pickle'.format(test_trial))
+        data_filename = os.path.join(data_path, 'kitti_singlefile_data_sequence_{}_delta_{}.pickle'.format(test_trial, test_pose_delta))
         print('Saving to {} ....'.format(data_filename))
 
         with open(data_filename, 'wb') as f:
