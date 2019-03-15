@@ -104,11 +104,10 @@ class BasicCNN(torch.nn.Module):
             conv_unit(channels, 64, kernel_size=3, stride=2, padding=1),
             conv_unit(64, 64, kernel_size=3, stride=2, padding=1),
             conv_unit(64, 128, kernel_size=3, stride=2, padding=1),
-            conv_unit(128, 256, kernel_size=3, stride=2, padding=1),
-            conv_unit(256, 512, kernel_size=3, stride=2, padding=1),
-            conv_unit(512, 1024, kernel_size=3, stride=2, padding=1),
+            conv_unit(128, 128, kernel_size=3, stride=2, padding=1),
+            conv_unit(128, 3, kernel_size=3, stride=2, padding=1),
         )
-        self.fc = torch.nn.Linear(2048, feature_dim)
+        self.fc = torch.nn.Linear(3*7*7, feature_dim)
 
 
     def forward(self, x):
