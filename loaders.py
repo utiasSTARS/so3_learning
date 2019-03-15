@@ -188,10 +188,10 @@ class KITTIVODataset(Dataset):
 class KITTIVODatasetPreTransformed(Dataset):
     """KITTI Odometry Benchmark dataset with full memory read-ins."""
 
-    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train'):
+    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train', apply_blur=False):
         self.kitti_dataset_file = kitti_dataset_file
         self.seqs_base_path = seqs_base_path
-
+        self.apply_blur = apply_blur
         self.transform_img = transform_img
         self.load_kitti_data(run_type)  # Loads self.image_quad_paths and self.labels
 
@@ -233,10 +233,14 @@ class KITTIVODatasetPreTransformed(Dataset):
         else:
             return img.float() / 255.
 
-    def compute_flow(self, img1, img2):
+    def compute_flow(self, img1, img2, apply_blur = False):
         #Convert back to W x H x C
         np_img1 = cv2.cvtColor(img1.permute(1,2,0).numpy(), cv2.COLOR_RGB2GRAY)
         np_img2 = cv2.cvtColor(img2.permute(1,2,0).numpy(), cv2.COLOR_RGB2GRAY)
+        if apply_blur:
+            np_img1 = cv2.GaussianBlur(np_img1, (5, 5), 0)
+            np_img2 = cv2.GaussianBlur(np_img2, (5, 5), 0)
+
         flow_cv2 = cv2.calcOpticalFlowFarneback(np_img1, np_img2, None, 0.5, 3, 15, 3, 5, 1.2, 0)
         flow_img = torch.from_numpy(flow_cv2).permute(2,0,1)
         gr_img1 = torch.from_numpy(np_img1).float().unsqueeze(0)
@@ -254,6 +258,6 @@ class KITTIVODatasetPreTransformed(Dataset):
 
         # image_pair = [self.prep_img(self.seq_images[seq][p_ids[0]]),
         #               self.prep_img(self.seq_images[seq][p_ids[1]])]
-        flow_img = self.compute_flow(self.seq_images[seq][p_ids[0]], self.seq_images[seq][p_ids[1]])
+        flow_img = self.compute_flow(self.seq_images[seq][p_ids[0]], self.seq_images[seq][p_ids[1]], self.apply_blur)
         q_target = torch.from_numpy(quaternion_from_matrix(C_21_gt)).float()
         return flow_img, q_target

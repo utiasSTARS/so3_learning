@@ -43,11 +43,13 @@ def run_so3_hydranet(trained_file_path, seq):
     #     transforms.Normalize(mean=[0.485, 0.456, 0.406],
     #                          std=[0.229, 0.224, 0.225])
     # ])
+
+    apply_blur = True
     kitti_data_pickle_file = 'datasets/obelisk/kitti_singlefile_data_sequence_{}.pickle'.format(seq)
     seqs_base_path = './'
     transform = None
 
-    test_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test'),
+    test_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test', apply_blur=apply_blur),
                               batch_size=batch_size, pin_memory=False,
                               shuffle=False, num_workers=4, drop_last=False)
     config = {
