@@ -243,6 +243,8 @@ class KITTIVODatasetPreTransformed(Dataset):
         #gr_img2 = torch.from_numpy(np_img2).float().unsqueeze(0)
 
         #stacked_img = torch.cat((gr_img1, gr_img2, flow_img), 0)
+        print(flow_img)
+        return
         return flow_img
 
 
