@@ -93,7 +93,7 @@ class SparseStereoPipeline(object):
         return (cam_vec_1, cam_vec_2)
 
     def apply_blur(self, img):
-        return cv2.GaussianBlur(img, (25, 25), )
+        return cv2.GaussianBlur(img, (25, 25), 0)
 
     def compute_vo(self, dataset):
 
