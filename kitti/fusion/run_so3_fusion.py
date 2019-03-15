@@ -145,7 +145,7 @@ def main():
                    'frames': range(0, 1201)}}
 
 
-    seq = '05'
+    seq = '02'
     tm_path = '../svo/baseline_tm/'
 
     orig_metrics_file = os.path.join(tm_path, '{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
@@ -155,8 +155,8 @@ def main():
     tm_baseline = TrajectoryMetrics.loadmat(orig_metrics_file)
 
     # Compute errors
-    trans_armse_fusion, rot_armse_fusion = tm_fusion.mean_err(error_type='rel', rot_unit='deg')
-    trans_armse_baseline, rot_armse_baseline = tm_baseline.mean_err(error_type='rel', rot_unit='deg')
+    trans_armse_fusion, rot_armse_fusion = tm_fusion.mean_err(error_type='traj', rot_unit='deg')
+    trans_armse_baseline, rot_armse_baseline = tm_baseline.mean_err(error_type='traj', rot_unit='deg')
     
     print('VO Only ARMSE (Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_baseline, rot_armse_baseline))
     print('SO(3) Fusion ARMSE (Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_fusion, rot_armse_fusion))
