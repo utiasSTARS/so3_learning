@@ -147,7 +147,7 @@ def main():
                    'frames': range(0, 1201)}}
 
 
-    compute_seqs = ['00', '02', '05']#, '06', '07', '08', '09', '10']
+    compute_seqs = ['05']#, '06', '07', '08', '09', '10']
     #compute_seqs = ['06']
     apply_blur = True
     for seq in compute_seqs:
