@@ -104,8 +104,10 @@ class BasicCNN(torch.nn.Module):
             conv_unit(channels, 64, kernel_size=3, stride=2, padding=1),
             conv_unit(64, 64, kernel_size=3, stride=2, padding=1),
             conv_unit(64, 128, kernel_size=3, stride=2, padding=1),
-            conv_unit(128, 128, kernel_size=3, stride=2, padding=1),
-            conv_unit(128, 3, kernel_size=3, stride=2, padding=1),
+            conv_unit(128, 256, kernel_size=3, stride=2, padding=1),
+            conv_unit(256, 512, kernel_size=3, stride=2, padding=1),
+            conv_unit(512, 1024, kernel_size=3, stride=2, padding=1),
+            conv_unit(1024, 1024, kernel_size=3, stride=2, padding=1)
         )
         self.fc = torch.nn.Linear(3*7*7, feature_dim)
 
@@ -145,7 +147,7 @@ class QuaternionCNN(torch.nn.Module):
 
         sensor_feature_dim = 256
         #BasicCNN(feature_dim=sensor_feature_dim) #
-        self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim, channels=4)#CustomResNet(feature_dim=sensor_feature_dim)
+        self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim, channels=2)#CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(
             [GenericHead(D_in=sensor_feature_dim, D_layers=512, D_out=4, dropout=True, init_large=True) for h in range(self.num_hydra_heads)])
