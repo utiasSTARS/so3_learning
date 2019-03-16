@@ -54,7 +54,7 @@ def extract_global_orientations(kitti_path, seq):
     seqs = [seq]*len(C_imu_w)
     return (C_imu_w, pose_ids, seqs)
 
-def process_ground_truth(trial_strs, kitti_path, eval_type='train'):
+def process_ground_truth(kitti_path, trial_strs):
 
     C_imu_w_all = []
     pose_ids_all = []
