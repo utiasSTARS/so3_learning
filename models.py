@@ -141,13 +141,16 @@ class CustomResNet(torch.nn.Module):
 
 
 class QuaternionCNN(torch.nn.Module):
-    def __init__(self, num_hydra_heads=25):
+    def __init__(self, num_hydra_heads=25, channels=2, resnet=False):
         super(QuaternionCNN, self).__init__()
         self.num_hydra_heads = num_hydra_heads
 
         sensor_feature_dim = 256
-        #BasicCNN(feature_dim=sensor_feature_dim) #
-        self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim, channels=2)#CustomResNet(feature_dim=sensor_feature_dim)
+        if resnet:
+            self.sensor_net = CustomResNet(feature_dim=sensor_feature_dim)
+        else:
+            self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim,
+                                       channels=channels)
 
         self.heads = torch.nn.ModuleList(
             [GenericHead(D_in=sensor_feature_dim, D_layers=512, D_out=4, dropout=True) for h in range(self.num_hydra_heads)])

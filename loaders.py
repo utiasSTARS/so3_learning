@@ -263,3 +263,56 @@ class KITTIVODatasetPreTransformed(Dataset):
         flow_img = self.compute_flow(self.seq_images[seq][p_ids[0]], self.seq_images[seq][p_ids[1]], self.apply_blur)
         q_target = torch.from_numpy(quaternion_from_matrix(C_21_gt)).float()
         return flow_img, q_target
+
+
+class KITTIVODatasetPreTransformedAbs(Dataset):
+    """KITTI Odometry Benchmark dataset with full memory read-ins."""
+
+    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train'):
+        self.kitti_dataset_file = kitti_dataset_file
+        self.seqs_base_path = seqs_base_path
+        self.transform_img = transform_img
+        self.load_kitti_data(run_type)  # Loads self.image_quad_paths and self.labels
+
+    def load_kitti_data(self, run_type):
+        with open(self.kitti_dataset_file, 'rb') as handle:
+            kitti_data = pickle.load(handle)
+
+        if run_type == 'train':
+            self.seqs = kitti_data['train_seqs']
+            self.pose_indices = kitti_data['train_pose_indices']
+            self.C_imu_w = kitti_data['train_C_imu_w']
+
+        elif run_type == 'test':
+            self.seqs = kitti_data['test_seqs']
+            self.pose_indices = kitti_data['test_pose_indices']
+            self.C_imu_w = kitti_data['test_C_imu_w']
+
+        else:
+            raise ValueError('run_type must be set to `train`, or `test`. ')
+
+        print('Loading sequences...{}'.format(list(set(self.seqs))))
+        self.seq_images = {seq: self.import_seq(seq) for seq in list(set(self.seqs))}
+        print('...done loading images into memory.')
+
+    def import_seq(self, seq):
+        file_path = self.seqs_base_path + '/seq_{}.pt'.format(seq)
+        data = torch.load(file_path)
+        return data['im_l']
+
+    def __len__(self):
+        return len(self.C_imu_w)
+
+    def prep_img(self, img):
+        if self.transform_img is not None:
+            return self.transform_img(img.float()/255.)
+        else:
+            return img.float() / 255.
+
+    def __getitem__(self, idx):
+        seq = self.seqs[idx]
+        p_id = self.pose_indices[idx]
+        C_imu_w = self.C_imu_w[idx].as_matrix()
+        image = self.prep_img(self.seq_images[seq][p_id])
+        q_target = torch.from_numpy(quaternion_from_matrix(C_imu_w)).float()
+        return image, q_target
