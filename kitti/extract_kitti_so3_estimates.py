@@ -44,7 +44,7 @@ def run_so3_hydranet(trained_file_path, seq):
     #                          std=[0.229, 0.224, 0.225])
     # ])
 
-    apply_blur = True
+    apply_blur = False
     kitti_data_pickle_file = 'datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_1.pickle'.format(seq)
     seqs_base_path = './'
     transform = None
