@@ -245,11 +245,11 @@ class KITTIVODatasetPreTransformed(Dataset):
 
         flow_cv2 = cv2.calcOpticalFlowFarneback(np_img1, np_img2, None, 0.5, 3, 15, 3, 5, 1.2, 0)
         flow_img = torch.from_numpy(flow_cv2).permute(2,0,1)
-        gr_img1 = torch.from_numpy(np_img1).float().unsqueeze(0)
-        gr_img2 = torch.from_numpy(np_img2).float().unsqueeze(0)
+        #gr_img1 = torch.from_numpy(np_img1).float().unsqueeze(0)
+        #gr_img2 = torch.from_numpy(np_img2).float().unsqueeze(0)
 
-        stacked_img = torch.cat((gr_img1, gr_img2, flow_img), 0)
-        return stacked_img
+        #stacked_img = torch.cat((gr_img1, gr_img2, flow_img), 0)
+        return flow_img
 
 
     def __getitem__(self, idx):

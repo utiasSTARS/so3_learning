@@ -46,9 +46,9 @@ class SO3FusionPipeline(object):
         pose_i = len(self.T_w_c) - 1
         T_21_vo = self.T_w_c_vo[pose_i+1].inv().dot(self.T_w_c_vo[pose_i])
 
-        #Set initial guess to the corrected guess
+        #Set initial guess to the corrected guessc
         self.optimizer.reset_solver()
-        self.optimizer.set_priors(self.T_w_c_vo[pose_i].inv(), self.T_w_c_vo[pose_i+1].inv())
+        self.optimizer.set_priors(SE3.identity(), T_21_vo.inv())
 
         if np.iscomplex(invsqrt(self.Sigma_21_hydranet[pose_i])).any() or np.linalg.det(self.Sigma_21_hydranet[pose_i]) > 1e-12:
             #print('Warning: found bad covariance!')
