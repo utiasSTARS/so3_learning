@@ -58,34 +58,14 @@ if __name__ == '__main__':
 
     optimizer = torch.optim.Adam(
         [{'params': model.sensor_net.parameters(), 'lr': 0.1*args.lr},
-        #{'params': model.sensor_net1.parameters(), 'lr': 0.1*args.lr},
         {'params': model.heads.parameters()},
          {'params': model.direct_covar_head.parameters()}],
         lr=args.lr)
 
-    #Load datasets
-    # transform = transforms.Compose([
-    #     transforms.Resize(224),
-    #     transforms.CenterCrop(224),
-    #     transforms.ToTensor(),
-    #     transforms.Normalize(mean=[0.485, 0.456, 0.406],
-    #                          std=[0.229, 0.224, 0.225])
-    # ])
 
-
-
-    # kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_data_sequence_{}.pickle'.format(args.seq)
-
-    # train_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='train'),
-    #                     batch_size=args.batch_size, pin_memory=True,
-    #                     shuffle=True, num_workers=12, drop_last=True)
-    # valid_loader = DataLoader(KITTIVODataset(kitti_data_pickle_file, transform_img=transform, run_type='test'),
-    #                           batch_size=args.batch_size, pin_memory=True,
-    #                           shuffle=False, num_workers=12, drop_last=False)
-
-    # transform = transforms.Normalize(mean=[0.485, 0.456, 0.406],
-    #                           std=[0.229, 0.224, 0.225])
-    transform = None
+    transform = transforms.Normalize(mean=[0.485, 0.456, 0.406],
+                               std=[0.229, 0.224, 0.225])
+    #transform = None
     kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_singlefile_data_sequence_{}_abs.pickle'.format(args.seq)
 
     seqs_base_path = 'kitti'
@@ -106,43 +86,32 @@ if __name__ == '__main__':
         'device': device
     }
     epoch_time = AverageMeter()
-    avg_train_loss, train_ang_error, train_nll = validate(model, train_loader, loss_fn, config)
     avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True, output_grid=True)
 
-    #Visualize
-    sigma_filename = 'kitti/plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, 0)
-    plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
-
     print('Starting Training \t' 
-          'Train (Err/NLL) | Valid (Err/NLL) {:3.3f} / {:3.3f} | {:.3f} / {:3.3f}\t'.format(
-            train_ang_error, train_nll, valid_ang_error, valid_nll))
+          'Valid (Err/NLL) {:.3f} / {:3.3f}\t'.format(
+           valid_ang_error, valid_nll))
 
     best_valid_loss = avg_valid_loss
     for epoch in range(args.total_epochs):
         end = time.time()
         avg_train_loss = train(model, train_loader, loss_fn, optimizer, config, q_target_sigma=args.q_target_sigma)
-
-        _, train_ang_error, train_nll, predict_history_train = validate(model, train_loader, loss_fn, config, output_history=True)
         avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True)
 
         # Measure elapsed time
         epoch_time.update(time.time() - end)
 
-        # if epoch == 5:
-        #     print('Freezing the ResNet!')
-        #     model.sensor_net.freeze_layers()
 
         if avg_valid_loss < best_valid_loss:
             print('New best validation loss! Outputting plots and saving model.')
 
             best_valid_loss = avg_valid_loss
 
-            sigma_filename = 'kitti/plots/error_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(args.seq, model.num_hydra_heads, epoch+1)
-            #nees_filename = 'kitti/plots/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
+            sigma_filename = 'kitti/plots/abs/error_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(args.seq, model.num_hydra_heads, epoch+1)
 
             plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
 
-            abs_filename = 'kitti/plots/abs_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(args.seq, model.num_hydra_heads,
+            abs_filename = 'kitti/plots/abs/abs_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(args.seq, model.num_hydra_heads,
                                                                                   epoch + 1)
             plot_abs_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3],
                                     filename=abs_filename)
@@ -151,15 +120,14 @@ if __name__ == '__main__':
                 'full_model': model.state_dict(),
                 'predict_history': predict_history,
                 'epoch': epoch + 1,
-            }, 'kitti/plots/best_model_seq_{}_delta_{}_heads_{}_epoch_{}.pt'.format(args.seq, valid_loader.dataset.pose_delta, model.num_hydra_heads, epoch + 1))
+            }, 'kitti/plots/abs/best_model_seq_{}_abs_heads_{}_epoch_{}.pt'.format(args.seq, model.num_hydra_heads, epoch + 1))
 
 
-            #plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
 
 
         if epoch%args.epoch_display == 0:
             print('Epoch {}. Loss (Train/Valid) {:.3E} / {:.3E} \t'
-            'Train (Err/NLL) | Valid (Err/NLL) {:3.3f} / {:3.3f} | {:.3f} / {:3.3f}\t'
+            ' Valid (Err/NLL) {:.3f} / {:3.3f}\t'
             'Epoch Time {epoch_time.val:.3f} (avg: {epoch_time.avg:.3f})'.format(
-                epoch+1, avg_train_loss, avg_valid_loss, train_ang_error, train_nll, valid_ang_error, valid_nll, epoch_time=epoch_time))
+                epoch+1, avg_train_loss, avg_valid_loss, valid_ang_error, valid_nll, epoch_time=epoch_time))
 
