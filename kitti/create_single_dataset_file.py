@@ -79,12 +79,12 @@ def save_images(image_paths_rgb, transform, img_dims, file_name):
 def main():
     # Obelisk
     kitti_path = '/media/datasets/KITTI/raw'
-    trial_strs = ['01', '04']#['00','02','05','06', '07', '08', '09', '10']
+    trial_strs = ['01', '04','00','02','05','06', '07', '08', '09', '10']
 
     # Load datasets
     transform = transforms.Compose([
-        transforms.Resize(224),
-        transforms.CenterCrop(224),
+        transforms.Resize((224,224))
+        #transforms.CenterCrop(224),
         # transforms.ToTensor(),
         # transforms.Normalize(mean=[0.485, 0.456, 0.406],
         #                       std=[0.229, 0.224, 0.225])
@@ -96,7 +96,7 @@ def main():
         data_path = os.path.join(kitti_path, KITTI_SEQS_DICT[trial_str]['date'], drive_folder)
 
         image_paths_rgb = get_image_paths(data_path, trial_str, 'rgb')
-        file_name = 'seq_{}.pt'.format(trial_str)
+        file_name = 'seq_squished_{}.pt'.format(trial_str)
         save_images(image_paths_rgb, transform, [224, 224], file_name)
 
 

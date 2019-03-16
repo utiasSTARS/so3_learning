@@ -145,7 +145,7 @@ class QuaternionCNN(torch.nn.Module):
         super(QuaternionCNN, self).__init__()
         self.num_hydra_heads = num_hydra_heads
 
-        sensor_feature_dim = 256
+        sensor_feature_dim = 1024
         if resnet:
             self.sensor_net = CustomResNet(feature_dim=sensor_feature_dim)
         else:
