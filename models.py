@@ -236,7 +236,7 @@ class GenericHead(torch.nn.Module):
         super(GenericHead, self).__init__()
         self.fc0 = torch.nn.Linear(D_in, D_layers)
         self.fc1 = torch.nn.Linear(D_layers, D_out)
-        self.bn = torch.nn.BatchNorm1d(D_layers)
+        #self.bn = torch.nn.BatchNorm1d(D_layers)
 
         if init_large:
             self.fc0.apply(init_lin_weights)
@@ -249,7 +249,6 @@ class GenericHead(torch.nn.Module):
 
     def forward(self, x):
         out = self.fc0(x)
-        out = self.bn(out)
         out = self.nonlin(out)
         if self.dropout:
             out = self.dropout(out)
@@ -258,11 +257,11 @@ class GenericHead(torch.nn.Module):
 
 def init_lin_weights(m):
     if type(m) == torch.nn.Linear:
-        stdv = 2. / math.sqrt(m.weight.size(1))
+        stdv = 10. / math.sqrt(m.weight.size(1))
         m.weight.data.uniform_(-stdv, stdv)
 
         #torch.nn.init.kaiming_normal_(m.weight)
         #m.weight.data.normal_(std=1e-2)
         #m.weight.data.fill_(0.01)
-        m.bias.data.fill_(0.)
+        m.bias.data.normal_(std=1e-2)
 
