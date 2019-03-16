@@ -42,9 +42,9 @@ def extract_global_orientations(kitti_path, seq):
     pose_ids = []
     seqs = []
 
-    date = seqs[seq]['date']
-    drive = seqs[seq]['drive']
-    frames = seqs[seq]['frames']
+    date = KITTI_SEQS_DICT[seq]['date']
+    drive = KITTI_SEQS_DICT[seq]['drive']
+    frames = KITTI_SEQS_DICT[seq]['frames']
     dataset = pykitti.raw(kitti_path, date, drive, frames=frames)
     dataset_len = len(dataset)
 
