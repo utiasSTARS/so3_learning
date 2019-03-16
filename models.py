@@ -260,7 +260,7 @@ class GenericHead(torch.nn.Module):
 
 def init_lin_weights(m):
     if type(m) == torch.nn.Linear:
-        stdv = 10. / math.sqrt(m.weight.size(1))
+        stdv = 2. / math.sqrt(m.weight.size(1))
         m.weight.data.uniform_(-stdv, stdv)
 
         #torch.nn.init.kaiming_normal_(m.weight)

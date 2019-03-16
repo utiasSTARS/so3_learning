@@ -296,7 +296,7 @@ class KITTIVODatasetPreTransformedAbs(Dataset):
         print('...done loading images into memory.')
 
     def import_seq(self, seq):
-        file_path = self.seqs_base_path + '/seq_{}.pt'.format(seq)
+        file_path = self.seqs_base_path + '/seq_squished_{}.pt'.format(seq)
         data = torch.load(file_path)
         return data['im_l']
 
