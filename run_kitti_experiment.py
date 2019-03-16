@@ -30,7 +30,7 @@ if __name__ == '__main__':
     parser.add_argument('--lr', type=float, default=1e-4)
     parser.add_argument('--total_epochs', type=int, default=25)
     parser.add_argument('--num_heads', type=int, default=25)
-    parser.add_argument('--q_target_sigma', type=float, default=0.)
+    parser.add_argument('--q_target_sigma', type=float, default=0.1)
     parser.add_argument('--freeze_body', action='store_true', default=False)
 
     args = parser.parse_args()
