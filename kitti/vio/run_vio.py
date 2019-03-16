@@ -5,6 +5,7 @@ import os
 from vio_pipeline import VisualInertialPipeline
 from pyslam.metrics import TrajectoryMetrics
 from pyslam.visualizers import TrajectoryVisualizer
+import matplotlib.pyplot as plt
 
 def run_vio(basedir, date, drive, pose_range, hydranet_output_file, metrics_filename=None):
 
@@ -22,13 +23,13 @@ def run_vio(basedir, date, drive, pose_range, hydranet_output_file, metrics_file
         for o in dataset.oxts]
 
     #Hydranet
-    vio = VisualInertialPipeline(dataset, T_cam_imu, hydranet_output_file, first_pose=T_w_c_gt[0])
+    vio = VisualInertialPipeline(dataset, T_cam_imu, hydranet_output_file, first_pose=T_w_0)
     vio.compute_vio()
 
     # #Compute statistics
     T_w_c_est = [T for T in vio.T_w_c]
     T_w_c_imu = [T for T in vio.T_w_c_imu]
-
+    T_w_c_gt = T_w_c_gt[:len(T_w_c_est)]
     tm = TrajectoryMetrics(T_w_c_gt, T_w_c_est, convention='Twv')
     tm_baseline = TrajectoryMetrics(T_w_c_gt, T_w_c_imu, convention='Twv')
 
@@ -116,10 +117,26 @@ def main():
         print('VIO ARMSE (Traj Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_fusion_traj, rot_armse_fusion_traj))
         print('IMU Only ARMSE (Traj Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_imu_traj, rot_armse_imu_traj))
 
+        trans_norms, rot_norms = tm_vio.error_norms(error_type='rel', rot_unit='deg')
+        trans_norms_imu, rot_norms_imu = tm_baseline.error_norms(error_type='rel', rot_unit='deg')
+
+        ms=2.
+        plt.subplot(2, 1, 1)
+        plt.plot(trans_norms, 'bo', linewidth=0.2, ms=ms)
+        plt.plot(trans_norms_imu, 'go', linewidth=0.2, ms=ms)
+
+        plt.ylabel('Trans')
+        plt.subplot(2, 1, 2)
+        plt.plot(rot_norms, 'b.', linewidth=0.2, ms=ms)
+        plt.plot(rot_norms_imu, 'g.',linewidth=0.2, ms=ms)
+
+        plt.ylabel('Rot')
+        plt.savefig(seq+'_error_norms.pdf')
+
         tm_dict = {'IMU Only': tm_baseline, 'VIO': tm_vio}
         vis = TrajectoryVisualizer(tm_dict)
-        segs = list(range(100,801,100))
-        vis.plot_segment_errors(segs, outfile=seq + '_segs_err.pdf')
+        # segs = list(range(100,801,100))
+        vis.plot_topdown(which_plane='xy', outfile=seq + '_topdown.pdf')
         # vis.plot_cum_norm_err(outfile=seq + '_cum_err.pdf')
         # vis.plot_pose_errors(outfile=seq+'_pose_err.pdf')
 

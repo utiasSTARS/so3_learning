@@ -10,7 +10,7 @@ import torch
 import sys
 import time
 import pickle
-
+import copy
 
 class VisualInertialPipeline():
     def __init__(self, dataset, T_cam_imu, hydranet_output_file, first_pose=SE3.identity()):
@@ -31,6 +31,15 @@ class VisualInertialPipeline():
         self.C_21_hydranet = hn_data['Rot_21'].numpy()
         self.C_21_hydranet_gt = hn_data['Rot_21_gt'].numpy()
         self.Sigma_21_hydranet_const = 1e-6*np.eye(3)#self.compute_rot_covar()
+        self.C_21_large_err_mask = self.compute_large_err_mask()
+
+    def compute_large_err_mask(self):
+        phi_errs = np.empty((len(self.C_21_hydranet_gt)))
+        for i in range(len(self.C_21_hydranet_gt)):
+            C_21_est = SO3.from_matrix(self.C_21_hydranet[i], normalize=True)
+            C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[i], normalize=True)
+            phi_errs[i] = np.linalg.norm(C_21_est.dot(C_21_gt.inv()).log())
+        return phi_errs > 0.2*np.pi/180.
 
     def compute_rot_covar(self):
         phi_errs = np.empty((len(self.C_21_hydranet_gt), 3))
@@ -69,10 +78,11 @@ class VisualInertialPipeline():
         return motion_vec
 
     def compute_vio(self):
+        num_poses = len(self.dataset.oxts)
         start = time.time()
 
-        for pose_i, oxt in enumerate(self.dataset.oxts):
-            if pose_i == len(self.dataset.oxts) - 1:
+        for pose_i, oxt in enumerate(self.dataset.oxts[:num_poses]):
+            if pose_i == num_poses - 1:
                 break
 
             T_w_c = self.T_w_c[-1]
@@ -97,9 +107,13 @@ class VisualInertialPipeline():
             C_hn = SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True)
             self.optimizer.reset_solver()
             self.optimizer.add_costs(T_21_imu, invsqrt(Sigma_21_imu), C_hn, invsqrt(Sigma_hn))
-            self.optimizer.set_priors(SE3.identity(), T_21_imu.inv())
+            self.optimizer.set_priors(SE3.identity(), SE3.identity())
+
+            # if self.C_21_large_err_mask[pose_i]:
+            #T_21 = copy.deepcopy(T_21_imu)
+            #T_21.rot = C_hn
+            # else:
             T_21 = self.optimizer.solve()
-            #T_21 = T_21_imu
             self.T_w_c.append(self.T_w_c[-1].dot(T_21.inv()))
             self.T_w_c_imu.append(self.T_w_c_imu[-1].dot(T_21_imu.inv()))
 

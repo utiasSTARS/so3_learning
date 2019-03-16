@@ -155,11 +155,17 @@ def main():
     tm_baseline = TrajectoryMetrics.loadmat(orig_metrics_file)
 
     # Compute errors
-    trans_armse_fusion, rot_armse_fusion = tm_fusion.mean_err(error_type='traj', rot_unit='deg')
-    trans_armse_baseline, rot_armse_baseline = tm_baseline.mean_err(error_type='traj', rot_unit='deg')
-    
-    print('VO Only ARMSE (Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_baseline, rot_armse_baseline))
-    print('SO(3) Fusion ARMSE (Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_fusion, rot_armse_fusion))
+    trans_armse_fusion, rot_armse_fusion = tm_fusion.mean_err(error_type='rel', rot_unit='deg')
+    trans_armse_vo, rot_armse_vo = tm_baseline.mean_err(error_type='rel', rot_unit='deg')
+
+    trans_armse_fusion_traj, rot_armse_fusion_traj = tm_fusion.mean_err(error_type='traj', rot_unit='deg')
+    trans_armse_vo_traj, rot_armse_vo_traj = tm_baseline.mean_err(error_type='traj', rot_unit='deg')
+
+    print('Fusion ARMSE (Rel Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_fusion, rot_armse_fusion))
+    print('VO Only ARMSE (Rel Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_vo, rot_armse_vo))
+
+    print('Fusion ARMSE (Traj Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_fusion_traj, rot_armse_fusion_traj))
+    print('VO Only ARMSE (Traj Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_vo_traj, rot_armse_vo_traj))
 
    
 
