@@ -27,27 +27,27 @@ class VisualInertialPipelineAbs():
 
     def _load_hydranet_files(self, path):
         hn_data = torch.load(path)
-        self.Sigma_21_hydranet = hn_data['Sigma_21'].numpy()
-        self.C_21_hydranet = hn_data['Rot_21'].numpy()
-        self.C_21_hydranet_gt = hn_data['Rot_21_gt'].numpy()
-        self.Sigma_21_hydranet_const = 1e-6*np.eye(3)#self.compute_rot_covar()
-        self.C_21_large_err_mask = self.compute_large_err_mask()
+        self.Sigma_C_imu_w = hn_data['Sigma_21'].numpy()
+        self.C_imu_w_hn = hn_data['Rot_21'].numpy()
+        self.C_imu_w_gt = hn_data['Rot_21_gt'].numpy()
+        #self.Sigma_21_hydranet_const = 1e-6*np.eye(3)#self.compute_rot_covar()
+        #self.C_21_large_err_mask = self.compute_large_err_mask()
 
-    def compute_large_err_mask(self):
-        phi_errs = np.empty((len(self.C_21_hydranet_gt)))
-        for i in range(len(self.C_21_hydranet_gt)):
-            C_21_est = SO3.from_matrix(self.C_21_hydranet[i], normalize=True)
-            C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[i], normalize=True)
-            phi_errs[i] = np.linalg.norm(C_21_est.dot(C_21_gt.inv()).log())
-        return phi_errs > 0.2*np.pi/180.
-
-    def compute_rot_covar(self):
-        phi_errs = np.empty((len(self.C_21_hydranet_gt), 3))
-        for i in range(len(self.C_21_hydranet_gt)):
-            C_21_est = SO3.from_matrix(self.C_21_hydranet[i], normalize=True)
-            C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[i], normalize=True)
-            phi_errs[i] = C_21_est.dot(C_21_gt.inv()).log()
-        return np.cov(phi_errs, rowvar=False)
+    # def compute_large_err_mask(self):
+    #     phi_errs = np.empty((len(self.C_21_hydranet_gt)))
+    #     for i in range(len(self.C_21_hydranet_gt)):
+    #         C_21_est = SO3.from_matrix(self.C_21_hydranet[i], normalize=True)
+    #         C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[i], normalize=True)
+    #         phi_errs[i] = np.linalg.norm(C_21_est.dot(C_21_gt.inv()).log())
+    #     return phi_errs > 0.2*np.pi/180.
+    #
+    # def compute_rot_covar(self):
+    #     phi_errs = np.empty((len(self.C_21_hydranet_gt), 3))
+    #     for i in range(len(self.C_21_hydranet_gt)):
+    #         C_21_est = SO3.from_matrix(self.C_21_hydranet[i], normalize=True)
+    #         C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[i], normalize=True)
+    #         phi_errs[i] = C_21_est.dot(C_21_gt.inv()).log()
+    #     return np.cov(phi_errs, rowvar=False)
 
 
     def compute_imu_Q(self):
@@ -143,11 +143,11 @@ class PoseFusionSolverAbs(object):
         self.problem_solver.set_parameters_constant(self.pose_keys[0])
         self.problem_solver.initialize_params(self.params_initial)
 
-    def add_costs(self, T_21_obs, odom_stiffness, C_21_obs, rot_stiffness):
+    def add_costs(self, T_21_obs, odom_stiffness, C_imu_w_obs, rot_stiffness):
         residual_pose = PoseToPoseResidual(T_21_obs, odom_stiffness)
-        residual_rot = PoseToPoseOrientationResidual(C_21_obs, rot_stiffness)
+        residual_rot = OrientationResidual(C_imu_w_obs, rot_stiffness)
         self.problem_solver.add_residual_block(residual_pose, self.pose_keys)
-        self.problem_solver.add_residual_block(residual_rot, self.pose_keys, loss=self.loss)
+        self.problem_solver.add_residual_block(residual_rot, self.pose_keys[1], loss=self.loss)
 
     def solve(self):
         self.params_final = self.problem_solver.solve()
