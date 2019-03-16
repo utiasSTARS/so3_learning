@@ -150,7 +150,7 @@ class QuaternionCNN(torch.nn.Module):
         self.sensor_net = BasicCNN(feature_dim=sensor_feature_dim, channels=2)#CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(
-            [GenericHead(D_in=sensor_feature_dim, D_layers=512, D_out=4, dropout=True, init_large=True) for h in range(self.num_hydra_heads)])
+            [GenericHead(D_in=sensor_feature_dim, D_layers=512, D_out=4, dropout=False) for h in range(self.num_hydra_heads)])
         self.direct_covar_head = GenericHead(D_in=sensor_feature_dim, D_layers=128, D_out=3, dropout=False)
 
     def forward(self, sensor_data):
@@ -236,6 +236,8 @@ class GenericHead(torch.nn.Module):
         super(GenericHead, self).__init__()
         self.fc0 = torch.nn.Linear(D_in, D_layers)
         self.fc1 = torch.nn.Linear(D_layers, D_out)
+        self.bn = torch.nn.BatchNorm1d(D_layers)
+
         if init_large:
             self.fc0.apply(init_lin_weights)
             self.fc1.apply(init_lin_weights)
@@ -247,6 +249,7 @@ class GenericHead(torch.nn.Module):
 
     def forward(self, x):
         out = self.fc0(x)
+        out = self.bn(out)
         out = self.nonlin(out)
         if self.dropout:
             out = self.dropout(out)
