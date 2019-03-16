@@ -55,10 +55,10 @@ class SO3FusionPipeline(object):
             #print(self.Sigma_21_hydranet[pose_i])
             T_21 = T_21_vo
         else:
-            Sigma_hn = invsqrt(self.Sigma_21_hydranet[pose_i])
+            Sigma_hn = self.Sigma_21_hydranet[pose_i]
             C_hn = SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True)
             #Sigma_hn = invsqrt(1e-12*np.eye(3))
-            self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), C_hn, Sigma_hn)
+            self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), C_hn, invsqrt(Sigma_hn))
             T_21 = self.optimizer.solve()
             #T_21 = T_21_vo
             #T_21.rot = C_hn
