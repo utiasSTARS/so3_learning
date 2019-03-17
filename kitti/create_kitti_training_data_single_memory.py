@@ -44,8 +44,6 @@ def compute_vo_pose_errors(tm, pose_deltas, seq, eval_type='train', add_reverse=
 
     for p_delta in pose_deltas:
 
-        pose_ids = range(len(tm.Twv_gt) - p_delta)
-
         if eval_type=='train':
             pose_ids = range(len(tm.Twv_gt) - p_delta)
         elif eval_type=='test':
