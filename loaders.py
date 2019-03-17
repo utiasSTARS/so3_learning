@@ -274,7 +274,10 @@ class KITTIVODatasetPreTransformed(Dataset):
 
         if self.reverse_images:
             p_ids = [p_ids[1], p_ids[0]]
+
+            print('C_21_gt: {}'.format(C_21_gt))
             C_21_gt = C_21_gt.transpose(0,1)
+            print('C_21_gt transposed: {}'.format(C_21_gt))
 
         if p_ids[0] == 100 or p_ids[1] == 100:
             print(C_21_gt)
