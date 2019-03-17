@@ -45,7 +45,7 @@ def run_so3_hydranet(trained_file_path, seq):
     # ])
 
     apply_blur = False
-    kitti_data_pickle_file = 'datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_1.pickle'.format(seq)
+    kitti_data_pickle_file = 'datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_1_reverse_True.pickle'.format(seq)
     seqs_base_path = './'
     transform = None
 
@@ -69,7 +69,7 @@ def run_so3_hydranet(trained_file_path, seq):
 
     Sigma_21 = predict_history[2]
 
-    file_name = 'fusion/hydranet_output_model_seq_{}.pt'.format(seq)
+    file_name = 'fusion/hydranet_output_reverse_model_seq_{}.pt'.format(seq)
     print('Outputting: {}'.format(file_name))
     torch.save({
         'Rot_21': C_21,
@@ -83,11 +83,11 @@ if __name__ == '__main__':
     #torch.manual_seed(7)
     #random.seed(72)
     seqs = ['00', '02', '05']
-    trained_models_paths = ['best_model_seq_00_delta_1_heads_25_epoch_20.pt',
-                            'best_model_seq_02_delta_1_heads_25_epoch_16.pt',
-                            'best_model_seq_05_delta_1_heads_25_epoch_25.pt'
+    trained_models_paths = ['best_model_seq_00_delta_1_heads_25_epoch_22.pt',
+                            'best_model_seq_02_delta_1_heads_25_epoch_18.pt',
+                            'best_model_seq_05_delta_1_heads_25_epoch_24.pt'
                             ]
-    base_path = './plots/'
+    base_path = './plots/flow/'
     for model_path, seq in zip(trained_models_paths, seqs):
         run_so3_hydranet(base_path + model_path, seq)
 
