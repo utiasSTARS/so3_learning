@@ -274,16 +274,7 @@ class KITTIVODatasetPreTransformed(Dataset):
 
         if self.reverse_images:
             p_ids = [p_ids[1], p_ids[0]]
-
-            print('C_21_gt: {}'.format(C_21_gt))
             C_21_gt = self.T_21_gt[idx].rot.inv().as_matrix()
-            print('C_21_gt transposed: {}'.format(C_21_gt))
-
-        if p_ids[0] == 100 or p_ids[1] == 100:
-            print(C_21_gt)
-            print(p_ids)
-            print(seq)
-
 
         #print('Loading seq: {}. ids: {}'.format(seq, p_ids))
 
