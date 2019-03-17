@@ -276,7 +276,7 @@ class KITTIVODatasetPreTransformed(Dataset):
             p_ids = [p_ids[1], p_ids[0]]
 
             print('C_21_gt: {}'.format(C_21_gt))
-            C_21_gt = C_21_gt.transpose(0,1)
+            C_21_gt = self.T_21_gt[idx].rot.inv().as_matrix()
             print('C_21_gt transposed: {}'.format(C_21_gt))
 
         if p_ids[0] == 100 or p_ids[1] == 100:
