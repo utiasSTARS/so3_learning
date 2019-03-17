@@ -53,7 +53,7 @@ def run_so3_hydranet(trained_file_path, seq):
                               batch_size=batch_size, pin_memory=False,
                               shuffle=False, num_workers=4, drop_last=False)
 
-    test_loader_reverse = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='train', apply_blur=apply_blur, reverse_images=True),
+    test_loader_reverse = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='train', apply_blur=apply_blur, reverse_images=False),
                               batch_size=batch_size, pin_memory=False,
                               shuffle=False, num_workers=4, drop_last=False)
 
