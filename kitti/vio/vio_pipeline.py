@@ -35,7 +35,7 @@ class VisualInertialPipeline():
         self.Sigma_21_hydranet = hn_data['Sigma_21'].numpy()
         self.C_21_hydranet = hn_data['Rot_21'].numpy()
         self.C_21_hydranet_gt = hn_data['Rot_21_gt'].numpy()
-        self.Sigma_21_hydranet_const = self.compute_rot_covar()
+        self.Sigma_21_hydranet_const, self.C_21_hydranet_bias = self.compute_rot_covar()
         self.C_21_large_err_mask = self.compute_large_err_mask()
 
     def compute_large_err_mask(self):
@@ -53,8 +53,7 @@ class VisualInertialPipeline():
             C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[i], normalize=True)
             phi_errs[i] = C_21_est.dot(C_21_gt.inv()).log()
 
-        print(np.mean(phi_errs, axis=0)*180/np.pi)
-        return np.cov(phi_errs, rowvar=False)
+        return np.cov(phi_errs, rowvar=False), SO3.exp(np.mean(phi_errs, axis=0))
 
 
     def compute_imu_Q(self):
@@ -91,8 +90,10 @@ class VisualInertialPipeline():
 
     poses_skipped = 0
     def compute_vio(self):
-        num_poses = 100#len(self.dataset.oxts)
+        num_poses = len(self.dataset.oxts)
         start = time.time()
+        rot_err = np.zeros(3)
+        rot_err_imu = np.zeros(3)
 
         for pose_i, oxt in enumerate(self.dataset.oxts[:num_poses]):
             if pose_i == num_poses - 1:
@@ -112,12 +113,13 @@ class VisualInertialPipeline():
             Sigma_21_imu = Ad_T_cam_imu.dot(dt*dt*self.imu_Q).dot(Ad_T_cam_imu.transpose())
 
             Sigma_hn = self.Sigma_21_hydranet[pose_i]
-            #Sigma_hn[1,1] = 500*Sigma_hn[1,1]
-            #Sigma_hn = self.Sigma_21_hydranet_const
 
-            C_21_hn = SO3.from_matrix(self.C_21_hydranet[pose_i])
+            C_21_hn = self.C_21_hydranet_bias.inv().dot(SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True))
             C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[pose_i], normalize=True)
-            rot_err = np.linalg.norm(C_21_hn.dot(C_21_gt.inv()).log())
+            rot_err += C_21_hn.dot(C_21_gt.inv()).log()
+            rot_err_imu += T_21_imu.rot.dot(C_21_gt.inv()).log()
+            #print(np.linalg.norm(rot_err)*180/np.pi)
+            #print(np.linalg.norm(rot_err_imu)*180/np.pi)
 
             self.optimizer.reset_solver()
             self.optimizer.add_costs(T_21_imu, invsqrt(Sigma_21_imu), C_21_hn, invsqrt(Sigma_hn))
@@ -128,8 +130,11 @@ class VisualInertialPipeline():
             # else:
 
             #T_c_w = self.optimizer.solve()
-            turning_angle = np.linalg.norm(C_21_gt.log())
-            T_c_w = self.optimizer.solve()
+            if np.linalg.det(Sigma_hn) < 1e-12:
+                T_c_w = self.optimizer.solve()
+            else:
+                T_c_w = T_21_imu.dot(self.T_c_w[-1])
+
             #T_21_gt = self.T_c_w_gt[pose_i + 1].dot(self.T_c_w_gt[pose_i].inv())
             # T_c_w = T_21_gt.dot(self.T_c_w[-1])
 
@@ -145,9 +150,9 @@ class VisualInertialPipeline():
             self.T_c_w.append(T_c_w)
             self.T_c_w_imu.append(T_21_imu.dot(self.T_c_w_imu[-1]))
 
-            opt_err = self.compute_rot_traj_error(self.T_c_w, self.T_c_w_gt[:len(self.T_c_w)])*180/np.pi
-            imu_err = self.compute_rot_traj_error(self.T_c_w_imu, self.T_c_w_gt[:len(self.T_c_w)])*180/np.pi
-            print('IMU: {:.3f}. Opt: {:.3f}'.format(imu_err, opt_err))
+            #opt_err = self.compute_rot_traj_error(self.T_c_w, self.T_c_w_gt[:len(self.T_c_w)])*180/np.pi
+            #imu_err = self.compute_rot_traj_error(self.T_c_w_imu, self.T_c_w_gt[:len(self.T_c_w)])*180/np.pi
+            #print('IMU: {:.3f}. Opt: {:.3f}'.format(imu_err, opt_err))
 
 
 class PoseFusionSolver(object):

@@ -114,7 +114,7 @@ def main():
 
     train_pose_deltas = [1] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
     test_pose_delta = 1
-    add_reverse = False #Add reverse transformations
+    add_reverse = True #Add reverse transformations
 
     #Where is the KITTI data?
 
@@ -175,7 +175,7 @@ def main():
         kitti_data['test_tm_mat_paths'] = test_tm_mat_files
         kitti_data['test_pose_delta'] = test_pose_delta
 
-        data_filename = os.path.join(data_path, 'kitti_singlefile_data_sequence_{}_delta_{}.pickle'.format(test_trial, test_pose_delta))
+        data_filename = os.path.join(data_path, 'kitti_singlefile_data_sequence_{}_delta_{}_reverse_{}.pickle'.format(test_trial, test_pose_delta, add_reverse))
         print('Saving to {} ....'.format(data_filename))
 
         with open(data_filename, 'wb') as f:

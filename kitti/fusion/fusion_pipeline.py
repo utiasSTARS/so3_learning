@@ -9,23 +9,33 @@ from pyslam.utils import invsqrt
 
 import sys
 import time
-import pickle
+import torch
 
 
 class SO3FusionPipeline(object):
-    def __init__(self, T_w_c_vo, Sigma_21_vo,  C_21_hydranet, Sigma_21_hydranet, first_pose=SE3.identity()):
+    def __init__(self, T_w_c_vo, Sigma_21_vo, hydranet_output_file, first_pose=SE3.identity()):
         self.T_w_c = [first_pose] #corrected
         self.T_w_c_vo = T_w_c_vo
         self.Sigma_21_vo = Sigma_21_vo
-
-        self.C_21_hydranet = C_21_hydranet
-        self.Sigma_21_hydranet = Sigma_21_hydranet
-
-        assert(Sigma_21_vo.shape[0] == len(self.T_w_c_vo) - 1)
-        assert(Sigma_21_hydranet.shape[0] == C_21_hydranet.shape[0])
+        self._load_hydranet_files(hydranet_output_file)
 
         self.optimizer = VOFusionSolver()
 
+    def _load_hydranet_files(self, path):
+        hn_data = torch.load(path)
+        self.Sigma_21_hydranet = hn_data['Sigma_21'].numpy()
+        self.C_21_hydranet = hn_data['Rot_21'].numpy()
+        self.C_21_hydranet_gt = hn_data['Rot_21_gt'].numpy()
+        self.Sigma_21_hydranet_const, self.C_21_hydranet_bias = self.compute_rot_covar()
+
+    def compute_rot_covar(self):
+        phi_errs = np.empty((len(self.C_21_hydranet_gt), 3))
+        for i in range(len(self.C_21_hydranet_gt)):
+            C_21_est = SO3.from_matrix(self.C_21_hydranet[i], normalize=True)
+            C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[i], normalize=True)
+            phi_errs[i] = C_21_est.dot(C_21_gt.inv()).log()
+
+        return np.cov(phi_errs, rowvar=False), SO3.exp(np.median(phi_errs, axis=0))
 
     def compute_fused_estimates(self):
 
@@ -56,7 +66,7 @@ class SO3FusionPipeline(object):
             T_21 = T_21_vo
         else:
             Sigma_hn = self.Sigma_21_hydranet[pose_i]
-            C_hn = SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True)
+            C_hn = self.C_21_hydranet_bias.inv().dot(SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True))
             #Sigma_hn = invsqrt(1e-12*np.eye(3))
             self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), C_hn, invsqrt(Sigma_hn))
             T_21 = self.optimizer.solve()
