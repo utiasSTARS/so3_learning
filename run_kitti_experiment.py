@@ -89,8 +89,8 @@ if __name__ == '__main__':
     kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_1_reverse_True.pickle'.format(args.seq)
 
     seqs_base_path = 'kitti/data'
-    seq_prefix = 'seq_noncropped_'
-    output_folder = 'flow_large'
+    seq_prefix = 'seq_'
+    output_folder = 'flow'
 
     train_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='train', seq_prefix=seq_prefix),
                               batch_size=args.batch_size, pin_memory=False,

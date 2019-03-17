@@ -7,6 +7,7 @@ from pyslam.utils import invsqrt
 from pyslam.metrics import TrajectoryMetrics
 from optparse import OptionParser
 from fusion_pipeline import SO3FusionPipeline
+from pyslam.visualizers import TrajectoryVisualizer
 
 import copy
 import time
@@ -25,8 +26,10 @@ def run_fusion(baseline_metrics_file, hydranet_output_file):
 
     tm_vo = TrajectoryMetrics.loadmat(baseline_metrics_file)
     T_w_c_vo = tm_vo.Twv_est
+    T_w_c_gt = tm_vo.Twv_gt
+
     Sigma_21_vo = tm_vo.mdict['Sigma_21']
-    fusion_pipeline = SO3FusionPipeline(T_w_c_vo, Sigma_21_vo, hydranet_output_file , first_pose=T_w_c_vo[0])
+    fusion_pipeline = SO3FusionPipeline(T_w_c_vo, Sigma_21_vo, T_w_c_gt, hydranet_output_file , first_pose=T_w_c_vo[0])
     
     #The magic!
     fusion_pipeline.compute_fused_estimates()
@@ -150,8 +153,9 @@ def main():
     orig_metrics_file = os.path.join(tm_path, '{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
     hydranet_output_file = 'hydranet_output_reverse_model_seq_{}.pt'.format(seq)
 
-    tm_fusion =  run_fusion(orig_metrics_file, hydranet_output_file)
+
     tm_baseline = TrajectoryMetrics.loadmat(orig_metrics_file)
+    tm_fusion =  run_fusion(orig_metrics_file, hydranet_output_file)
 
     # Compute errors
     trans_armse_fusion, rot_armse_fusion = tm_fusion.mean_err(error_type='rel', rot_unit='deg')
@@ -166,7 +170,12 @@ def main():
     print('Fusion ARMSE (Traj Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_fusion_traj, rot_armse_fusion_traj))
     print('VO Only ARMSE (Traj Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_vo_traj, rot_armse_vo_traj))
 
-   
+    tm_dict = {'VO Only': tm_baseline, 'Fusion': tm_fusion}
+    vis = TrajectoryVisualizer(tm_dict)
+    segs = list(range(100,801,100))
+    vis.plot_topdown(which_plane='xy', outfile=seq + '_topdown.pdf')
+    # vis.plot_cum_norm_err(outfile=seq + '_cum_err.pdf')
+    vis.plot_segment_errors(segs, outfile=seq+'_seg_err.pdf')
 
 
 

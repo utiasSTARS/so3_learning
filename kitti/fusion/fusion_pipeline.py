@@ -6,6 +6,7 @@ from collections import OrderedDict, namedtuple
 from pyslam.losses import L2Loss, HuberLoss, CauchyLoss, TDistributionLoss
 from pyslam.residuals import PoseResidual, PoseToPoseResidual, PoseToPoseOrientationResidual
 from pyslam.utils import invsqrt
+from pyslam.metrics import TrajectoryMetrics
 
 import sys
 import time
@@ -13,9 +14,10 @@ import torch
 
 
 class SO3FusionPipeline(object):
-    def __init__(self, T_w_c_vo, Sigma_21_vo, hydranet_output_file, first_pose=SE3.identity()):
+    def __init__(self, T_w_c_vo, Sigma_21_vo, T_w_c_gt, hydranet_output_file, first_pose=SE3.identity()):
         self.T_w_c = [first_pose] #corrected
         self.T_w_c_vo = T_w_c_vo
+        self.T_w_c_gt = T_w_c_gt
         self.Sigma_21_vo = Sigma_21_vo
         self._load_hydranet_files(hydranet_output_file)
 
@@ -77,26 +79,36 @@ class SO3FusionPipeline(object):
             self.optimizer.add_orientation_residual(C_21_hn, invsqrt(Sigma_21_hn))
             #self.optimizer.add_orientation_residual(C_12_hn, invsqrt(Sigma_12_hn), reverse=True)
 
-            T_21 = self.optimizer.solve()
-            #T_21 = T_21_vo
+            if pose_i > 1:
+                T_21 = self.optimizer.solve()
+            else:
+                T_21 = T_21_vo
             #T_21.rot = C_hn
+        #print(np.linalg.det(self.Sigma_21_hydranet[pose_i]))
         T_w_c = self.T_w_c[-1]
         self.T_w_c.append(T_w_c.dot(T_21.inv()))
 
+        # if len(self.T_w_c) % 50 == 0:
+        #     tm = TrajectoryMetrics(self.T_w_c_gt[:len(self.T_w_c)], self.T_w_c, convention='Twv')
+        #     tm_vo = TrajectoryMetrics(self.T_w_c_gt[:len(self.T_w_c)], self.T_w_c_vo[:len(self.T_w_c)], convention='Twv')
+        #     trans_armse_fusion, rot_armse_fusion = tm.mean_err(error_type='traj', rot_unit='deg')
+        #     trans_armse_vo, rot_armse_vo = tm_vo.mean_err(error_type='traj', rot_unit='deg')
+        #
+        #     print('Trans: {:.3f} / {:.3f} | Rot: {:.3f} / {:.3f}'.format(trans_armse_fusion,trans_armse_vo, rot_armse_fusion,rot_armse_vo))
 
 class VOFusionSolver(object):
     def __init__(self):
 
         # Options
         self.problem_options = Options()
-        self.problem_options.allow_nondecreasing_steps = True
+        self.problem_options.allow_nondecreasing_steps = False
         self.problem_options.max_nondecreasing_steps = 3
         self.problem_options.max_iters = 10
 
         self.problem_solver = Problem(self.problem_options)
         self.pose_keys = ['T_1_0', 'T_2_0']
         self.prior_stiffness = invsqrt(1e-12 * np.identity(6))
-        self.loss = TDistributionLoss(5.0)
+        self.loss = L2Loss()#TDistributionLoss(5.0)
         ## self.loss = HuberLoss(5.)
         # self.loss = TukeyLoss(5.)
         # self.loss = HuberLoss(0.1)
