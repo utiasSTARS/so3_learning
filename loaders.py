@@ -255,7 +255,7 @@ class KITTIVODatasetPreTransformed(Dataset):
             hsvImg[..., 0] = 0.5 * ang * 180 / np.pi
             hsvImg[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
             rgbImg = cv2.cvtColor(hsvImg, cv2.COLOR_HSV2BGR)
-            cv2.imwrite(idx + '_flow.png', rgbImg)
+            cv2.imwrite('{}_flow.png'.format(idx), rgbImg)
         #gr_img1 = torch.from_numpy(np_img1).float().unsqueeze(0)
         #gr_img2 = torch.from_numpy(np_img2).float().unsqueeze(0)
 
