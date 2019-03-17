@@ -28,6 +28,7 @@ class VisualInertialPipeline():
         self.T_c_w_gt = [T_cam_imu.dot(SE3.from_matrix(o.T_w_imu).inv())
                          for o in self.dataset.oxts]
 
+        self.pose_skip = 2 #0 means apply every delta
 
     def _load_hydranet_files(self, path):
         hn_data = torch.load(path)
