@@ -88,12 +88,15 @@ if __name__ == '__main__':
     transform = None
     kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_1_reverse_True.pickle'.format(args.seq)
 
-    seqs_base_path = 'kitti'
-    train_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='train'),
+    seqs_base_path = 'kitti/data'
+    seq_prefix = 'seq_noncropped_'
+    output_folder = 'flow_large'
+
+    train_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='train', seq_prefix=seq_prefix),
                               batch_size=args.batch_size, pin_memory=False,
                               shuffle=True, num_workers=4, drop_last=True)
 
-    valid_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test'),
+    valid_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test', seq_prefix=seq_prefix),
                               batch_size=args.batch_size, pin_memory=False,
                               shuffle=False, num_workers=4, drop_last=False)
     total_time = 0.
@@ -133,12 +136,12 @@ if __name__ == '__main__':
 
             best_valid_loss = avg_valid_loss
 
-            sigma_filename = 'kitti/plots/flow/error_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(args.seq, model.num_hydra_heads, epoch+1)
+            sigma_filename = 'kitti/plots_and_models/{}/error_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(output_folder, args.seq, model.num_hydra_heads, epoch+1)
             #nees_filename = 'kitti/plots/nees_plot_heads_{}_epoch_{}.pdf'.format(model.num_hydra_heads, epoch+1)
 
             plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
 
-            abs_filename = 'kitti/plots/flow/abs_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(args.seq, model.num_hydra_heads,
+            abs_filename = 'kitti/plots_and_models/{}/abs_sigma_plot_seq_{}_heads_{}_epoch_{}.pdf'.format(output_folder, args.seq, model.num_hydra_heads,
                                                                                   epoch + 1)
             plot_abs_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3],
                                     filename=abs_filename)
@@ -147,7 +150,7 @@ if __name__ == '__main__':
                 'full_model': model.state_dict(),
                 'predict_history': predict_history,
                 'epoch': epoch + 1,
-            }, 'kitti/plots/flow/best_model_seq_{}_delta_{}_heads_{}_epoch_{}.pt'.format(args.seq, valid_loader.dataset.pose_delta, model.num_hydra_heads, epoch + 1))
+            }, 'kitti/plots_and_models/{}/best_model_seq_{}_delta_{}_heads_{}_epoch_{}.pt'.format(output_folder, args.seq, valid_loader.dataset.pose_delta, model.num_hydra_heads, epoch + 1))
 
 
             #plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)

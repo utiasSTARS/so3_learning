@@ -188,7 +188,7 @@ class KITTIVODataset(Dataset):
 class KITTIVODatasetPreTransformed(Dataset):
     """KITTI Odometry Benchmark dataset with full memory read-ins."""
 
-    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train', use_flow=True, apply_blur=False, reverse_images=False):
+    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train', use_flow=True, apply_blur=False, reverse_images=False, seq_prefix='seq_'):
         self.kitti_dataset_file = kitti_dataset_file
         self.seqs_base_path = seqs_base_path
         self.apply_blur = apply_blur
@@ -196,6 +196,7 @@ class KITTIVODatasetPreTransformed(Dataset):
         self.load_kitti_data(run_type)  # Loads self.image_quad_paths and self.labels
         self.use_flow = use_flow
         self.reverse_images = reverse_images
+        self.seq_prefix = seq_prefix
 
     def load_kitti_data(self, run_type):
         with open(self.kitti_dataset_file, 'rb') as handle:
@@ -224,7 +225,7 @@ class KITTIVODatasetPreTransformed(Dataset):
         print('...done loading images into memory.')
 
     def import_seq(self, seq):
-        file_path = self.seqs_base_path + '/seq_{}.pt'.format(seq)
+        file_path = self.seqs_base_path + '/' + self.seq_prefix + '{}.pt'.format(seq)
         data = torch.load(file_path)
         return data['im_l']
 
