@@ -188,12 +188,13 @@ class KITTIVODataset(Dataset):
 class KITTIVODatasetPreTransformed(Dataset):
     """KITTI Odometry Benchmark dataset with full memory read-ins."""
 
-    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train', apply_blur=False):
+    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train', use_flow=True, apply_blur=False):
         self.kitti_dataset_file = kitti_dataset_file
         self.seqs_base_path = seqs_base_path
         self.apply_blur = apply_blur
         self.transform_img = transform_img
         self.load_kitti_data(run_type)  # Loads self.image_quad_paths and self.labels
+        self.use_flow = use_flow
 
     def load_kitti_data(self, run_type):
         with open(self.kitti_dataset_file, 'rb') as handle:
@@ -239,6 +240,7 @@ class KITTIVODatasetPreTransformed(Dataset):
         #Convert back to W x H x C
         np_img1 = cv2.cvtColor(img1.permute(1,2,0).numpy(), cv2.COLOR_RGB2GRAY)
         np_img2 = cv2.cvtColor(img2.permute(1,2,0).numpy(), cv2.COLOR_RGB2GRAY)
+
         if apply_blur:
             np_img1 = cv2.GaussianBlur(np_img1, (13, 13), 0)
             np_img2 = cv2.GaussianBlur(np_img2, (13, 13), 0)
@@ -246,16 +248,16 @@ class KITTIVODatasetPreTransformed(Dataset):
         flow_cv2 = cv2.calcOpticalFlowFarneback(np_img1, np_img2, None, 0.5, 3, 15, 3, 5, 1.2, 0)
         flow_img = torch.from_numpy(flow_cv2).permute(2,0,1)
 
-        if idx < 10:
-            # Obtain the flow magnitude and direction angle
-            hsvImg = np.zeros_like(img1.permute(1,2,0).numpy())
-            hsvImg[..., 1] = 255
-            mag, ang = cv2.cartToPolar(flow_cv2[..., 0], flow_cv2[..., 1])
-            # Update the color image
-            hsvImg[..., 0] = 0.5 * ang * 180 / np.pi
-            hsvImg[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
-            rgbImg = cv2.cvtColor(hsvImg, cv2.COLOR_HSV2BGR)
-            cv2.imwrite('{}_flow.png'.format(idx), rgbImg)
+        # if idx < 10:
+        #     # Obtain the flow magnitude and direction angle
+        #     hsvImg = np.zeros_like(img1.permute(1,2,0).numpy())
+        #     hsvImg[..., 1] = 255
+        #     mag, ang = cv2.cartToPolar(flow_cv2[..., 0], flow_cv2[..., 1])
+        #     # Update the color image
+        #     hsvImg[..., 0] = 0.5 * ang * 180 / np.pi
+        #     hsvImg[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
+        #     rgbImg = cv2.cvtColor(hsvImg, cv2.COLOR_HSV2BGR)
+        #     cv2.imwrite('{}_flow.png'.format(idx), rgbImg)
         #gr_img1 = torch.from_numpy(np_img1).float().unsqueeze(0)
         #gr_img2 = torch.from_numpy(np_img2).float().unsqueeze(0)
 
@@ -271,9 +273,14 @@ class KITTIVODatasetPreTransformed(Dataset):
 
         # image_pair = [self.prep_img(self.seq_images[seq][p_ids[0]]),
         #               self.prep_img(self.seq_images[seq][p_ids[1]])]
-        flow_img = self.compute_flow(self.seq_images[seq][p_ids[0]], self.seq_images[seq][p_ids[1]], idx, self.apply_blur)
+        if self.use_flow:
+            img_input = self.compute_flow(self.seq_images[seq][p_ids[0]], self.seq_images[seq][p_ids[1]], idx, self.apply_blur)
+        else:
+            img_input = [self.prep_img(self.seq_images[seq][p_ids[0]]),
+                       self.prep_img(self.seq_images[seq][p_ids[1]])]
+
         q_target = torch.from_numpy(quaternion_from_matrix(C_21_gt)).float()
-        return flow_img, q_target
+        return img_input, q_target
 
 
 class KITTIVODatasetPreTransformedAbs(Dataset):

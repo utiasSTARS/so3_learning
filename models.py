@@ -197,7 +197,7 @@ class QuaternionDualCNN(torch.nn.Module):
         #self.sensor_net1 = self.sensor_net0#CustomResNet(feature_dim=sensor_feature_dim)
 
         self.heads = torch.nn.ModuleList(
-            [GenericHead(D_in=2*sensor_feature_dim, D_layers=512, D_out=4, dropout=False, init_large=True) for h in range(self.num_hydra_heads)])
+            [GenericHead(D_in=2*sensor_feature_dim, D_layers=256, D_out=4, dropout=True, init_large=False) for h in range(self.num_hydra_heads)])
         self.direct_covar_head = GenericHead(D_in=2*sensor_feature_dim, D_layers=128, D_out=3, dropout=False)
 
     def forward(self, image_pair):
