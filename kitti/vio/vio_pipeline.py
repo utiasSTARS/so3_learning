@@ -73,6 +73,11 @@ class VisualInertialPipeline():
 
         return np.cov(xi_errs, rowvar=False)
 
+    def compute_rot_traj_error(self, T_w_c_est, T_w_c_gt):
+        error = 0.
+        for i in range(len(T_w_c_est)):
+            error += np.linalg.norm(T_w_c_est[i].rot.inv().dot(T_w_c_gt[i].rot).log())
+        return error/len(T_w_c_est)
 
     def _assemble_motion_vec(self, oxt):
         motion_vec = np.empty(6)
@@ -121,13 +126,11 @@ class VisualInertialPipeline():
             # if self.C_21_large_err_mask[pose_i]:
             #     T_21 = copy.deepcopy(T_21_imu)
             # else:
-            T_c_w = self.optimizer.solve()
 
-            # if rot_err < 0.0001:
-            #     T_c_w = self.optimizer.solve()
-            # else:
-            #     T_c_w = T_21_imu.dot(self.T_c_w[-1])
-            # T_21_gt = self.T_c_w_gt[pose_i + 1].dot(self.T_c_w_gt[pose_i].inv())
+            #T_c_w = self.optimizer.solve()
+            turning_angle = np.linalg.norm(C_21_gt.log())
+            T_c_w = self.optimizer.solve()
+            #T_21_gt = self.T_c_w_gt[pose_i + 1].dot(self.T_c_w_gt[pose_i].inv())
             # T_c_w = T_21_gt.dot(self.T_c_w[-1])
 
 
@@ -141,6 +144,10 @@ class VisualInertialPipeline():
 
             self.T_c_w.append(T_c_w)
             self.T_c_w_imu.append(T_21_imu.dot(self.T_c_w_imu[-1]))
+
+            opt_err = self.compute_rot_traj_error(self.T_c_w, self.T_c_w_gt[:len(self.T_c_w)])*180/np.pi
+            imu_err = self.compute_rot_traj_error(self.T_c_w_imu, self.T_c_w_gt[:len(self.T_c_w)])*180/np.pi
+            print('IMU: {:.3f}. Opt: {:.3f}'.format(imu_err, opt_err))
 
 
 class PoseFusionSolver(object):
