@@ -114,7 +114,7 @@ def main():
 
     train_pose_deltas = [1] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
     test_pose_delta = 1
-    add_reverse = False #Add reverse transformations
+    add_reverse = True #Add reverse transformations
 
     #Where is the KITTI data?
 
