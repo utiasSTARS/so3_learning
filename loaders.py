@@ -188,13 +188,14 @@ class KITTIVODataset(Dataset):
 class KITTIVODatasetPreTransformed(Dataset):
     """KITTI Odometry Benchmark dataset with full memory read-ins."""
 
-    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train', use_flow=True, apply_blur=False):
+    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train', use_flow=True, apply_blur=False, reverse_images=False):
         self.kitti_dataset_file = kitti_dataset_file
         self.seqs_base_path = seqs_base_path
         self.apply_blur = apply_blur
         self.transform_img = transform_img
         self.load_kitti_data(run_type)  # Loads self.image_quad_paths and self.labels
         self.use_flow = use_flow
+        self.reverse_images = reverse_images
 
     def load_kitti_data(self, run_type):
         with open(self.kitti_dataset_file, 'rb') as handle:
@@ -267,8 +268,13 @@ class KITTIVODatasetPreTransformed(Dataset):
 
     def __getitem__(self, idx):
         seq = self.seqs[idx]
-        p_ids = self.pose_indices[idx]
+        p_ids = self.pose_indices[idx].clone()
         C_21_gt = self.T_21_gt[idx].rot.as_matrix()
+
+        if self.reverse_images:
+            p_ids.reverse()
+            C_21_gt = C_21_gt.transpose(0,1)
+
         #C_21_err = self.T_21_gt[idx].rot.as_matrix().dot(self.T_21_vo[idx].rot.as_matrix().transpose())
 
         # image_pair = [self.prep_img(self.seq_images[seq][p_ids[0]]),

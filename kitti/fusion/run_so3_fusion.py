@@ -144,11 +144,11 @@ def main():
                    'frames': range(0, 1201)}}
 
 
-    seq = '05'
+    seq = '02'
     tm_path = '../svo/baseline_tm/'
 
     orig_metrics_file = os.path.join(tm_path, '{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
-    hydranet_output_file = 'hydranet_output_model_seq_{}.pt'.format(seq)
+    hydranet_output_file = 'hydranet_output_reverse_model_seq_{}.pt'.format(seq)
 
     tm_fusion =  run_fusion(orig_metrics_file, hydranet_output_file)
     tm_baseline = TrajectoryMetrics.loadmat(orig_metrics_file)

@@ -52,6 +52,11 @@ def run_so3_hydranet(trained_file_path, seq):
     test_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test', apply_blur=apply_blur),
                               batch_size=batch_size, pin_memory=False,
                               shuffle=False, num_workers=4, drop_last=False)
+
+    test_loader_reverse = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test', apply_blur=apply_blur, reverse_images=True),
+                              batch_size=batch_size, pin_memory=False,
+                              shuffle=False, num_workers=4, drop_last=False)
+
     config = {
         'device': device
     }
@@ -62,19 +67,35 @@ def run_so3_hydranet(trained_file_path, seq):
           '(Err/NLL) {:3.3f} / {:3.3f} \t'.format(
             seq, valid_ang_error, valid_nll))
 
+
+
+    avg_valid_loss, valid_ang_error, valid_nll, predict_history_reverse = validate(model, test_loader_reverse, loss_fn,
+                                                                                   config, output_history=True)
+    print('Extracted reverse sequence {} \t'
+          '(Err/NLL) {:3.3f} / {:3.3f} \t'.format(
+        seq, valid_ang_error, valid_nll))
+
     q_21 = predict_history[1]
     C_21 = SO3.from_quaternion(q_21).as_matrix()
+
+    q_12 = predict_history_reverse[1]
+    C_12 = SO3.from_quaternion(q_12).as_matrix()
+
+
     q_21_gt = predict_history[0]
     C_21_gt = SO3.from_quaternion(q_21_gt).as_matrix()
 
     Sigma_21 = predict_history[2]
+    Sigma_12 = predict_history_reverse[2]
 
     file_name = 'fusion/hydranet_output_reverse_model_seq_{}.pt'.format(seq)
     print('Outputting: {}'.format(file_name))
     torch.save({
         'Rot_21': C_21,
-        'Rot_21_gt': C_21_gt,
         'Sigma_21': Sigma_21,
+        'Rot_12': C_12,
+        'Sigma_12': Sigma_12,
+        'Rot_21_gt': C_21_gt,
     }, file_name)
 
 
