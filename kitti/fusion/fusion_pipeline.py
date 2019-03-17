@@ -66,7 +66,7 @@ class SO3FusionPipeline(object):
             T_21 = T_21_vo
         else:
             Sigma_hn = self.Sigma_21_hydranet[pose_i]
-            C_hn = self.C_21_hydranet_bias.inv().dot(SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True))
+            C_hn = SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True)
             #Sigma_hn = invsqrt(1e-12*np.eye(3))
             self.optimizer.add_costs(T_21_vo, invsqrt(self.Sigma_21_vo[pose_i]), C_hn, invsqrt(Sigma_hn))
             T_21 = self.optimizer.solve()
