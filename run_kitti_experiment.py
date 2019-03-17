@@ -111,7 +111,7 @@ if __name__ == '__main__':
     #Visualize
 
     print('Starting Training \t' 
-          'Valid (Err/NLL) {:3.3f} / {:3.3f} | {:.3f} / {:3.3f}\t'.format(
+          'Valid (Err/NLL) {:.3f} / {:3.3f}\t'.format(
             valid_ang_error, valid_nll))
 
     best_valid_loss = avg_valid_loss
