@@ -106,31 +106,27 @@ class VisualInertialPipeline():
             Ad_T_cam_imu = SE3.adjoint(self.T_cam_imu)
             Sigma_21_imu = Ad_T_cam_imu.dot(dt*dt*self.imu_Q).dot(Ad_T_cam_imu.transpose())
 
-            if poses_skipped < self.pose_skip:
-                T_c_w = T_21_imu.dot(self.T_c_w_imu[-1])
-                poses_skipped += 1
-            else:
-                poses_skipped = 0
-                Sigma_hn = self.Sigma_21_hydranet[pose_i]
-                #Sigma_hn[1,1] = 500*Sigma_hn[1,1]
-                #Sigma_hn = self.Sigma_21_hydranet_const
+            Sigma_hn = self.Sigma_21_hydranet[pose_i]
+            #Sigma_hn[1,1] = 500*Sigma_hn[1,1]
+            #Sigma_hn = self.Sigma_21_hydranet_const
 
-                C_21_hn = SO3.from_matrix(self.C_21_hydranet[pose_i])
-                #C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[pose_i], normalize=True)
-                #rot_err = C_21_hn.dot(C_21_gt.inv()).log()
+            C_21_hn = SO3.from_matrix(self.C_21_hydranet[pose_i])
+            C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[pose_i], normalize=True)
+            rot_err = np.linalg.norm(C_21_hn.dot(C_21_gt.inv()).log())
 
-                self.optimizer.reset_solver()
-                self.optimizer.add_costs(T_21_imu, invsqrt(Sigma_21_imu), C_21_hn, invsqrt(Sigma_hn))
+            self.optimizer.reset_solver()
+            self.optimizer.add_costs(T_21_imu, invsqrt(Sigma_21_imu), C_21_hn, invsqrt(Sigma_hn))
+            self.optimizer.set_priors(self.T_c_w[-1], T_21_imu.dot(self.T_c_w[-1]))
 
+            # if self.C_21_large_err_mask[pose_i]:
+            #     T_21 = copy.deepcopy(T_21_imu)
+            # else:
+            T_c_w = self.optimizer.solve()
 
-                self.optimizer.set_priors(self.T_c_w[-1], T_21_imu.dot(self.T_c_w[-1]))
-
-                # if self.C_21_large_err_mask[pose_i]:
-                #     T_21 = copy.deepcopy(T_21_imu)
-                # else:
-
-                T_c_w = self.optimizer.solve()
-
+            # if rot_err < 0.0001:
+            #     T_c_w = self.optimizer.solve()
+            # else:
+            #     T_c_w = T_21_imu.dot(self.T_c_w[-1])
             # T_21_gt = self.T_c_w_gt[pose_i + 1].dot(self.T_c_w_gt[pose_i].inv())
             # T_c_w = T_21_gt.dot(self.T_c_w[-1])
 
