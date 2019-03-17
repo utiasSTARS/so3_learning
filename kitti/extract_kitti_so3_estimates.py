@@ -45,15 +45,16 @@ def run_so3_hydranet(trained_file_path, seq):
     # ])
 
     apply_blur = False
+    seqs_base_path = './data'
+    seq_prefix = 'seq_noncropped_'
     kitti_data_pickle_file = 'datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_1_reverse_True.pickle'.format(seq)
-    seqs_base_path = './'
     transform = None
 
-    test_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test', apply_blur=apply_blur),
+    test_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test', apply_blur=apply_blur, seq_prefix=seq_prefix),
                               batch_size=batch_size, pin_memory=False,
                               shuffle=False, num_workers=4, drop_last=False)
 
-    test_loader_reverse = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test', apply_blur=apply_blur, reverse_images=True),
+    test_loader_reverse = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test', apply_blur=apply_blur,seq_prefix=seq_prefix, reverse_images=True),
                               batch_size=batch_size, pin_memory=False,
                               shuffle=False, num_workers=0, drop_last=False)
 
@@ -88,7 +89,7 @@ def run_so3_hydranet(trained_file_path, seq):
     Sigma_21 = predict_history[2]
     Sigma_12 = predict_history_reverse[2]
 
-    file_name = 'fusion/hydranet_output_reverse_model_seq_{}.pt'.format(seq)
+    file_name = 'fusion/hydranet_output_reverse_noncropped_model_seq_{}.pt'.format(seq)
     print('Outputting: {}'.format(file_name))
     torch.save({
         'Rot_21': C_21,
@@ -104,11 +105,11 @@ if __name__ == '__main__':
     #torch.manual_seed(7)
     #random.seed(72)
     seqs = ['00', '02', '05']
-    trained_models_paths = ['best_model_seq_00_delta_1_heads_25_epoch_22.pt',
-                            'best_model_seq_02_delta_1_heads_25_epoch_18.pt',
-                            'best_model_seq_05_delta_1_heads_25_epoch_24.pt'
+    trained_models_paths = ['best_model_seq_00_delta_1_heads_25_epoch_12.pt',
+                            'best_model_seq_02_delta_1_heads_25_epoch_11.pt',
+                            'best_model_seq_05_delta_1_heads_25_epoch_12.pt'
                             ]
-    base_path = './plots/flow/'
+    base_path = './plots_and_models/flow_large/'
     for model_path, seq in zip(trained_models_paths, seqs):
         run_so3_hydranet(base_path + model_path, seq)
 
