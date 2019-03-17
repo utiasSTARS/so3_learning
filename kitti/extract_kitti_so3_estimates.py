@@ -75,7 +75,6 @@ def run_so3_hydranet(trained_file_path, seq):
           '(Err/NLL) {:3.3f} / {:3.3f} \t'.format(
         seq, valid_ang_error, valid_nll))
 
-    return
     q_21 = predict_history[1]
     C_21 = SO3.from_quaternion(q_21).as_matrix()
 
@@ -104,7 +103,7 @@ if __name__ == '__main__':
     #Reproducibility
     #torch.manual_seed(7)
     #random.seed(72)
-    seqs = ['02', '05']
+    seqs = ['00', '02', '05']
     trained_models_paths = ['best_model_seq_00_delta_1_heads_25_epoch_22.pt',
                             'best_model_seq_02_delta_1_heads_25_epoch_18.pt',
                             'best_model_seq_05_delta_1_heads_25_epoch_24.pt'
