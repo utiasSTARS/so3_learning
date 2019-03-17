@@ -193,10 +193,10 @@ class KITTIVODatasetPreTransformed(Dataset):
         self.seqs_base_path = seqs_base_path
         self.apply_blur = apply_blur
         self.transform_img = transform_img
+        self.seq_prefix = seq_prefix
         self.load_kitti_data(run_type)  # Loads self.image_quad_paths and self.labels
         self.use_flow = use_flow
         self.reverse_images = reverse_images
-        self.seq_prefix = seq_prefix
 
     def load_kitti_data(self, run_type):
         with open(self.kitti_dataset_file, 'rb') as handle:
