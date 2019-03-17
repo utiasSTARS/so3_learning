@@ -83,7 +83,7 @@ def main():
 
     # Load datasets
     transform = transforms.Compose([
-        transforms.Resize((224,224))
+        transforms.Resize((120, 400))
         #transforms.CenterCrop(224),
         # transforms.ToTensor(),
         # transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -96,8 +96,8 @@ def main():
         data_path = os.path.join(kitti_path, KITTI_SEQS_DICT[trial_str]['date'], drive_folder)
 
         image_paths_rgb = get_image_paths(data_path, trial_str, 'rgb')
-        file_name = 'seq_squished_{}.pt'.format(trial_str)
-        save_images(image_paths_rgb, transform, [224, 224], file_name)
+        file_name = 'data/seq_noncropped_{}.pt'.format(trial_str)
+        save_images(image_paths_rgb, transform, [120, 400], file_name)
 
 
 if __name__ == '__main__':
