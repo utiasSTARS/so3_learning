@@ -18,19 +18,23 @@ class VisualInertialPipeline():
         self.dataset = dataset
         self.dataset._load_timestamps()
         self.imu_Q = self.compute_imu_Q()
-        self.T_w_c = [first_pose]
-        self.T_w_c_imu = [first_pose]
+        self.T_c_w = [first_pose]
+        self.T_c_w_imu = [first_pose]
 
         self.T_cam_imu = T_cam_imu
 
         self._load_hydranet_files(hydranet_output_file)
+
+        self.T_c_w_gt = [T_cam_imu.dot(SE3.from_matrix(o.T_w_imu).inv())
+                         for o in self.dataset.oxts]
+
 
     def _load_hydranet_files(self, path):
         hn_data = torch.load(path)
         self.Sigma_21_hydranet = hn_data['Sigma_21'].numpy()
         self.C_21_hydranet = hn_data['Rot_21'].numpy()
         self.C_21_hydranet_gt = hn_data['Rot_21_gt'].numpy()
-        self.Sigma_21_hydranet_const = 1e-6*np.eye(3)#self.compute_rot_covar()
+        self.Sigma_21_hydranet_const = self.compute_rot_covar()
         self.C_21_large_err_mask = self.compute_large_err_mask()
 
     def compute_large_err_mask(self):
@@ -38,7 +42,7 @@ class VisualInertialPipeline():
         for i in range(len(self.C_21_hydranet_gt)):
             C_21_est = SO3.from_matrix(self.C_21_hydranet[i], normalize=True)
             C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[i], normalize=True)
-            phi_errs[i] = np.linalg.norm(C_21_est.dot(C_21_gt.inv()).log())
+            phi_errs[i] = C_21_est.dot(C_21_gt.inv()).log()[1]
         return phi_errs > 0.2*np.pi/180.
 
     def compute_rot_covar(self):
@@ -47,6 +51,8 @@ class VisualInertialPipeline():
             C_21_est = SO3.from_matrix(self.C_21_hydranet[i], normalize=True)
             C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[i], normalize=True)
             phi_errs[i] = C_21_est.dot(C_21_gt.inv()).log()
+
+        print(np.mean(phi_errs, axis=0)*180/np.pi)
         return np.cov(phi_errs, rowvar=False)
 
 
@@ -78,15 +84,12 @@ class VisualInertialPipeline():
         return motion_vec
 
     def compute_vio(self):
-        num_poses = len(self.dataset.oxts)
+        num_poses = 100#len(self.dataset.oxts)
         start = time.time()
 
         for pose_i, oxt in enumerate(self.dataset.oxts[:num_poses]):
             if pose_i == num_poses - 1:
                 break
-
-            T_w_c = self.T_w_c[-1]
-
 
             if pose_i % 100 == 0:
                 end = time.time()
@@ -102,20 +105,39 @@ class VisualInertialPipeline():
             Sigma_21_imu = Ad_T_cam_imu.dot(dt*dt*self.imu_Q).dot(Ad_T_cam_imu.transpose())
 
             Sigma_hn = self.Sigma_21_hydranet[pose_i]
+            #Sigma_hn[1,1] = 500*Sigma_hn[1,1]
             #Sigma_hn = self.Sigma_21_hydranet_const
 
-            C_hn = SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True)
+            C_21_hn = SO3.from_matrix(self.C_21_hydranet[pose_i])
+            C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[pose_i], normalize=True)
+            rot_err = C_21_hn.dot(C_21_gt.inv()).log()
+
             self.optimizer.reset_solver()
-            self.optimizer.add_costs(T_21_imu, invsqrt(Sigma_21_imu), C_hn, invsqrt(Sigma_hn))
-            self.optimizer.set_priors(SE3.identity(), SE3.identity())
+            self.optimizer.add_costs(T_21_imu, invsqrt(Sigma_21_imu), C_21_hn, invsqrt(Sigma_hn))
+
+
+            self.optimizer.set_priors(self.T_c_w[-1], T_21_imu.dot(self.T_c_w[-1]))
 
             # if self.C_21_large_err_mask[pose_i]:
-            #T_21 = copy.deepcopy(T_21_imu)
-            #T_21.rot = C_hn
+            #     T_21 = copy.deepcopy(T_21_imu)
             # else:
-            T_21 = self.optimizer.solve()
-            self.T_w_c.append(self.T_w_c[-1].dot(T_21.inv()))
-            self.T_w_c_imu.append(self.T_w_c_imu[-1].dot(T_21_imu.inv()))
+
+            T_c_w = self.optimizer.solve()
+
+            # T_21_gt = self.T_c_w_gt[pose_i + 1].dot(self.T_c_w_gt[pose_i].inv())
+            # T_c_w = T_21_gt.dot(self.T_c_w[-1])
+
+
+            #
+            #solved_err = np.linalg.norm(C_21.dot(C_21_gt.inv()).log())
+            # imu_err =  np.linalg.norm(T_21_imu.dot(T_21_gt.inv()).log())
+            #
+            # if solved_err > imu_err:
+            #     print('IMU -> Solved error: {:.5E} -> {:.5E}'.format(imu_err, solved_err))
+            #     T_21 = T_21_imu
+
+            self.T_c_w.append(T_c_w)
+            self.T_c_w_imu.append(T_21_imu.dot(self.T_c_w_imu[-1]))
 
 
 class PoseFusionSolver(object):
@@ -123,7 +145,7 @@ class PoseFusionSolver(object):
 
         # Options
         self.problem_options = Options()
-        self.problem_options.allow_nondecreasing_steps = True
+        self.problem_options.allow_nondecreasing_steps = False
         self.problem_options.max_nondecreasing_steps = 3
         self.problem_options.max_iters = 10
 
@@ -155,5 +177,5 @@ class PoseFusionSolver(object):
         #self.problem_solver.compute_covariance()
         T_1_0 = self.params_final[self.pose_keys[0]]
         T_2_0 = self.params_final[self.pose_keys[1]]
-        T_2_1 = T_2_0.dot(T_1_0.inv())
-        return T_2_1
+        #T_2_1 = T_2_0.dot(T_1_0.inv())
+        return T_2_0
