@@ -53,19 +53,19 @@ def run_so3_hydranet(trained_file_path, seq):
                               batch_size=batch_size, pin_memory=False,
                               shuffle=False, num_workers=4, drop_last=False)
 
-    test_loader_reverse = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='train', apply_blur=apply_blur, reverse_images=True),
+    test_loader_reverse = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test', apply_blur=apply_blur, reverse_images=True),
                               batch_size=batch_size, pin_memory=False,
                               shuffle=False, num_workers=0, drop_last=False)
 
     config = {
         'device': device
     }
-    # avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, test_loader, loss_fn, config, output_history=True)
-    #
-    #
-    # print('Extracted sequence {} \t'
-    #       '(Err/NLL) {:3.3f} / {:3.3f} \t'.format(
-    #         seq, valid_ang_error, valid_nll))
+    avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, test_loader, loss_fn, config, output_history=True)
+
+
+    print('Extracted sequence {} \t'
+          '(Err/NLL) {:3.3f} / {:3.3f} \t'.format(
+            seq, valid_ang_error, valid_nll))
 
 
 
@@ -104,7 +104,7 @@ if __name__ == '__main__':
     #Reproducibility
     #torch.manual_seed(7)
     #random.seed(72)
-    seqs = ['00', '02', '05']
+    seqs = ['02', '05']
     trained_models_paths = ['best_model_seq_00_delta_1_heads_25_epoch_22.pt',
                             'best_model_seq_02_delta_1_heads_25_epoch_18.pt',
                             'best_model_seq_05_delta_1_heads_25_epoch_24.pt'
