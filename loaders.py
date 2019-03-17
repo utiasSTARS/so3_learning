@@ -271,9 +271,11 @@ class KITTIVODatasetPreTransformed(Dataset):
         p_ids = self.pose_indices[idx]
         C_21_gt = self.T_21_gt[idx].rot.as_matrix()
 
-        if idx == 1000:
+        if p_ids[0] == 100 or p_ids[1] == 100:
             print(C_21_gt)
             print(p_ids)
+            print(seq)
+
         if self.reverse_images:
             p_ids = [p_ids[1], p_ids[0]]
             C_21_gt = C_21_gt.transpose(0,1)
