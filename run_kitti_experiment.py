@@ -155,7 +155,7 @@ if __name__ == '__main__':
 
         if epoch%args.epoch_display == 0:
             print('Epoch {}. Loss (Train/Valid) {:.3E} / {:.3E} \t'
-            'Valid (Err/NLL) {:3.3f} / {:3.3f} | {:.3f} / {:3.3f}\t'
+            'Valid (Err/NLL) {:.3f} / {:3.3f}\t'
             'Epoch Time {epoch_time.val:.3f} (avg: {epoch_time.avg:.3f})'.format(
                 epoch+1, avg_train_loss, avg_valid_loss, valid_ang_error, valid_nll, epoch_time=epoch_time))
 
