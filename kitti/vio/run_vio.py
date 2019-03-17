@@ -17,21 +17,16 @@ def run_vio(basedir, date, drive, pose_range, hydranet_output_file, metrics_file
     #Load initial pose and ground truth
     T_cam_imu = SE3.from_matrix(dataset.calib.T_cam2_imu)
     T_cam_imu.normalize()
-    T_w_0 = SE3.from_matrix(dataset.oxts[0].T_w_imu).dot(T_cam_imu.inv())
-    T_w_0.normalize()
-    T_w_c_gt = [SE3.from_matrix(o.T_w_imu).dot(T_cam_imu.inv())
-        for o in dataset.oxts]
+    T_0_w = T_cam_imu.dot(SE3.from_matrix(dataset.oxts[0].T_w_imu).inv())
+    T_0_w.normalize()
 
     #Hydranet
-    vio = VisualInertialPipeline(dataset, T_cam_imu, hydranet_output_file, first_pose=T_w_0)
+    vio = VisualInertialPipeline(dataset, T_cam_imu, hydranet_output_file, first_pose=T_0_w)
     vio.compute_vio()
 
     # #Compute statistics
-    T_w_c_est = [T for T in vio.T_w_c]
-    T_w_c_imu = [T for T in vio.T_w_c_imu]
-    T_w_c_gt = T_w_c_gt[:len(T_w_c_est)]
-    tm = TrajectoryMetrics(T_w_c_gt, T_w_c_est, convention='Twv')
-    tm_baseline = TrajectoryMetrics(T_w_c_gt, T_w_c_imu, convention='Twv')
+    tm = TrajectoryMetrics(vio.T_c_w_gt, vio.T_c_w, convention='Tvw')
+    tm_baseline = TrajectoryMetrics(vio.T_c_w_gt, vio.T_c_w_imu, convention='Tvw')
 
     # # Save to file
        # if metrics_filename:
