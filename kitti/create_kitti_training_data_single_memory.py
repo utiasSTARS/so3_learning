@@ -105,10 +105,9 @@ def main():
     # val_trials = ['01']
     # train_trials = ['04', '02', '05', '06', '07', '08', '09', '10']
     
-    #Removed 01 and 04 (road trials)
-    all_trials = ['00','02','05','06', '07', '08', '09', '10','01','04']
+    #all_trials = ['00','02','05','06', '07', '08', '09', '10', '01', '04']
     #all_trials = ['00', '02', '05', '06']
-
+    all_trials = ['00', '01', '02', '04', '05', '06', '07', '08', '09', '10']
 
     train_pose_deltas = [1] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
     test_pose_delta = 1
@@ -128,21 +127,21 @@ def main():
     #Where should we output the training files?
     data_path = './datasets/obelisk'
 
-    
-    for t_i, test_trial in enumerate(all_trials):
-        if t_i > 2:
-            break #Only produce trials for 00, 02 and 05
+    custom_training = [['09','10'],['00', '01', '02', '04', '05', '06', '07', '08']]
+    # #for t_i, test_trial in enumerate(all_trials):
+    # #    if t_i > 2:
+    #         break #Only produce trials for 00, 02 and 05
+    #
+    #     if test_trial == all_trials[-1]:
+    #         #val_trial = all_trials[-2]
+    #         train_trials = all_trials[:-1]
+    #     else:
+    #         #val_trial = all_trials[t_i+1]
+    #         train_trials = all_trials[:t_i] + all_trials[t_i+1:]
 
-        if test_trial == all_trials[-1]:
-            #val_trial = all_trials[-2]
-            train_trials = all_trials[:-1]
-        else:
-            #val_trial = all_trials[t_i+1]
-            train_trials = all_trials[:t_i] + all_trials[t_i+1:]
+    for test_trials, train_trials in custom_training:
 
-    #for test_trial, val_trial, train_trials in custom_training:
-
-        print('Processing.. Test: {}. Train: {}.'.format(test_trial, train_trials))
+        print('Processing.. Test: {}. Train: {}.'.format(test_trials, train_trials))
 
         #(pose_ids, sequences, T_21_gt_all, T_21_est_all, tm_mat_files)
 
@@ -152,7 +151,7 @@ def main():
         # (val_img_paths_rgb, val_corr, val_gt, val_est, val_tm_mat_file) = process_ground_truth([val_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)
         # print('Processed {} validation image quads.'.format(len(val_corr)))
 
-        (test_pose_ids, test_sequences, test_T_21_gt, test_T_21_est, test_tm_mat_files) = process_ground_truth([test_trial], tm_path, [test_pose_delta], 'test', add_reverse)
+        (test_pose_ids, test_sequences, test_T_21_gt, test_T_21_est, test_tm_mat_files) = process_ground_truth(test_trials, tm_path, [test_pose_delta], 'test', add_reverse)
         print('Processed {} test poses.'.format(len(test_T_21_gt)))
 
         #Save the data!
@@ -173,7 +172,7 @@ def main():
         kitti_data['test_tm_mat_paths'] = test_tm_mat_files
         kitti_data['test_pose_delta'] = test_pose_delta
 
-        data_filename = os.path.join(data_path, 'kitti_singlefile_data_sequence_{}_delta_{}_reverse_{}.pickle'.format(test_trial, test_pose_delta, add_reverse))
+        data_filename = os.path.join(data_path, 'kitti_singlefile_data_sequence_{}_delta_{}_reverse_{}.pickle'.format(test_trials, test_pose_delta, add_reverse))
         print('Saving to {} ....'.format(data_filename))
 
         with open(data_filename, 'wb') as f:
