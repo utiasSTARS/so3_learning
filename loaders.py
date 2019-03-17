@@ -235,7 +235,7 @@ class KITTIVODatasetPreTransformed(Dataset):
         else:
             return img.float() / 255.
 
-    def compute_flow(self, img1, img2, apply_blur = False):
+    def compute_flow(self, img1, img2, idx, apply_blur = False):
         #Convert back to W x H x C
         np_img1 = cv2.cvtColor(img1.permute(1,2,0).numpy(), cv2.COLOR_RGB2GRAY)
         np_img2 = cv2.cvtColor(img2.permute(1,2,0).numpy(), cv2.COLOR_RGB2GRAY)
@@ -245,6 +245,17 @@ class KITTIVODatasetPreTransformed(Dataset):
 
         flow_cv2 = cv2.calcOpticalFlowFarneback(np_img1, np_img2, None, 0.5, 3, 15, 3, 5, 1.2, 0)
         flow_img = torch.from_numpy(flow_cv2).permute(2,0,1)
+
+        if idx < 10:
+            # Obtain the flow magnitude and direction angle
+            hsvImg = np.zeros_like(img1.permute(1,2,0).numpy())
+            hsvImg[..., 1] = 255
+            mag, ang = cv2.cartToPolar(flow_cv2[..., 0], flow_cv2[..., 1])
+            # Update the color image
+            hsvImg[..., 0] = 0.5 * ang * 180 / np.pi
+            hsvImg[..., 2] = cv2.normalize(mag, None, 0, 255, cv2.NORM_MINMAX)
+            rgbImg = cv2.cvtColor(hsvImg, cv2.COLOR_HSV2BGR)
+            cv2.imwrite(idx + '_flow.png', rgbImg)
         #gr_img1 = torch.from_numpy(np_img1).float().unsqueeze(0)
         #gr_img2 = torch.from_numpy(np_img2).float().unsqueeze(0)
 
@@ -260,7 +271,7 @@ class KITTIVODatasetPreTransformed(Dataset):
 
         # image_pair = [self.prep_img(self.seq_images[seq][p_ids[0]]),
         #               self.prep_img(self.seq_images[seq][p_ids[1]])]
-        flow_img = self.compute_flow(self.seq_images[seq][p_ids[0]], self.seq_images[seq][p_ids[1]], self.apply_blur)
+        flow_img = self.compute_flow(self.seq_images[seq][p_ids[0]], self.seq_images[seq][p_ids[1]], idx, self.apply_blur)
         q_target = torch.from_numpy(quaternion_from_matrix(C_21_gt)).float()
         return flow_img, q_target
 
