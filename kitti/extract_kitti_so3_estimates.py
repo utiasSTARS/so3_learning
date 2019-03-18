@@ -46,7 +46,7 @@ def run_so3_hydranet(trained_file_path, seq, kitti_data_file=None):
 
     apply_blur = False
     seqs_base_path = './data'
-    seq_prefix = 'seq_'
+    seq_prefix = 'seq_noncropped_'
     kitti_data_pickle_file = kitti_data_file
     transform = None
 
