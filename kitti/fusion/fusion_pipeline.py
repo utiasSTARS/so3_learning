@@ -67,7 +67,7 @@ class SO3FusionPipeline(object):
         self.optimizer.reset_solver()
         self.optimizer.set_priors(SE3.identity(), T_21_vo.inv())
 
-        if np.iscomplex(invsqrt(self.Sigma_21_hydranet[pose_i])).any() or np.linalg.det(self.Sigma_21_hydranet[pose_i]) > 1e-12:
+        if np.iscomplex(invsqrt(self.Sigma_21_hydranet[pose_i])).any() or np.linalg.det(self.Sigma_21_hydranet[pose_i]) > 1e-4:
             #print('Warning: found bad covariance!')
             #print(self.Sigma_21_hydranet[pose_i])
             T_21 = T_21_vo

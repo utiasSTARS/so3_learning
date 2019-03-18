@@ -107,7 +107,7 @@ if __name__ == '__main__':
     #torch.manual_seed(7)
     #random.seed(72)
     seqs = ['02']
-    trained_models_paths = ['best_model_seq_02_delta_1_heads_25_epoch_10.pt']
+    trained_models_paths = ['best_model_seq_02_delta_1_heads_25_epoch_4.pt']
     kitti_data_file = None
     base_path = './plots_and_models/flow_large/'
     # seqs = ['09', '10']
@@ -116,6 +116,6 @@ if __name__ == '__main__':
     #                         'best_model_seq_0910_delta_1_heads_25_epoch_18.pt']
 
     for model_path, seq in zip(trained_models_paths, seqs):
-        kitti_data_file = 'datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_1_reverse_True_minta_0.03.pickle'.format(seq)
+        kitti_data_file = 'datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_1_reverse_True.pickle'.format(seq)
         run_so3_hydranet(base_path + model_path, seq, kitti_data_file=kitti_data_file)
 
