@@ -109,17 +109,14 @@ if __name__ == '__main__':
     #Reproducibility
     #torch.manual_seed(7)
     #random.seed(72)
-    # seqs = ['00', '02', '05']
-    # trained_models_paths = ['best_model_seq_00_delta_1_heads_25_epoch_12.pt',
-    #                         'best_model_seq_02_delta_1_heads_25_epoch_11.pt',
-    #                         'best_model_seq_05_delta_1_heads_25_epoch_12.pt'
-    #                         ]
-
+    seqs = ['02']
+    trained_models_paths = ['best_model_seq_02_delta_1_heads_25_epoch_11.pt']
+    kitti_data_file = None
     base_path = './plots_and_models/flow/'
-    seqs = ['09', '10']
-    kitti_data_file = 'datasets/obelisk/kitti_singlefile_data_sequence_0910_delta_1_reverse_True.pickle'
-    trained_models_paths = ['best_model_seq_0910_delta_1_heads_25_epoch_18.pt',
-                            'best_model_seq_0910_delta_1_heads_25_epoch_18.pt']
+    # seqs = ['09', '10']
+    # kitti_data_file = 'datasets/obelisk/kitti_singlefile_data_sequence_0910_delta_1_reverse_True.pickle'
+    # trained_models_paths = ['best_model_seq_0910_delta_1_heads_25_epoch_18.pt',
+    #                         'best_model_seq_0910_delta_1_heads_25_epoch_18.pt']
 
     for model_path, seq in zip(trained_models_paths, seqs):
         run_so3_hydranet(base_path + model_path, seq, kitti_data_file=kitti_data_file)

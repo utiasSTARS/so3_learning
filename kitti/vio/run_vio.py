@@ -97,7 +97,7 @@ def main():
 
         print('Odometry sequence {} | {} {}'.format(seq, date, drive))
         metrics_filename = os.path.join(date + '_drive_' + drive + '.mat')
-        hydranet_output_file = '../fusion/hydranet_output_model_seq_{}.pt'.format(seq)
+        hydranet_output_file = '../fusion/hydranet_output_reverse_model_seq_{}.pt'.format(seq)
 
         tm_vio, tm_baseline = run_vio(kitti_basedir, date, drive, frames, hydranet_output_file)
         trans_armse_fusion, rot_armse_fusion = tm_vio.mean_err(error_type='rel', rot_unit='deg')

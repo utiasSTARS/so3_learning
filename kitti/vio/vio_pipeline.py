@@ -28,8 +28,6 @@ class VisualInertialPipeline():
         self.T_c_w_gt = [T_cam_imu.dot(SE3.from_matrix(o.T_w_imu).inv())
                          for o in self.dataset.oxts]
 
-        self.pose_skip = 2 #0 means apply every delta
-
     def _load_hydranet_files(self, path):
         hn_data = torch.load(path)
         self.Sigma_21_hydranet = hn_data['Sigma_21'].numpy()
@@ -114,7 +112,7 @@ class VisualInertialPipeline():
 
             Sigma_hn = self.Sigma_21_hydranet[pose_i]
 
-            C_21_hn = self.C_21_hydranet_bias.inv().dot(SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True))
+            C_21_hn = SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True)
             C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[pose_i], normalize=True)
             rot_err += C_21_hn.dot(C_21_gt.inv()).log()
             rot_err_imu += T_21_imu.rot.dot(C_21_gt.inv()).log()

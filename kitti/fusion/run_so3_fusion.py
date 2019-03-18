@@ -147,7 +147,7 @@ def main():
                    'frames': range(0, 1201)}}
 
 
-    seq = '09'
+    seq = '02'
     tm_path = '../svo/baseline_tm/'
 
     orig_metrics_file = os.path.join(tm_path, '{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
@@ -172,7 +172,7 @@ def main():
 
     tm_dict = {'VO Only': tm_baseline, 'Fusion': tm_fusion}
     vis = TrajectoryVisualizer(tm_dict)
-    segs = list(range(100,801,100))
+    segs = list(range(100,1701,400))
     vis.plot_topdown(which_plane='xy', outfile=seq + '_topdown.pdf')
     # vis.plot_cum_norm_err(outfile=seq + '_cum_err.pdf')
     vis.plot_segment_errors(segs, outfile=seq+'_seg_err.pdf')

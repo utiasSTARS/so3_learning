@@ -86,11 +86,11 @@ if __name__ == '__main__':
     # transform = transforms.Normalize(mean=[0.485, 0.456, 0.406],
     #                           std=[0.229, 0.224, 0.225])
     transform = None
-    kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_1_reverse_True.pickle'.format(args.seq)
+    kitti_data_pickle_file = 'kitti/datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_2_reverse_True.pickle'.format(args.seq)
 
     seqs_base_path = 'kitti/data'
-    seq_prefix = 'seq_'
-    output_folder = 'flow'
+    seq_prefix = 'seq_noncropped_'
+    output_folder = 'flow_large'
 
     train_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='train', seq_prefix=seq_prefix),
                               batch_size=args.batch_size, pin_memory=False,
