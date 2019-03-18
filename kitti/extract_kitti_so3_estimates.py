@@ -53,11 +53,13 @@ def run_so3_hydranet(trained_file_path, seq, kitti_data_file=None):
         kitti_data_pickle_file = kitti_data_file
     transform = None
 
-    test_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test', apply_blur=apply_blur, seq_prefix=seq_prefix),
+    test_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform,
+                                                          run_type='test', apply_blur=apply_blur, seq_prefix=seq_prefix, use_only_seq=seq),
                               batch_size=batch_size, pin_memory=False,
                               shuffle=False, num_workers=4, drop_last=False)
 
-    test_loader_reverse = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform, run_type='test', apply_blur=apply_blur,seq_prefix=seq_prefix, reverse_images=True),
+    test_loader_reverse = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform,
+                                                                  run_type='test', apply_blur=apply_blur,seq_prefix=seq_prefix, reverse_images=True, use_only_seq=seq),
                               batch_size=batch_size, pin_memory=False,
                               shuffle=False, num_workers=0, drop_last=False)
 
