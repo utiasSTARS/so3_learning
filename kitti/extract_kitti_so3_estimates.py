@@ -107,7 +107,7 @@ if __name__ == '__main__':
     #torch.manual_seed(7)
     #random.seed(72)
     seqs = ['02']
-    trained_models_paths = ['best_model_seq_02_delta_1_heads_25_epoch_14.pt']
+    trained_models_paths = ['best_model_seq_02_delta_1_heads_25_epoch_15.pt']
     kitti_data_file = None
     base_path = './plots_and_models/flow_large/'
     # seqs = ['09', '10']
