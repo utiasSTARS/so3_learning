@@ -107,8 +107,10 @@ if __name__ == '__main__':
     #torch.manual_seed(7)
     #random.seed(72)
     seqs = ['00','02','05']
-    trained_models_paths = ['best_model_seq_00_delta_1_heads_25_epoch_10.pt',
-                            'best_model_seq_02_delta_1_heads_25_epoch_12.pt',
+
+    #Best models are epochs 22, 18, 24
+    trained_models_paths = ['best_model_seq_00_delta_1_heads_25_epoch_21.pt',
+                            'best_model_seq_02_delta_1_heads_25_epoch_16.pt',
                             'best_model_seq_05_delta_1_heads_25_epoch_14.pt'
                             ]
     kitti_data_file = None

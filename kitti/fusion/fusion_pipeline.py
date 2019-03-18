@@ -86,7 +86,7 @@ class SO3FusionPipeline(object):
             Sigma_vo = self.Sigma_21_vo[pose_i]
             self.optimizer.add_pose_residual(T_21_vo, invsqrt(Sigma_vo))
             self.optimizer.add_orientation_residual(C_21_hn, invsqrt(Sigma_21_hn))
-            #self.optimizer.add_orientation_residual(C_12_hn, invsqrt(Sigma_12_hn), reverse=True)
+            self.optimizer.add_orientation_residual(C_12_hn, invsqrt(Sigma_12_hn), reverse=True)
 
             T_21 = self.optimizer.solve()
             #T_21.rot = C_hn
