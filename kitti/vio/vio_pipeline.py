@@ -37,7 +37,7 @@ class VisualInertialPipeline():
         self.C_21_large_err_mask = self.compute_large_err_mask()
 
     def compute_large_err_mask(self):
-        phi_errs = np.empty((len(self.C_21_hydranet_gt)))
+        phi_errs = np.empty((len(self.C_21_hydranet_gt), 3))
         for i in range(len(self.C_21_hydranet_gt)):
             C_21_est = SO3.from_matrix(self.C_21_hydranet[i], normalize=True)
             C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[i], normalize=True)
@@ -56,7 +56,7 @@ class VisualInertialPipeline():
 
     def compute_imu_Q(self):
         T_w_imu_gt = [SE3.from_matrix(o.T_w_imu) for o in self.dataset.oxts]
-
+        self.T_w_imu_gt = T_w_imu_gt
         xi_errs = np.empty((len(self.dataset.oxts) - 1, 6))
         for pose_i, oxt in enumerate(self.dataset.oxts):
 
@@ -106,6 +106,7 @@ class VisualInertialPipeline():
             dt = (self.dataset.timestamps[pose_i+1] - self.dataset.timestamps[pose_i]).total_seconds()
             xi = -dt*self._assemble_motion_vec(oxt)
             T_21_imu = self.T_cam_imu.dot(SE3.exp(xi)).dot(self.T_cam_imu.inv())
+            T_21_imu_gt = self.T_w_imu_gt[pose_i + 1].inv().dot(self.T_w_imu_gt[pose_i])
 
             Ad_T_cam_imu = SE3.adjoint(self.T_cam_imu)
             Sigma_21_imu = Ad_T_cam_imu.dot(dt*dt*self.imu_Q).dot(Ad_T_cam_imu.transpose())
@@ -114,27 +115,25 @@ class VisualInertialPipeline():
 
             C_21_hn = SO3.from_matrix(self.C_21_hydranet[pose_i], normalize=True)
             C_21_gt = SO3.from_matrix(self.C_21_hydranet_gt[pose_i], normalize=True)
-            rot_err += C_21_hn.dot(C_21_gt.inv()).log()
-            rot_err_imu += T_21_imu.rot.dot(C_21_gt.inv()).log()
+            #rot_err = C_21_hn.dot(C_21_gt.inv()).log()
+            #xi_err = T_21_imu.dot(T_21_imu_gt.inv()).log()
             #print(np.linalg.norm(rot_err)*180/np.pi)
             #print(np.linalg.norm(rot_err_imu)*180/np.pi)
+
+            #Sigma_hn = np.diag(9*rot_err**2)
+            #Sigma_21_imu = np.diag(9*xi_err**2)
+
 
             self.optimizer.reset_solver()
             self.optimizer.add_costs(T_21_imu, invsqrt(Sigma_21_imu), C_21_hn, invsqrt(Sigma_hn))
             self.optimizer.set_priors(self.T_c_w[-1], T_21_imu.dot(self.T_c_w[-1]))
 
-            # if self.C_21_large_err_mask[pose_i]:
-            #     T_21 = copy.deepcopy(T_21_imu)
-            # else:
-
-            #T_c_w = self.optimizer.solve()
-            if np.linalg.det(Sigma_hn) < 1e-12:
-                T_c_w = self.optimizer.solve()
-            else:
+            if self.C_21_large_err_mask[pose_i]:
                 T_c_w = T_21_imu.dot(self.T_c_w[-1])
+            else:
+                T_c_w = self.optimizer.solve()
 
-            #T_21_gt = self.T_c_w_gt[pose_i + 1].dot(self.T_c_w_gt[pose_i].inv())
-            # T_c_w = T_21_gt.dot(self.T_c_w[-1])
+
 
 
             #

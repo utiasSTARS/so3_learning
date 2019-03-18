@@ -35,7 +35,7 @@ KITTI_SEQS_DICT = {'00': {'date': '2011_10_03',
                           'drive': '0034',
                           'frames': range(0, 1201)}}
 
-def compute_vo_pose_errors(tm, pose_deltas, seq, eval_type='train', add_reverse=False):
+def compute_vo_pose_errors(tm, pose_deltas, seq, eval_type='train', add_reverse=False, min_turning_angle=0.):
     """Compute delta pose errors on VO estimates """
     T_21_gts = []
     T_21_ests = []
@@ -52,19 +52,25 @@ def compute_vo_pose_errors(tm, pose_deltas, seq, eval_type='train', add_reverse=
         for p_idx in pose_ids:
             T_21_gt = tm.Twv_gt[p_idx + p_delta].inv().dot(tm.Twv_gt[p_idx])
             T_21_est = tm.Twv_est[p_idx + p_delta].inv().dot(tm.Twv_est[p_idx])
-            T_21_gts.append(T_21_gt)
-            T_21_ests.append(T_21_est)
-            pair_pose_ids.append([p_idx, p_idx + p_delta])
-            seqs.append(seq)
+
+            turning_angle = np.linalg.norm(T_21_gt.rot.log())
+            if turning_angle > min_turning_angle or eval_type == 'test':
+                T_21_gts.append(T_21_gt)
+                T_21_ests.append(T_21_est)
+                pair_pose_ids.append([p_idx, p_idx + p_delta])
+                seqs.append(seq)
 
         if add_reverse and eval_type=='train':
             for p_idx in pose_ids:
                 T_21_gt = tm.Twv_gt[p_idx].inv().dot(tm.Twv_gt[p_idx + p_delta])
                 T_21_est = tm.Twv_est[p_idx].inv().dot(tm.Twv_est[p_idx + p_delta])
-                T_21_gts.append(T_21_gt)
-                T_21_ests.append(T_21_est)
-                pair_pose_ids.append([p_idx + p_delta, p_idx])
-                seqs.append(seq)
+
+                turning_angle = np.linalg.norm(T_21_gt.rot.log())
+                if turning_angle > min_turning_angle:
+                    T_21_gts.append(T_21_gt)
+                    T_21_ests.append(T_21_est)
+                    pair_pose_ids.append([p_idx + p_delta, p_idx])
+                    seqs.append(seq)
 
     return (T_21_gts, T_21_ests, pair_pose_ids, seqs)
 
@@ -110,9 +116,10 @@ def main():
     #all_trials = ['00', '02', '05', '06']
     #all_trials = ['00', '01', '02', '04', '05', '06', '07', '08', '09', '10']
 
-    train_pose_deltas = [2] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
-    test_pose_delta = 2
+    train_pose_deltas = [1] #How far apart should each quad image be? (KITTI is at 10hz, can input multiple)
+    test_pose_delta = 1
     add_reverse = True #Add reverse transformations
+    min_turning_angle = 0.03
 
     #Where is the KITTI data?
 
@@ -143,7 +150,7 @@ def main():
 
         #(pose_ids, sequences, T_21_gt_all, T_21_est_all, tm_mat_files)
 
-        (train_pose_ids, train_sequences, train_T_21_gt, train_T_21_est, train_tm_mat_files) = process_ground_truth(train_trials, tm_path, train_pose_deltas, 'train', add_reverse)
+        (train_pose_ids, train_sequences, train_T_21_gt, train_T_21_est, train_tm_mat_files) = process_ground_truth(train_trials, tm_path, train_pose_deltas, 'train', add_reverse, min_turning_angle)
         print('Processed {} training poses.'.format(len(train_T_21_gt)))
 
         # (val_img_paths_rgb, val_corr, val_gt, val_est, val_tm_mat_file) = process_ground_truth([val_trial], tm_path, kitti_path, [test_pose_delta], 'test', add_reverse)

@@ -172,7 +172,7 @@ def main():
 
     tm_dict = {'VO Only': tm_baseline, 'Fusion': tm_fusion}
     vis = TrajectoryVisualizer(tm_dict)
-    segs = list(range(100,1701,400))
+    segs = list(range(100,801,100))
     vis.plot_topdown(which_plane='xy', outfile=seq + '_topdown.pdf')
     # vis.plot_cum_norm_err(outfile=seq + '_cum_err.pdf')
     vis.plot_segment_errors(segs, outfile=seq+'_seg_err.pdf')

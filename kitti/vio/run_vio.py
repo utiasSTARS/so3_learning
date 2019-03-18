@@ -35,6 +35,29 @@ def run_vio(basedir, date, drive, pose_range, hydranet_output_file, metrics_file
 
     return tm, tm_baseline
 
+def _plot_hist(x, ax):
+    ax.hist(x, 50, density=True, facecolor='g', alpha=0.75)
+
+def make_histogram(tm, filename):
+    fig, ax = plt.subplots(6, 1, sharex='col', sharey='row')
+
+    num_odom = len(tm.Twv_est) - 1
+    xi_errs = np.empty((num_odom, 6))
+
+    for i in range(num_odom):
+        T_21_est = tm.Twv_est[i + 1].inv().dot(tm.Twv_est[i])
+        T_21_gt = tm.Twv_gt[i + 1].inv().dot(tm.Twv_gt[i])
+
+        xi_errs_i = T_21_est.dot(T_21_gt.inv()).log()
+        xi_errs[i] = xi_errs_i
+
+    for i in range(6):
+        _plot_hist(xi_errs[:,i], ax[i])
+
+    fig.savefig(filename, bbox_inches='tight')
+    plt.close(fig)
+
+
 
 def main():
     # Odometry sequences
@@ -114,26 +137,30 @@ def main():
 
         trans_norms, rot_norms = tm_vio.error_norms(error_type='rel', rot_unit='deg')
         trans_norms_imu, rot_norms_imu = tm_baseline.error_norms(error_type='rel', rot_unit='deg')
+        #
+        # ms=2.
+        # plt.subplot(2, 1, 1)
+        # plt.plot(trans_norms, 'bo', linewidth=0.2, ms=ms)
+        # plt.plot(trans_norms_imu, 'go', linewidth=0.2, ms=ms)
+        #
+        # plt.ylabel('Trans')
+        # plt.subplot(2, 1, 2)
+        # plt.plot(rot_norms, 'b.', linewidth=0.2, ms=ms)
+        # plt.plot(rot_norms_imu, 'g.',linewidth=0.2, ms=ms)
+        #
+        # plt.ylabel('Rot')
+        # plt.savefig(seq+'_error_norms.pdf')
+        #
+        # tm_dict = {'IMU Only': tm_baseline, 'VIO': tm_vio}
+        # vis = TrajectoryVisualizer(tm_dict)
+        # segs = [5,10,20,50]
+        # vis.plot_topdown(which_plane='xy', outfile=seq + '_topdown.pdf')
+        # # vis.plot_cum_norm_err(outfile=seq + '_cum_err.pdf')
+        # # vis.plot_pose_errors(outfile=seq+'_pose_err.pdf')
+        # vis.plot_segment_errors(segs, outfile=seq + '_seg_err.pdf')
 
-        ms=2.
-        plt.subplot(2, 1, 1)
-        plt.plot(trans_norms, 'bo', linewidth=0.2, ms=ms)
-        plt.plot(trans_norms_imu, 'go', linewidth=0.2, ms=ms)
-
-        plt.ylabel('Trans')
-        plt.subplot(2, 1, 2)
-        plt.plot(rot_norms, 'b.', linewidth=0.2, ms=ms)
-        plt.plot(rot_norms_imu, 'g.',linewidth=0.2, ms=ms)
-
-        plt.ylabel('Rot')
-        plt.savefig(seq+'_error_norms.pdf')
-
-        tm_dict = {'IMU Only': tm_baseline, 'VIO': tm_vio}
-        vis = TrajectoryVisualizer(tm_dict)
-        # segs = list(range(100,801,100))
-        vis.plot_topdown(which_plane='xy', outfile=seq + '_topdown.pdf')
-        # vis.plot_cum_norm_err(outfile=seq + '_cum_err.pdf')
-        # vis.plot_pose_errors(outfile=seq+'_pose_err.pdf')
+        make_histogram(tm_vio, 'vio_hist.pdf')
+        make_histogram(tm_baseline, 'imu_hist.pdf')
 
 
 # #Output CSV stats

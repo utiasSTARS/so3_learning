@@ -41,7 +41,8 @@ class SparseStereoVOSolver(object):
         self.stereo_obs_2 = stereo_obs_2
         if T_21_prev:
             self.T_21_prev = T_21_prev
-        
+
+
     def set_initial_guess(self, T_21):
         self.params_initial = {self.solution_key: T_21}
 
