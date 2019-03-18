@@ -26,7 +26,7 @@ import torchvision.transforms as transforms
 def run_so3_hydranet(trained_file_path, seq, kitti_data_file=None):
     # Float or Double?
     tensor_type = torch.float
-    device = torch.device('cuda:1')
+    device = torch.device('cuda:0')
     loss_fn = QuatNLLLoss()
     batch_size = 32
 
