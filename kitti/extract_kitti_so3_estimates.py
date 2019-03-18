@@ -46,7 +46,7 @@ def run_so3_hydranet(trained_file_path, seq, kitti_data_file=None):
 
     apply_blur = False
     seqs_base_path = './data'
-    seq_prefix = 'seq_noncropped_'
+    seq_prefix = 'seq_'
     kitti_data_pickle_file = kitti_data_file
     transform = None
 
@@ -106,10 +106,13 @@ if __name__ == '__main__':
     #Reproducibility
     #torch.manual_seed(7)
     #random.seed(72)
-    seqs = ['02']
-    trained_models_paths = ['best_model_seq_02_delta_1_heads_25_epoch_4.pt']
+    seqs = ['00','02','05']
+    trained_models_paths = ['best_model_seq_00_delta_1_heads_25_epoch_10.pt',
+                            'best_model_seq_02_delta_1_heads_25_epoch_12.pt',
+                            'best_model_seq_05_delta_1_heads_25_epoch_14.pt'
+                            ]
     kitti_data_file = None
-    base_path = './plots_and_models/flow_large/'
+    base_path = './plots_and_models/flow/'
     # seqs = ['09', '10']
     # kitti_data_file = 'datasets/obelisk/kitti_singlefile_data_sequence_0910_delta_1_reverse_True.pickle'
     # trained_models_paths = ['best_model_seq_0910_delta_1_heads_25_epoch_18.pt',
