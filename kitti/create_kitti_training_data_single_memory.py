@@ -42,6 +42,7 @@ def compute_vo_pose_errors(tm, pose_deltas, seq, eval_type='train', add_reverse=
     pair_pose_ids = []
     seqs = []
 
+
     for p_delta in pose_deltas:
 
         if eval_type=='train':
@@ -49,12 +50,14 @@ def compute_vo_pose_errors(tm, pose_deltas, seq, eval_type='train', add_reverse=
         elif eval_type=='test':
             pose_ids = range(0, len(tm.Twv_gt) - p_delta, p_delta)
 
+        coin_flip = np.random.rand(len(pose_ids)) > 0.5
+
         for p_idx in pose_ids:
             T_21_gt = tm.Twv_gt[p_idx + p_delta].inv().dot(tm.Twv_gt[p_idx])
             T_21_est = tm.Twv_est[p_idx + p_delta].inv().dot(tm.Twv_est[p_idx])
 
             turning_angle = np.linalg.norm(T_21_gt.rot.log())
-            if turning_angle > min_turning_angle or eval_type == 'test':
+            if (turning_angle > min_turning_angle and coin_flip) or eval_type == 'test':
                 T_21_gts.append(T_21_gt)
                 T_21_ests.append(T_21_est)
                 pair_pose_ids.append([p_idx, p_idx + p_delta])
@@ -66,7 +69,7 @@ def compute_vo_pose_errors(tm, pose_deltas, seq, eval_type='train', add_reverse=
                 T_21_est = tm.Twv_est[p_idx].inv().dot(tm.Twv_est[p_idx + p_delta])
 
                 turning_angle = np.linalg.norm(T_21_gt.rot.log())
-                if turning_angle > min_turning_angle:
+                if turning_angle > min_turning_angle and coin_flip:
                     T_21_gts.append(T_21_gt)
                     T_21_ests.append(T_21_est)
                     pair_pose_ids.append([p_idx + p_delta, p_idx])
