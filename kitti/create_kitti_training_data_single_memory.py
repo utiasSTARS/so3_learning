@@ -74,7 +74,7 @@ def compute_vo_pose_errors(tm, pose_deltas, seq, eval_type='train', add_reverse=
 
     return (T_21_gts, T_21_ests, pair_pose_ids, seqs)
 
-def process_ground_truth(trial_strs, tm_path, pose_deltas, eval_type='train', add_reverse=False):
+def process_ground_truth(trial_strs, tm_path, pose_deltas, eval_type='train', add_reverse=False, min_turning_angle=0.):
     
     T_21_gt_all = []
     T_21_est_all = []
@@ -93,7 +93,7 @@ def process_ground_truth(trial_strs, tm_path, pose_deltas, eval_type='train', ad
             tm = TrajectoryMetrics.loadmat(tm_mat_file)
 
 
-        (T_21_gt, T_21_est, pair_pose_ids, seqs) = compute_vo_pose_errors(tm, pose_deltas, trial_str, eval_type, add_reverse)
+        (T_21_gt, T_21_est, pair_pose_ids, seqs) = compute_vo_pose_errors(tm, pose_deltas, trial_str, eval_type, add_reverse, min_turning_angle)
 
         T_21_gt_all.extend(T_21_gt)
         T_21_est_all.extend(T_21_est)
