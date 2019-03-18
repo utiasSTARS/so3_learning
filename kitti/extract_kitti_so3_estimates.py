@@ -47,10 +47,7 @@ def run_so3_hydranet(trained_file_path, seq, kitti_data_file=None):
     apply_blur = False
     seqs_base_path = './data'
     seq_prefix = 'seq_'
-    if kitti_data_file is None:
-        kitti_data_pickle_file = 'datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_1_reverse_True.pickle'.format(seq)
-    else:
-        kitti_data_pickle_file = kitti_data_file
+    kitti_data_pickle_file = kitti_data_file
     transform = None
 
     test_loader = DataLoader(KITTIVODatasetPreTransformed(kitti_data_pickle_file, seqs_base_path=seqs_base_path, transform_img=transform,
@@ -110,14 +107,15 @@ if __name__ == '__main__':
     #torch.manual_seed(7)
     #random.seed(72)
     seqs = ['02']
-    trained_models_paths = ['best_model_seq_02_delta_1_heads_25_epoch_11.pt']
+    trained_models_paths = ['best_model_seq_02_delta_1_heads_25_epoch_14.pt']
     kitti_data_file = None
-    base_path = './plots_and_models/flow/'
+    base_path = './plots_and_models/flow_large/'
     # seqs = ['09', '10']
     # kitti_data_file = 'datasets/obelisk/kitti_singlefile_data_sequence_0910_delta_1_reverse_True.pickle'
     # trained_models_paths = ['best_model_seq_0910_delta_1_heads_25_epoch_18.pt',
     #                         'best_model_seq_0910_delta_1_heads_25_epoch_18.pt']
 
     for model_path, seq in zip(trained_models_paths, seqs):
+        kitti_data_file = 'datasets/obelisk/kitti_singlefile_data_sequence_{}_delta_1_reverse_True_minta_0.03.pickle'.format(seq)
         run_so3_hydranet(base_path + model_path, seq, kitti_data_file=kitti_data_file)
 
