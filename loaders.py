@@ -188,17 +188,17 @@ class KITTIVODataset(Dataset):
 class KITTIVODatasetPreTransformed(Dataset):
     """KITTI Odometry Benchmark dataset with full memory read-ins."""
 
-    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train', use_flow=True, apply_blur=False, reverse_images=False, seq_prefix='seq_'):
+    def __init__(self, kitti_dataset_file, seqs_base_path, transform_img=None, run_type='train', use_flow=True, apply_blur=False, reverse_images=False, seq_prefix='seq_', use_only_seq=None):
         self.kitti_dataset_file = kitti_dataset_file
         self.seqs_base_path = seqs_base_path
         self.apply_blur = apply_blur
         self.transform_img = transform_img
         self.seq_prefix = seq_prefix
-        self.load_kitti_data(run_type)  # Loads self.image_quad_paths and self.labels
+        self.load_kitti_data(run_type, use_only_seq)  # Loads self.image_quad_paths and self.labels
         self.use_flow = use_flow
         self.reverse_images = reverse_images
 
-    def load_kitti_data(self, run_type):
+    def load_kitti_data(self, run_type, use_only_seq):
         with open(self.kitti_dataset_file, 'rb') as handle:
             kitti_data = pickle.load(handle)
 
@@ -218,6 +218,16 @@ class KITTIVODatasetPreTransformed(Dataset):
 
         else:
             raise ValueError('run_type must be set to `train`, or `test`. ')
+
+        if use_only_seq is not None:
+            self.pose_indices = [self.pose_indices[i] for i in range(len(self.pose_indices))
+                                 if self.seqs[i] ==  use_only_seq]
+            self.T_21_gt = [self.T_21_gt[i] for i in range(len(self.pose_indices))
+                                 if self.seqs[i] == use_only_seq]
+            self.T_21_vo = [self.T_21_vo[i] for i in range(len(self.pose_indices))
+                                 if self.seqs[i] == use_only_seq]
+            self.seqs = [self.seqs[i] for i in range(len(self.pose_indices))
+                                 if self.seqs[i] == use_only_seq]
 
         print('Loading sequences...{}'.format(list(set(self.seqs))))
         print('Pose delta: {}'.format(self.pose_indices[0][1] - self.pose_indices[0][0]))
