@@ -116,9 +116,11 @@ if __name__ == '__main__':
     #                         ]
 
     base_path = './plots_and_models/flow/'
-    seqs = ['09','10']
+    seqs = ['09', '10']
     kitti_data_file = 'datasets/obelisk/kitti_singlefile_data_sequence_0910_delta_1_reverse_True.pickle'
-    trained_models_paths = ['best_model_seq_0910_delta_1_heads_25_epoch_18.pt', 'best_model_seq_0910_delta_1_heads_25_epoch_18.pt']
+    trained_models_paths = ['best_model_seq_0910_delta_1_heads_25_epoch_18.pt',
+                            'best_model_seq_0910_delta_1_heads_25_epoch_18.pt']
+
     for model_path, seq in zip(trained_models_paths, seqs):
         run_so3_hydranet(base_path + model_path, seq, kitti_data_file=kitti_data_file)
 

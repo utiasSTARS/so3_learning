@@ -220,13 +220,13 @@ class KITTIVODatasetPreTransformed(Dataset):
             raise ValueError('run_type must be set to `train`, or `test`. ')
 
         if use_only_seq is not None:
-            self.pose_indices = [self.pose_indices[i] for i in range(len(self.pose_indices))
+            self.pose_indices = [self.pose_indices[i] for i in range(len(self.seqs))
                                  if self.seqs[i] ==  use_only_seq]
-            self.T_21_gt = [self.T_21_gt[i] for i in range(len(self.pose_indices))
+            self.T_21_gt = [self.T_21_gt[i] for i in range(len(self.seqs))
                                  if self.seqs[i] == use_only_seq]
-            self.T_21_vo = [self.T_21_vo[i] for i in range(len(self.pose_indices))
+            self.T_21_vo = [self.T_21_vo[i] for i in range(len(self.seqs))
                                  if self.seqs[i] == use_only_seq]
-            self.seqs = [self.seqs[i] for i in range(len(self.pose_indices))
+            self.seqs = [self.seqs[i] for i in range(len(self.seqs))
                                  if self.seqs[i] == use_only_seq]
 
         print('Loading sequences...{}'.format(list(set(self.seqs))))
