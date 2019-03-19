@@ -78,6 +78,7 @@ class SO3FusionPipeline(object):
             Sigma_12_hn = self.Sigma_12_hydranet[pose_i]
             C_12_hn = SO3.from_matrix(self.C_12_hydranet[pose_i], normalize=True)
 
+
             #phi_errs_i = C_21_hn.dot(T_21_gt.rot.inv()).log()
 
             #Sigma_vo = np.diag(9*xi_errs_i**2)
@@ -85,9 +86,9 @@ class SO3FusionPipeline(object):
 
             Sigma_vo = self.Sigma_21_vo[pose_i]
             self.optimizer.add_pose_residual(T_21_vo, invsqrt(Sigma_vo))
-            self.optimizer.add_orientation_residual(C_21_hn, invsqrt(Sigma_21_hn))
-            #self.optimizer.add_orientation_residual(C_12_hn, invsqrt(Sigma_12_hn), reverse=True)
 
+            self.optimizer.add_orientation_residual(C_21_hn, invsqrt(Sigma_21_hn))
+            self.optimizer.add_orientation_residual(C_12_hn, invsqrt(Sigma_12_hn), reverse=True)
             T_21 = self.optimizer.solve()
             #T_21.rot = C_hn
         #print(np.linalg.det(self.Sigma_21_hydranet[pose_i]))
