@@ -39,7 +39,7 @@ def create_semisphere(radius, num_pts):
     return (x,y,z)
 
 def create_sim_world_plot():
-    font_size = 24
+    font_size = 12
     train_dataset_path = 'sim_data/train_abs.mat'
     valid_dataset_path = 'sim_data/valid_abs_ood.mat'
 
@@ -51,7 +51,7 @@ def create_sim_world_plot():
 
     # Output figure of the world
     radius = 25
-    fig = plt.figure(figsize=(8, 5))
+    fig = plt.figure(figsize=(6, 4))
     ax = Axes3D(fig)
     r_vi_i = np.empty((len(T_vi_list), 3))
     for i in range(len(T_vi_list)):
@@ -65,26 +65,26 @@ def create_sim_world_plot():
     (x, y, z) = create_semisphere(radius, 400)
     pts = train_dataset['rho_i_pj_i'].T
     ax.scatter(pts[:, 0], pts[:, 1], pts[:, 2], label='Landmarks', s=10., color='limegreen')
-    ax.plot_surface(x, y, z, cmap=plt.cm.coolwarm, alpha=0.25)
-    ax.scatter(r_vi_i[::5, 0], r_vi_i[::5, 1], r_vi_i[::5, 2], marker='<', s=4, color='firebrick', alpha=1, label='Training Poses')
-    ax.scatter(r_vi_i_test[:, 0], r_vi_i_test[:, 1], r_vi_i_test[:, 2], marker='v', s=10, alpha=1, color='royalblue', label='Test Poses')
+    ax.plot_surface(x, y, z, cmap=plt.cm.coolwarm, alpha=0.25, rasterized=True)
+    ax.scatter(r_vi_i[::5, 0], r_vi_i[::5, 1], r_vi_i[::5, 2], marker='<', s=4, color='firebrick', alpha=1, label='Training Poses', rasterized=True)
+    ax.scatter(r_vi_i_test[:, 0], r_vi_i_test[:, 1], r_vi_i_test[:, 2], marker='v', s=10, alpha=1, color='royalblue', label='Test Poses', rasterized=True)
     ax.legend(fontsize=font_size, loc='upper left')
     ax.set_xlabel('x', fontsize=font_size)
     ax.set_ylabel('y', fontsize=font_size)
     ax.set_zlabel('z', fontsize=font_size)
-    ax.xaxis.set_tick_params(labelsize=font_size - 10)
-    ax.yaxis.set_tick_params(labelsize=font_size - 10)
-    ax.zaxis.set_tick_params(labelsize=font_size - 10)
-    fig.savefig('sim_world.png', bbox_inches='tight', dpi=300)
+    ax.xaxis.set_tick_params(labelsize=font_size)
+    ax.yaxis.set_tick_params(labelsize=font_size)
+    ax.zaxis.set_tick_params(labelsize=font_size)
+    fig.savefig('sim_world.pdf', bbox_inches='tight', dpi=300)
 
     return
 
 
 
 def _plot_sigma(x, y, y_mean, y_sigma, y_sigma_2, label, ax, font_size=18):
-    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$ ($C$)', color='dodgerblue')
-    ax.fill_between(x, y_mean - 3 * y_sigma_2, y_mean + 3 * y_sigma_2, alpha=0.5, color='red', label='$\pm 3\sigma$ ($\Sigma$ only)')
-    ax.scatter(x, y, s=1, c='black')
+    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$ ($\Sigma_t$)', color='dodgerblue')
+    ax.fill_between(x, y_mean - 3 * y_sigma_2, y_mean + 3 * y_sigma_2, alpha=0.5, color='red', label='$\pm 3\sigma$ ($\Sigma_d$)')
+    ax.scatter(x, y, s=1, c='black', label='Rotational Error')
     ax.set_ylabel(label, fontsize=font_size)
     return
 
@@ -111,13 +111,13 @@ def create_sim_error_plot():
                                           check_point['predict_history'][2],
                                           check_point['predict_history'][3])
 
-    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row', figsize=(8, 5))
+    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row', figsize=(6, 4))
 
     x_labels =np.linspace(-81, 81, q_gt.shape[0])
     phi_errs = quat_log_diff(q_est, q_gt).numpy()
     R_est = R_est.numpy()
     R_direct_est = R_direct_est.numpy()
-    font_size = 18
+    font_size = 10
 
 
     _plot_sigma(x_labels, phi_errs[:, 0], 0., np.sqrt(R_est[:, 0, 0].flatten()),
@@ -132,10 +132,8 @@ def create_sim_error_plot():
     ax[0].yaxis.set_tick_params(labelsize=font_size-2)
     ax[1].yaxis.set_tick_params(labelsize=font_size-2)
     ax[2].yaxis.set_tick_params(labelsize=font_size-2)
-    ax[2].set_xlabel('Semisphere angle ($\deg$)', fontsize=font_size)
-
-
-    fig.savefig('sim_errors.png', bbox_inches='tight', dpi=300)
+    ax[2].set_xlabel('Polar Angle ($\circ$)', fontsize=font_size)
+    fig.savefig('sim_errors.pdf', bbox_inches='tight', dpi=300)
 
 
 def create_7scenes_error_plot(scene_checkpoint):
@@ -220,7 +218,7 @@ def create_7scenes_abs_with_sigmas_plot(scene_checkpoint):
     
 def main():
     #create_sim_world_plot()
-    #create_sim_error_plot()
+    create_sim_error_plot()
 
     sevenscene_checkpoints = ['7scenes_data/best_model_chess_heads_25_epoch_13.pt',
                               '7scenes_data/best_model_fire_heads_25_epoch_4.pt',
@@ -229,6 +227,7 @@ def main():
         create_7scenes_error_plot(checkpoint)
         create_7scenes_histogram_plot(checkpoint)
         create_7scenes_abs_with_sigmas_plot(checkpoint)
+
 
 if __name__ == '__main__':
     main()
