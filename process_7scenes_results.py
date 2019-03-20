@@ -61,11 +61,15 @@ if __name__ == '__main__':
 
         stats_list.append([scene, best_epoch, best_nll, best_error])
         
+        
+        
     csv_filename = '7scenes/' + experiment + '/stats.csv'
     with open(csv_filename, "w") as f:
         writer = csv.writer(f)
         writer.writerow(csv_header)
         writer.writerows(stats_list)
+        
+    
 #    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row', figsize=(6, 8))
 #
 #    x_labels =np.arange(0, q_gt.shape[0])
