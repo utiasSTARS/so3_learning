@@ -121,8 +121,8 @@ class BasicCNN(torch.nn.Module):
 class CustomResNet(torch.nn.Module):
     def __init__(self, feature_dim):
         super(CustomResNet, self).__init__()
-        self.dnn = models.resnet34(pretrained=True)
-
+#        self.dnn = models.resnet50(pretrained=True)
+        self.dnn = models.googlenet(pretrained=True)
         num_ftrs = self.dnn.fc.in_features
         self.dnn.fc = torch.nn.Linear(num_ftrs, feature_dim)
 
