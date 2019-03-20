@@ -34,13 +34,14 @@ if __name__ == '__main__':
     parser.add_argument('--num_heads', type=int, default=25)
     parser.add_argument('--q_target_sigma', type=float, default=0.1)
     parser.add_argument('--scene', type=str, default='chess')
+    parser.add_argument('--experiment_name', type=str, default='experiment')
 
     args = parser.parse_args()
     print(args)
 
-    if os.path.isdir('7scenes/{}'.format(args.scene)) == False:
-        os.makedirs('7scenes/{}'.format(args.scene))
-        os.makedirs('7scenes/{}/saved_plots'.format(args.scene))
+    if os.path.isdir('7scenes/{}/{}'.format(args.experiment_name, args.scene)) == False:
+        os.makedirs('7scenes/{}/{}'.format(args.experiment_name, args.scene))
+        os.makedirs('7scenes/{}/{}/saved_plots'.format(args.experiment_name, args.scene))
 
     #loss_fn = SO3FrobNorm()
     #loss_fn = QuatLoss()
@@ -102,7 +103,7 @@ if __name__ == '__main__':
     avg_valid_loss, valid_ang_error, valid_nll, predict_history = validate(model, valid_loader, loss_fn, config, output_history=True, output_grid=True)
 
     #Visualize
-    sigma_filename = '7scenes/{}/saved_plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(args.scene,model.num_hydra_heads, 0)
+    sigma_filename = '7scenes/{}/{}/saved_plots/sigma_plot_heads_{}_epoch_{}.pdf'.format(args.experiment_name, args.scene,model.num_hydra_heads, 0)
     plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
 
     print('Starting Training \t' 
@@ -129,17 +130,17 @@ if __name__ == '__main__':
 
             best_valid_nll = valid_nll
 
-            sigma_filename = '7scenes/{}/saved_plots/sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, args.scene, model.num_hydra_heads, epoch+1)
-            sigma_filename_train = '7scenes/{}/saved_plots/train_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, args.scene, model.num_hydra_heads, epoch+1)
-            nees_filename = '7scenes/{}/saved_plots/nees_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, args.scene, model.num_hydra_heads, epoch+1)
+            sigma_filename = '7scenes/{}/{}/saved_plots/sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.experiment_name, args.scene, args.scene, model.num_hydra_heads, epoch+1)
+            sigma_filename_train = '7scenes/{}/{}/saved_plots/train_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.experiment_name, args.scene, args.scene, model.num_hydra_heads, epoch+1)
+            nees_filename = '7scenes/{}/{}/saved_plots/nees_plot_{}_heads_{}_epoch_{}.pdf'.format(args.experiment_name, args.scene, args.scene, model.num_hydra_heads, epoch+1)
 
             plot_errors_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3], filename=sigma_filename)
             # plot_errors_with_sigmas(predict_history_train[0], predict_history_train[1], predict_history_train[2], predict_history_train[3],
             #                         filename=sigma_filename_train)
 
-            abs_filename = '7scenes/{}/saved_plots/abs_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, args.scene, model.num_hydra_heads,
+            abs_filename = '7scenes/{}/{}/saved_plots/abs_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.experiment_name, args.scene, args.scene, model.num_hydra_heads,
                                                                                   epoch + 1)
-            abs_filename_train = '7scenes/{}/saved_plots/train_abs_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.scene, args.scene,
+            abs_filename_train = '7scenes/{}/{}/saved_plots/train_abs_sigma_plot_{}_heads_{}_epoch_{}.pdf'.format(args.experiment_name, args.scene, args.scene,
                                                                                               model.num_hydra_heads,
                                                                                               epoch + 1)
             plot_abs_with_sigmas(predict_history[0], predict_history[1], predict_history[2], predict_history[3],
@@ -154,7 +155,7 @@ if __name__ == '__main__':
                 'direct_covar_head': model.direct_covar_head.state_dict(),
                 'predict_history': predict_history,
                 'epoch': epoch + 1,
-            }, '7scenes/{}/best_model_{}_heads_{}_epoch_{}.pt'.format(args.scene, args.scene, model.num_hydra_heads, epoch + 1))
+            }, '7scenes/{}/{}/best_model_{}_heads_{}_epoch_{}.pt'.format(args.experiment_name, args.scene, args.scene, model.num_hydra_heads, epoch + 1))
 
 
             #plot_nees(predict_history[0], predict_history[1], predict_history[2], filename=nees_filename)
