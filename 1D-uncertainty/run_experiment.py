@@ -30,7 +30,7 @@ def gen_test_data(N=100):
     return (x, y)
 
 def main():
-    num_reps = 100
+    num_reps = 10
     minibatch_samples = 50
     train_samples = 1000
     test_samples =100
@@ -43,9 +43,9 @@ def main():
     stats_list = []
     csv_header = ["Rep",
 #    "Dropout-NLL", "Dropout-MSE",
-    "Ensemble-NLL", "Ensemble-MSE",
-    "Sigma-NLL", "Sigma-MSE",
-    "HydraNet-NLL", "HydraNet-MSE",
+#    "Ensemble-NLL", "Ensemble-MSE",
+#    "Sigma-NLL", "Sigma-MSE",
+#    "HydraNet-NLL", "HydraNet-MSE",
     "HydraNet-Sigma-NLL", "HydraNet-Sigma-MSE",
     ]    
 
@@ -74,42 +74,42 @@ def main():
 #        print('Completed in {:.3f} seconds.'.format(end - start))
 #
 #
-        print('Starting ensemble training')
+#        print('Starting ensemble training')
+#
+#        start = time.time()
+#        ensemble_models = train_nn_ensemble_bootstrap(x_train, y_train, minibatch_samples, num_epochs=num_epochs, use_cuda=use_cuda, target_noise_sigma=target_noise_sigma)
+#        (y_pred_bs, sigma_pred_bs) = test_nn_ensemble_bootstrap(x_test, ensemble_models, use_cuda=use_cuda)
+#        nll_bs = compute_nll(y_test, y_pred_bs, sigma_pred_bs)
+#        mse_bs = compute_mse(y_test, y_pred_bs)
+#        print('Ensemble BS, NLL: {:.3f} | MSE: {:.3f}'.format(nll_bs, mse_bs))
+##        visualize(x_train, y_train, x_test, y_test, y_pred_bs, sigma_pred_bs, nll_bs, mse_bs, rep,'ensemble_{}.png'.format(rep))
+#        end = time.time()
+#        print('Completed in {:.3f} seconds.'.format(end - start))
 
-        start = time.time()
-        ensemble_models = train_nn_ensemble_bootstrap(x_train, y_train, minibatch_samples, num_epochs=num_epochs, use_cuda=use_cuda, target_noise_sigma=target_noise_sigma)
-        (y_pred_bs, sigma_pred_bs) = test_nn_ensemble_bootstrap(x_test, ensemble_models, use_cuda=use_cuda)
-        nll_bs = compute_nll(y_test, y_pred_bs, sigma_pred_bs)
-        mse_bs = compute_mse(y_test, y_pred_bs)
-        print('Ensemble BS, NLL: {:.3f} | MSE: {:.3f}'.format(nll_bs, mse_bs))
-#        visualize(x_train, y_train, x_test, y_test, y_pred_bs, sigma_pred_bs, nll_bs, mse_bs, rep,'ensemble_{}.png'.format(rep))
-        end = time.time()
-        print('Completed in {:.3f} seconds.'.format(end - start))
 
+#        print('Starting sigma training')
+#
+#        start = time.time()
+#        (sigma_model, _) = train_nn_sigma(exp_data, minibatch_samples, num_epochs=num_epochs, use_cuda=use_cuda)
+#        (y_pred_sigma, sigma_pred_sigma) = test_nn_sigma(x_test, sigma_model, use_cuda=use_cuda)
+#        nll_sigma = compute_nll(y_test, y_pred_sigma, sigma_pred_sigma)
+#        mse_sigma = compute_mse(y_test, y_pred_sigma)
+#        print('Sigma, NLL: {:.3f} | MSE: {:.3f}'.format(nll_sigma, mse_sigma))
+##        visualize(x_train, y_train, x_test, y_test, y_pred_sigma, sigma_pred_sigma, nll_sigma, mse_sigma, rep,'sigma_{}.png'.format(rep))
+#        end = time.time()
+#        print('Completed in {:.3f} seconds.'.format(end - start))
 
-        print('Starting sigma training')
-
-        start = time.time()
-        (sigma_model, _) = train_nn_sigma(exp_data, minibatch_samples, num_epochs=num_epochs, use_cuda=use_cuda)
-        (y_pred_sigma, sigma_pred_sigma) = test_nn_sigma(x_test, sigma_model, use_cuda=use_cuda)
-        nll_sigma = compute_nll(y_test, y_pred_sigma, sigma_pred_sigma)
-        mse_sigma = compute_mse(y_test, y_pred_sigma)
-        print('Sigma, NLL: {:.3f} | MSE: {:.3f}'.format(nll_sigma, mse_sigma))
-#        visualize(x_train, y_train, x_test, y_test, y_pred_sigma, sigma_pred_sigma, nll_sigma, mse_sigma, rep,'sigma_{}.png'.format(rep))
-        end = time.time()
-        print('Completed in {:.3f} seconds.'.format(end - start))
-
-        print('Starting hydranet training with target_noise_sigma={}'.format(target_noise_sigma))
-        #
-        start = time.time()
-        (hydranet_model, _) = train_hydranet(exp_data, minibatch_samples, num_heads=10, num_epochs=num_epochs, use_cuda=use_cuda, target_noise_sigma=target_noise_sigma)
-        (y_pred_hydranet, sigma_pred_hydranet) = test_hydranet(x_test, hydranet_model, use_cuda=use_cuda)
-        nll_hydranet = compute_nll(y_test, y_pred_hydranet, sigma_pred_hydranet)
-        mse_hydranet = compute_mse(y_test, y_pred_hydranet)
-        print('HydraNet, NLL: {:.3f} | MSE: {:.3f}'.format(nll_hydranet, mse_hydranet))
-#        visualize(x_train, y_train, x_test, y_test, y_pred_hydranet, sigma_pred_hydranet, nll_hydranet, mse_hydranet, rep,'hydranet_{}.png'.format(rep))
-        end = time.time()
-        print('Completed in {:.3f} seconds.'.format(end - start))
+#        print('Starting hydranet training with target_noise_sigma={}'.format(target_noise_sigma))
+#        #
+#        start = time.time()
+#        (hydranet_model, _) = train_hydranet(exp_data, minibatch_samples, num_heads=10, num_epochs=num_epochs, use_cuda=use_cuda, target_noise_sigma=target_noise_sigma)
+#        (y_pred_hydranet, sigma_pred_hydranet) = test_hydranet(x_test, hydranet_model, use_cuda=use_cuda)
+#        nll_hydranet = compute_nll(y_test, y_pred_hydranet, sigma_pred_hydranet)
+#        mse_hydranet = compute_mse(y_test, y_pred_hydranet)
+#        print('HydraNet, NLL: {:.3f} | MSE: {:.3f}'.format(nll_hydranet, mse_hydranet))
+##        visualize(x_train, y_train, x_test, y_test, y_pred_hydranet, sigma_pred_hydranet, nll_hydranet, mse_hydranet, rep,'hydranet_{}.png'.format(rep))
+#        end = time.time()
+#        print('Completed in {:.3f} seconds.'.format(end - start))
 
         print('Starting hydranet-sigma training')
         #
@@ -124,7 +124,7 @@ def main():
         end = time.time()
         print('Completed in {:.3f} seconds.'.format(end - start))
 
-        stats_list.append([rep, nll_bs, mse_bs, nll_sigma, mse_sigma, nll_hydranet, mse_hydranet, nll_hydranetsigma, mse_hydranetsigma])
+        stats_list.append([rep, nll_hydranetsigma, mse_hydranetsigma])
 
 #        stats_list.append([rep, nll_dropout, mse_dropout, nll_bs, mse_bs, nll_sigma, mse_sigma, nll_hydranet, mse_hydranet, nll_hydranetsigma, mse_hydranetsigma])
 
@@ -133,24 +133,24 @@ def main():
                       'y_train': y_train,
                       'y_test': y_test,
 #                      'y_pred_dropout': y_pred_dropout,
-                      'y_pred_sigma': y_pred_sigma,
-                      'y_pred_bs': y_pred_bs,
-                      'y_pred_hydranet': y_pred_hydranet,
+#                      'y_pred_sigma': y_pred_sigma,
+#                      'y_pred_bs': y_pred_bs,
+#                      'y_pred_hydranet': y_pred_hydranet,
                       'y_pred_hydranetsigma': y_pred_hydranetsigma,
 #                      'sigma_pred_dropout': sigma_pred_dropout,
-                      'sigma_pred_sigma': sigma_pred_sigma,
-                      'sigma_pred_bs': sigma_pred_bs,
-                      'sigma_pred_hydranet': sigma_pred_hydranet,
+#                      'sigma_pred_sigma': sigma_pred_sigma,
+#                      'sigma_pred_bs': sigma_pred_bs,
+#                      'sigma_pred_hydranet': sigma_pred_hydranet,
                       'sigma_pred_hydranetsigma': sigma_pred_hydranetsigma,
 #                      'nll_dropout': nll_dropout,
-                      'nll_sigma': nll_sigma,
-                      'nll_bs': nll_bs,
-                      'nll_hydranet': nll_hydranet,
+#                      'nll_sigma': nll_sigma,
+#                      'nll_bs': nll_bs,
+#                      'nll_hydranet': nll_hydranet,
                       'nll_hydranetsigma': nll_hydranetsigma,
 #                      'mse_dropout': nll_dropout,
-                      'mse_sigma': mse_sigma,
-                      'mse_bs': nll_bs,
-                      'mse_hydranet': nll_hydranet,
+#                      'mse_sigma': mse_sigma,
+#                      'mse_bs': nll_bs,
+#                      'mse_hydranet': nll_hydranet,
                       'mse_hydranetsigma': nll_hydranetsigma,         
                       'rep': rep, 
                       'sigma_n': target_noise_sigma,
