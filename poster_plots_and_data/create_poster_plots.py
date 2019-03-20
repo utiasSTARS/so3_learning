@@ -124,7 +124,7 @@ def create_sim_error_plot():
 
 
 def create_7scenes_error_plot(scene_checkpoint):
-    check_point = torch.load(scene_checkpoint, map_location=lambda storage, loc: storage) #The lambda call esnures
+    check_point = torch.load(scene_checkpoint, map_location=lambda storage, loc: storage)
     (q_gt, q_est, R_est, R_direct_est) = (check_point['predict_history'][0],
                                           check_point['predict_history'][1],
                                           check_point['predict_history'][2],
