@@ -1,0 +1,27 @@
+,,,,,
+,,m-ATE,Mean Segment Errors,,
+Sequence (Length),Estimator,Translation (m),Rotation (deg),Translation (%),Rotation (deg/100m)
+0,DeepVO,---,---,---,---
+,SfMLearner,---,---,65.27,6.23
+,UnDeepVO,---,---,4.14,1.92
+,,,,,
+,Sparse,60.22,18.25,2.88,1.118
+,HydraNet,,,,
+,Dense,12.41,2.45,1.28,0.542
+,,,,,
+,,,,,
+2,DeepVO,---,---,---,---
+,SfMLearner,---,---,57.59,4.09
+,UnDeepVO,---,---,5.58,2.44
+,,,,,
+,Sparse,83.17,14.87,2.05,0.725
+,HydraNet,,,,
+,Dense,16.33,3.19,1.21,0.467
+,,,,,
+5,DeepVO,---,---,3.35,4.93
+,SfMLearner,---,---,16.76,4.06
+,UnDeepVO,---,---,3.4,1.5
+,,,,,
+,Sparse,27.59,9.54,1.99,0.947
+,HydraNet,,,,
+,Dense,5.83,2.05,0.69,0.32
