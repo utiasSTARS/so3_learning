@@ -22,14 +22,14 @@ parser.add_argument('--seq', '-s', default='00', type=str,
                     help='which sequence to test')
 
 
-def run_fusion(baseline_metrics_file, hydranet_output_file):
+def run_fusion(baseline_metrics_file, hydranet_output_file, add_reverse_factor):
 
     tm_vo = TrajectoryMetrics.loadmat(baseline_metrics_file)
     T_w_c_vo = tm_vo.Twv_est
     T_w_c_gt = tm_vo.Twv_gt
 
     Sigma_21_vo = tm_vo.mdict['Sigma_21']
-    fusion_pipeline = SO3FusionPipeline(T_w_c_vo, Sigma_21_vo, T_w_c_gt, hydranet_output_file , first_pose=T_w_c_vo[0])
+    fusion_pipeline = SO3FusionPipeline(T_w_c_vo, Sigma_21_vo, T_w_c_gt, hydranet_output_file, add_reverse_factor=add_reverse_factor, first_pose=T_w_c_vo[0])
     
     #The magic!
     fusion_pipeline.compute_fused_estimates()
@@ -37,10 +37,6 @@ def run_fusion(baseline_metrics_file, hydranet_output_file):
     #Compute statistics
     T_w_c_est = [T for T in fusion_pipeline.T_w_c]
     tm = TrajectoryMetrics(tm_vo.Twv_gt, T_w_c_est, convention='Twv')
-    # # Save to file
-    # if metrics_filename:
-    #     print('Saving to {}'.format(metrics_filename))
-    #     tm.savemat(metrics_filename)
 
     return tm
 
@@ -146,36 +142,44 @@ def main():
                    'drive': '0034',
                    'frames': range(0, 1201)}}
 
+    process_seqs = {'00', '02', '05'}
+    add_reverse_factor = False
 
-    seq = '10'
-    tm_path = '../svo/baseline_tm/'
+    for seq in process_seqs:
+        tm_path = '../svo/baseline_tm/'
+        fusion_tm_output_path = 'fusion_tms/'
+        hydranet_output_file = 'hydranet_output_reverse_model_seq_{}.pt'.format(seq)
 
-    orig_metrics_file = os.path.join(tm_path, '{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
-    hydranet_output_file = 'hydranet_output_reverse_model_seq_{}.pt'.format(seq)
+        fusion_metrics_file = os.path.join(fusion_tm_output_path, 'SO3_fused_single_{}_drive_{}.mat'.format(seqs[seq]['date'], seqs[seq]['drive']))
+        orig_metrics_file = os.path.join(tm_path, '{}_drive_{}.mat'.format(seqs[seq]['date'],seqs[seq]['drive']))
 
 
-    tm_baseline = TrajectoryMetrics.loadmat(orig_metrics_file)
-    tm_fusion =  run_fusion(orig_metrics_file, hydranet_output_file)
+        tm_baseline = TrajectoryMetrics.loadmat(orig_metrics_file)
+        tm_fusion = run_fusion(orig_metrics_file, hydranet_output_file, add_reverse_factor)
 
-    # Compute errors
-    trans_armse_fusion, rot_armse_fusion = tm_fusion.mean_err(error_type='rel', rot_unit='deg')
-    trans_armse_vo, rot_armse_vo = tm_baseline.mean_err(error_type='rel', rot_unit='deg')
+        # Compute errors
+        trans_armse_fusion, rot_armse_fusion = tm_fusion.mean_err(error_type='rel', rot_unit='deg')
+        trans_armse_vo, rot_armse_vo = tm_baseline.mean_err(error_type='rel', rot_unit='deg')
 
-    trans_armse_fusion_traj, rot_armse_fusion_traj = tm_fusion.mean_err(error_type='traj', rot_unit='deg')
-    trans_armse_vo_traj, rot_armse_vo_traj = tm_baseline.mean_err(error_type='traj', rot_unit='deg')
+        trans_armse_fusion_traj, rot_armse_fusion_traj = tm_fusion.mean_err(error_type='traj', rot_unit='deg')
+        trans_armse_vo_traj, rot_armse_vo_traj = tm_baseline.mean_err(error_type='traj', rot_unit='deg')
 
-    print('Fusion ARMSE (Rel Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_fusion, rot_armse_fusion))
-    print('VO Only ARMSE (Rel Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_vo, rot_armse_vo))
+        print('Fusion ARMSE (Rel Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_fusion, rot_armse_fusion))
+        print('VO Only ARMSE (Rel Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_vo, rot_armse_vo))
 
-    print('Fusion ARMSE (Traj Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_fusion_traj, rot_armse_fusion_traj))
-    print('VO Only ARMSE (Traj Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_vo_traj, rot_armse_vo_traj))
+        print('Fusion ARMSE (Traj Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_fusion_traj, rot_armse_fusion_traj))
+        print('VO Only ARMSE (Traj Trans / Rot): {:.3f} (m) / {:.3f} (a-a)'.format(trans_armse_vo_traj, rot_armse_vo_traj))
 
-    tm_dict = {'VO Only': tm_baseline, 'Fusion': tm_fusion}
-    vis = TrajectoryVisualizer(tm_dict)
-    segs = list(range(100,801,100))
-    vis.plot_topdown(which_plane='xy', outfile=seq + '_topdown.pdf')
-    # vis.plot_cum_norm_err(outfile=seq + '_cum_err.pdf')
-    vis.plot_segment_errors(segs, outfile=seq+'_seg_err.pdf')
+        # # Save to file
+        print('Saving to {}'.format(fusion_metrics_file))
+        tm_fusion.savemat(fusion_metrics_file)
+
+    # tm_dict = {'VO Only': tm_baseline, 'Fusion': tm_fusion}
+    # vis = TrajectoryVisualizer(tm_dict)
+    # segs = list(range(100,801,100))
+    # vis.plot_topdown(which_plane='xy', outfile=seq + '_topdown.pdf')
+    # # vis.plot_cum_norm_err(outfile=seq + '_cum_err.pdf')
+    # vis.plot_segment_errors(segs, outfile=seq+'_seg_err.pdf')
 
 
 

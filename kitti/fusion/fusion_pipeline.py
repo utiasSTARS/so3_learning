@@ -14,13 +14,13 @@ import torch
 
 
 class SO3FusionPipeline(object):
-    def __init__(self, T_w_c_vo, Sigma_21_vo, T_w_c_gt, hydranet_output_file, first_pose=SE3.identity()):
+    def __init__(self, T_w_c_vo, Sigma_21_vo, T_w_c_gt, hydranet_output_file, first_pose=SE3.identity(), add_reverse_factor=True):
         self.T_w_c = [first_pose] #corrected
         self.T_w_c_vo = T_w_c_vo
         self.T_w_c_gt = T_w_c_gt
         self.Sigma_21_vo = Sigma_21_vo
         self._load_hydranet_files(hydranet_output_file)
-
+        self.add_reverse_factor = add_reverse_factor
         self.optimizer = VOFusionSolver()
 
     def _load_hydranet_files(self, path):
@@ -88,7 +88,8 @@ class SO3FusionPipeline(object):
             self.optimizer.add_pose_residual(T_21_vo, invsqrt(Sigma_vo))
 
             self.optimizer.add_orientation_residual(C_21_hn, invsqrt(Sigma_21_hn))
-            self.optimizer.add_orientation_residual(C_12_hn, invsqrt(Sigma_12_hn), reverse=True)
+            if self.add_reverse_factor:
+                self.optimizer.add_orientation_residual(C_12_hn, invsqrt(Sigma_12_hn), reverse=True)
             T_21 = self.optimizer.solve()
             #T_21.rot = C_hn
         #print(np.linalg.det(self.Sigma_21_hydranet[pose_i]))

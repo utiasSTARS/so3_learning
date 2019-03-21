@@ -67,9 +67,9 @@ def create_nll_plot():
     dropout_nll = np.asarray(f['Dropout-NLL']).reshape((-1,1))
     nll_losses = np.hstack((dropout_nll, ensemble_nll, sigma_nll, hydranet_nll, hydranet_sigma_nll))
 
-    font_size = 8
+    font_size = 10
 
-    plt.figure(figsize=(3,1.5))
+    plt.figure(figsize=(4,2))
     plt.clf()
 
     plt.rc('text', usetex=True)
@@ -78,14 +78,14 @@ def create_nll_plot():
     #plt.ylim(0,100)
     #plt.title('NLL')
     plt.grid()
-    plt.xticks([1, 2, 3, 4, 5], ['Dropout', 'Ensemble', '$\sigma_d$', 'HydraNet', 'HydraNet\ \n(with $\sigma_d$)'], fontsize=font_size-2)
+    plt.xticks([1, 2, 3, 4, 5], ['Dropout', 'Bagging', 'Direct $\sigma^2_d$', 'HydraNet\n(no $\sigma^2_d$)', 'HydraNet'], fontsize=font_size-2)
     #plt.tick_params(axis='both', which='major', labelsize=font_size)
-
+    plt.ylabel('NLL')
     plt.xticks(rotation=25)
     plt.yscale('log')
     plt.gca().tick_params(axis='y', labelsize=font_size)
 
-    plt.savefig('figs/uncertainty-NLL.pdf', format='pdf', bbox_inches='tight')
+    plt.savefig('figs/nll.pdf', format='pdf', bbox_inches='tight')
 
 def main():
     create_nll_plot()
