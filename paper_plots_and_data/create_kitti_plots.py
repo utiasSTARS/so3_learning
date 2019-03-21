@@ -26,9 +26,9 @@ def _plot_sigma_with_gt(x, y_est, y_gt, y_sigma, label, ax, y_lim=None):
 
     #ax.fill_between(x, y_est-y_sigma, y_est+y_sigma, alpha=0.2, facecolor='dodgerblue', label='$\pm \sigma$')
     #ax.fill_between(x, y_est-2*y_sigma, y_est+2*y_sigma, alpha=0.5, facecolor='dodgerblue', label='$\pm 2\sigma$')
-    ax.fill_between(x, y_est-3*y_sigma, y_est+3*y_sigma, alpha=0.9, facecolor='dodgerblue', label='$\pm 3\sigma$', rasterized=True)
-    ax.plot(x, y_gt,  c='black', linewidth=0.75, label='GT',rasterized=True)
-    ax.plot(x, y_est, c='green', linewidth=0.75, label='HydraNet', rasterized=True)
+    ax.fill_between(x, y_est-3*y_sigma, y_est+3*y_sigma, alpha=0.9, facecolor='dodgerblue', label='$\pm 3\sigma$', rasterized=False)
+    ax.plot(x, y_gt,  c='black', linewidth=0.75, label='GT',rasterized=False)
+    ax.plot(x, y_est, c='green', linewidth=0.75, label='HydraNet', rasterized=False)
     ax.set_ylabel(label)
     if y_lim is not None:
         ax.set_ylim(y_lim)
@@ -68,7 +68,42 @@ def create_kitti_histogram(seqs):
     fig.savefig('kitti_so3_hist.pdf', bbox_inches='tight')
     plt.close(fig)
 
-
+def compute_kitti_nll_and_error(seqs):
+    stats_list = []
+    for s_i, seq in enumerate(seqs):
+        hn_path = '../kitti/fusion/hydranet_output_reverse_model_seq_{}.pt'.format(seq)
+        hn_data = torch.load(hn_path)
+    
+        C_21_hn_est = hn_data['Rot_21']
+        C_21_hn_gt = hn_data['Rot_21_gt']
+        Sigma_21 = hn_data['Sigma_21']
+        
+        nll = nll_mat(C_21_hn_est, C_21_hn_gt, Sigma_21.inverse())
+        mean_nll = nll.mean().numpy()
+    
+    
+        C_21_hn_est = hn_data['Rot_21'].numpy()
+        C_21_hn_gt = hn_data['Rot_21_gt'].numpy()
+        Sigma_21 = hn_data['Sigma_21'].numpy()
+        num_odom = len(C_21_hn_gt)
+        phi_errs = np.empty((num_odom, 3))
+        for pose_i in range(num_odom):
+            C_21_est = SO3.from_matrix(C_21_hn_est[pose_i], normalize=True)
+            C_21_gt = SO3.from_matrix(C_21_hn_gt[pose_i], normalize=True)
+            phi_errs_i = C_21_est.dot(C_21_gt.inv()).log()
+            phi_errs[pose_i] = phi_errs_i*180./np.pi
+        mean_error = np.abs(phi_errs).mean(axis=0)
+        
+        for i in range(0, mean_error.shape[0]):
+            stats_list.append([seq, i, mean_error[i], mean_nll])
+    
+    csv_filename = 'kitti_nll_error_stats.csv'
+    csv_header = ['Sequence', 'axis','Error', 'NLL']
+    with open(csv_filename, "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(csv_header)
+        writer.writerows(stats_list)
+    
 def create_kitti_abs_with_sigmas_plot(seq):
     hn_path = '../kitti/fusion/hydranet_output_reverse_model_seq_{}.pt'.format(seq)
     hn_data = torch.load(hn_path)
@@ -216,10 +251,11 @@ def main():
         #create_kitti_topdown_plots(tm_svo, tm_fusion, seq)
         #output_kitti_stats(tm_svo, tm_fusion, seq, segs)
         #create_kitti_seg_err_plots(tm_svo, tm_fusion, seq, segs)
-        create_kitti_abs_with_sigmas_plot(seq)
+#        create_kitti_abs_with_sigmas_plot(seq)
+        
 
     #create_kitti_histogram(process_seqs)
-
+    compute_kitti_nll_and_error(process_seqs)
 
 if __name__ == '__main__':
     main()

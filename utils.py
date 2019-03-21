@@ -237,19 +237,6 @@ def batch_logdet3(A):
     detL = (L[:, 0, 0] * L[:, 1, 1] * L[:, 2, 2])**2
     return torch.log(detL).squeeze()
 
-def nll_quat(q_est, q_gt, Rinv):
-    residual = quat_log_diff(q_est, q_gt).unsqueeze(2)
-    weighted_term = 0.5*residual.transpose(1,2).bmm(Rinv).bmm(residual)
-    nll = -0.5*batch_logdet3(Rinv) + weighted_term.squeeze()
-    return  nll
-
-def nll_mat(C_est, C_gt, Rinv):
-    residual = so3_log(C_est.bmm(C_gt.transpose(1, 2))).unsqueeze(2)
-    weighted_term = 0.5 * residual.transpose(1, 2).bmm(Rinv).bmm(residual)
-    nll = weighted_term.squeeze() - 0.5 * batch_logdet3(Rinv)
-    return  nll
-
-
 #Alternate function because SO3.to_quaternion has some instabilities
 def quaternion_from_matrix(matrix, isprecise=False):
     """Return quaternion from rotation matrix.
@@ -321,6 +308,7 @@ def batch_logdet3(A):
 
     detL = (L[:, 0, 0] * L[:, 1, 1] * L[:, 2, 2])**2
     return torch.log(detL).squeeze()
+
 
 def nll_quat(q_est, q_gt, Rinv):
     residual = quat_log_diff(q_est, q_gt).unsqueeze(2)
