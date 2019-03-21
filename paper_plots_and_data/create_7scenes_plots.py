@@ -33,11 +33,13 @@ def _plot_hist(x, ax):
         ax[i].hist(x[:,i], 100, density=True, facecolor='g', alpha=0.75)
         ax[i].grid()
 
-def _plot_sigma_with_gt(x, y_est, y_gt, y_sigma, y_sigma_2, label, ax, y_lim=None):
-    ax.fill_between(x, y_est-3*y_sigma, y_est+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$ Total')
-    ax.fill_between(x, y_est - 3 * y_sigma_2, y_est + 3 * y_sigma_2, alpha=0.5, color='red', label='$\pm 3\sigma$ Direct')
-    ax.scatter(x, y_est, s=0.5, c='green')
-    ax.scatter(x, y_gt, s=0.5, c='black')
+def _plot_sigma_with_gt(x, y_est, y_gt, y_sigma, label, ax, y_lim=None):
+    ax.fill_between(x, y_est-3*y_sigma, y_est+3*y_sigma, alpha=0.7, facecolor='dodgerblue', label='HydraNet $\pm 3\sigma$')
+    #ax.fill_between(x, y_est-2*y_sigma, y_est+2*y_sigma, alpha=0.5, facecolor='dodgerblue', label='$\pm 2\sigma$')
+    #ax.fill_between(x, y_est-y_sigma, y_est+y_sigma, alpha=0.9, facecolor='dodgerblue', label='$\pm \sigma$')
+
+    ax.plot(x, y_gt,  c='black', linewidth=0.75, label='Ground truth')
+    ax.plot(x, y_est, c='green', linewidth=0.75, label='HydraNet')
     ax.set_ylabel(label)
     if y_lim is not None:
         ax.set_ylim(y_lim)
@@ -107,18 +109,22 @@ def create_7scenes_abs_with_sigmas_plot(scene_checkpoint):
 
     fig, ax = plt.subplots(3, 1, sharex='col', sharey='row')
 
+    deg_factor = 180./np.pi
+
+
     x_labels = np.arange(0, q_gt.shape[0])
-    phi_est = quat_log(q_est).numpy()
-    phi_gt = quat_log(q_gt).numpy()
+    phi_est = quat_log(q_est).numpy() * deg_factor
+    phi_gt = quat_log(q_gt).numpy() * deg_factor
 
     R_est = R_est.numpy()
     R_direct_est = R_direct_est.numpy()
 
-    _plot_sigma_with_gt(x_labels, phi_est[:, 0], phi_gt[:, 0], np.sqrt(R_est[:,0,0].flatten()), np.sqrt(R_direct_est[:,0,0].flatten()),  '$\Theta_1$', ax[0])
-    _plot_sigma_with_gt(x_labels, phi_est[:, 1], phi_gt[:, 1], np.sqrt(R_est[:,1,1].flatten()), np.sqrt(R_direct_est[:,1,1].flatten()), '$\Theta_2$', ax[1])
-    _plot_sigma_with_gt(x_labels, phi_est[:, 2], phi_gt[:, 2], np.sqrt(R_est[:,2,2].flatten()), np.sqrt(R_direct_est[:,2,2].flatten()), '$\Theta_3$', ax[2])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 0], phi_gt[:, 0], np.sqrt(R_est[:,0,0].flatten()) * deg_factor,  '$\phi_1$ (deg)', ax[0])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 1], phi_gt[:, 1], np.sqrt(R_est[:,1,1].flatten()) * deg_factor, '$\phi_2$ (deg)', ax[1])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 2], phi_gt[:, 2], np.sqrt(R_est[:,2,2].flatten()) * deg_factor, '$\phi_3$ (deg)', ax[2])
 
     ax[2].legend()
+    ax[2].set_xlabel('Frame')
     #image_array = canvas_to_array(fig)
     output_file = '7scenes_abs_' + scene_checkpoint.replace('.pt','').replace('7scenes_data/','') + '.pdf'
     fig.savefig(output_file, bbox_inches='tight')
@@ -132,8 +138,8 @@ def main():
                               '7scenes_data/best_model_fire_heads_25_epoch_4.pt',
                               '7scenes_data/best_model_heads_heads_25_epoch_11.pt']
     for checkpoint in sevenscene_checkpoints:
-        create_7scenes_error_plot(checkpoint)
-        create_7scenes_histogram_plot(checkpoint)
+        #create_7scenes_error_plot(checkpoint)
+        #create_7scenes_histogram_plot(checkpoint)
         create_7scenes_abs_with_sigmas_plot(checkpoint)
 
 if __name__ == '__main__':

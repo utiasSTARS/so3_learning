@@ -78,6 +78,12 @@ def create_sim_world_plot():
     fig.savefig('sim_world.pdf', bbox_inches='tight', dpi=300)
 
     return
+def _plot_sigma(x, y, y_mean, y_sigma, y_sigma_2, label, ax, font_size=18):
+    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.7, label='$\pm 3\sigma$ ($\Sigma_t$)', color='dodgerblue')
+    ax.fill_between(x, y_mean - 3 * y_sigma_2, y_mean + 3 * y_sigma_2, alpha=0.8, color='grey', label='$\pm 3\sigma$ ($\Sigma_d$)')
+    ax.scatter(x, y, s=1, c='black', label='Rotational Error')
+    ax.set_ylabel(label, fontsize=font_size)
+    return
 
 def create_sim_error_plot():
 
@@ -97,11 +103,11 @@ def create_sim_error_plot():
 
 
     _plot_sigma(x_labels, phi_errs[:, 0], 0., np.sqrt(R_est[:, 0, 0].flatten()),
-                np.sqrt(R_direct_est[:, 0, 0].flatten()), '$\phi_1$ err', ax[0], font_size=font_size)
+                np.sqrt(R_direct_est[:, 0, 0].flatten()), '$\Delta \phi_1$', ax[0], font_size=font_size)
     _plot_sigma(x_labels, phi_errs[:, 1], 0., np.sqrt(R_est[:, 1, 1].flatten()),
-                np.sqrt(R_direct_est[:, 1, 1].flatten()), '$\phi_2$ err', ax[1], font_size=font_size)
+                np.sqrt(R_direct_est[:, 1, 1].flatten()), '$\Delta \phi_2$', ax[1], font_size=font_size)
     _plot_sigma(x_labels, phi_errs[:, 2], 0., np.sqrt(R_est[:, 2, 2].flatten()),
-                np.sqrt(R_direct_est[:, 2, 2].flatten()), '$\phi_3$ err', ax[2], font_size=font_size)
+                np.sqrt(R_direct_est[:, 2, 2].flatten()), '$\Delta \phi_3$', ax[2], font_size=font_size)
     ax[2].legend(fontsize=font_size, loc='center')
     #image_array = canvas_to_array(fig)
     ax[2].xaxis.set_tick_params(labelsize=font_size-2)

@@ -82,8 +82,8 @@ def create_sim_world_plot():
 
 
 def _plot_sigma(x, y, y_mean, y_sigma, y_sigma_2, label, ax, font_size=18):
-    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$ ($C$)', color='dodgerblue')
-    ax.fill_between(x, y_mean - 3 * y_sigma_2, y_mean + 3 * y_sigma_2, alpha=0.5, color='red', label='$\pm 3\sigma$ ($\Sigma$ only)')
+    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.7, label='$\pm 3\sigma$ ($\Sigma_t$)', color='dodgerblue')
+    ax.fill_between(x, y_mean - 3 * y_sigma_2, y_mean + 3 * y_sigma_2, alpha=0.7, color='purple', label='$\pm 3\sigma$ ($\Sigma_d$)')
     ax.scatter(x, y, s=1, c='black')
     ax.set_ylabel(label, fontsize=font_size)
     return

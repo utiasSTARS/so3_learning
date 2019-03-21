@@ -21,110 +21,84 @@ import csv
 plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 
-# pretrained_model = torch.load('simulation/saved_plots/best_model_heads_1_epoch_74.pt')
-# model.sensor_net.load_state_dict(pretrained_model['sensor_net'])
-# model.direct_covar_head.load_state_dict(pretrained_model['direct_covar_head'])
 
-def _plot_sigma(x, y, y_mean, y_sigma, y_sigma_2, label, ax, font_size=18):
-    ax.fill_between(x, y_mean-3*y_sigma, y_mean+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$ ($C$)', color='dodgerblue')
-    ax.fill_between(x, y_mean - 3 * y_sigma_2, y_mean + 3 * y_sigma_2, alpha=0.5, color='red', label='$\pm 3\sigma$ ($\Sigma$ only)')
-    ax.scatter(x, y, s=1, c='black')
-    ax.set_ylabel(label, fontsize=font_size)
-    return
+def _plot_sigma_with_gt(x, y_est, y_gt, y_sigma, label, ax, y_lim=None):
 
-def _plot_hist(x, ax):
-    for i in range(0,x.shape[1]):
-        ax[i].hist(x[:,i], 100, density=True, facecolor='g', alpha=0.75)
-        ax[i].grid()
-
-def _plot_sigma_with_gt(x, y_est, y_gt, y_sigma, y_sigma_2, label, ax, y_lim=None):
-    ax.fill_between(x, y_est-3*y_sigma, y_est+3*y_sigma, alpha=0.5, label='$\pm 3\sigma$ Total')
-    ax.fill_between(x, y_est - 3 * y_sigma_2, y_est + 3 * y_sigma_2, alpha=0.5, color='red', label='$\pm 3\sigma$ Direct')
-    ax.scatter(x, y_est, s=0.5, c='green')
-    ax.scatter(x, y_gt, s=0.5, c='black')
+    #ax.fill_between(x, y_est-y_sigma, y_est+y_sigma, alpha=0.2, facecolor='dodgerblue', label='$\pm \sigma$')
+    #ax.fill_between(x, y_est-2*y_sigma, y_est+2*y_sigma, alpha=0.5, facecolor='dodgerblue', label='$\pm 2\sigma$')
+    ax.fill_between(x, y_est-3*y_sigma, y_est+3*y_sigma, alpha=0.9, facecolor='dodgerblue', label='$\pm 3\sigma$', rasterized=True)
+    ax.plot(x, y_gt,  c='black', linewidth=0.75, label='GT',rasterized=True)
+    ax.plot(x, y_est, c='green', linewidth=0.75, label='HydraNet', rasterized=True)
     ax.set_ylabel(label)
     if y_lim is not None:
         ax.set_ylim(y_lim)
     return
 
+def _plot_hist(x, ax, axis):
+    colours = ['g', 'r', 'b']
+    ax.hist(x, 100, [-0.5,0.5], density=False, facecolor=colours[axis], alpha=0.25, label='$\Delta \phi_{}$'.format(axis), rasterized=True)
 
-def create_kitti_error_plot(scene_checkpoint):
-    check_point = torch.load(scene_checkpoint, map_location=lambda storage, loc: storage)
-    (q_gt, q_est, R_est, R_direct_est) = (check_point['predict_history'][0],
-                                          check_point['predict_history'][1],
-                                          check_point['predict_history'][2],
-                                          check_point['predict_history'][3])
+def create_kitti_histogram(seqs):
+    fig, ax = plt.subplots(1, 3, figsize=(6, 2))
+    for s_i, seq in enumerate(seqs):
+        hn_path = '../kitti/fusion/hydranet_output_reverse_model_seq_{}.pt'.format(seq)
+        hn_data = torch.load(hn_path)
+        C_21_hn_est = hn_data['Rot_21'].numpy()
+        C_21_hn_gt = hn_data['Rot_21_gt'].numpy()
+        Sigma_21 = hn_data['Sigma_21'].numpy()
 
-    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row', figsize=(6, 8))
+        num_odom = len(C_21_hn_gt)
+        phi_errs = np.empty((num_odom, 3))
+        for pose_i in range(num_odom):
+            C_21_est = SO3.from_matrix(C_21_hn_est[pose_i], normalize=True)
+            C_21_gt = SO3.from_matrix(C_21_hn_gt[pose_i], normalize=True)
+            phi_errs_i = C_21_est.dot(C_21_gt.inv()).log()
+            phi_errs[pose_i] = phi_errs_i*180./np.pi
 
-    x_labels =np.arange(0, q_gt.shape[0])
-    phi_errs = quat_log_diff(q_est, q_gt).numpy()
-    R_est = R_est.numpy()
-    R_direct_est = R_direct_est.numpy()
-    font_size = 18
+        ax[s_i].grid()
+        ax[s_i].set_title(seq)
+        ax[s_i].set_xlabel('(deg)')
+        ax[s_i].set_ylim([0, 600])
+        if s_i > 0:
+            ax[s_i].get_yaxis().set_ticklabels([])
+        for i in range(3):
+            _plot_hist(phi_errs[:,i], ax[s_i], i)
 
-
-    _plot_sigma(x_labels, phi_errs[:, 0], 0., np.sqrt(R_est[:, 0, 0].flatten()),
-                np.sqrt(R_direct_est[:, 0, 0].flatten()), '$\phi_1$ err', ax[0], font_size=font_size)
-    _plot_sigma(x_labels, phi_errs[:, 1], 0., np.sqrt(R_est[:, 1, 1].flatten()),
-                np.sqrt(R_direct_est[:, 1, 1].flatten()), '$\phi_2$ err', ax[1], font_size=font_size)
-    _plot_sigma(x_labels, phi_errs[:, 2], 0., np.sqrt(R_est[:, 2, 2].flatten()),
-                np.sqrt(R_direct_est[:, 2, 2].flatten()), '$\phi_3$ err', ax[2], font_size=font_size)
-    #ax[2].legend(fontsize=font_size, loc='center')
-    #image_array = canvas_to_array(fig)
-    ax[2].xaxis.set_tick_params(labelsize=font_size-2)
-    ax[0].yaxis.set_tick_params(labelsize=font_size-2)
-    ax[1].yaxis.set_tick_params(labelsize=font_size-2)
-    ax[2].yaxis.set_tick_params(labelsize=font_size-2)
-    ax[2].set_xlabel('Pose', fontsize=font_size)
-
-#    fig_name = scene_checkpoint.split('/')[1].split('.')[0] + '.png'
-    output_file = '7scenes_err_' + scene_checkpoint.replace('.pt','').replace('7scenes_data/','') + '.pdf'
-    fig.savefig(output_file, bbox_inches='tight', dpi=300)
-
-
-def create_kitti_histogram_plot(scene_checkpoint):
-    check_point = torch.load(scene_checkpoint, map_location=lambda storage, loc: storage)
-    (q_gt, q_est, R_est, R_direct_est) = (check_point['predict_history'][0],
-                                          check_point['predict_history'][1],
-                                          check_point['predict_history'][2],
-                                          check_point['predict_history'][3])
-
-    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row', figsize=(6, 8))
-    font_size = 18
-#    x_labels =np.arange(0, q_gt.shape[0])
-    phi_errs = quat_log_diff(q_est, q_gt).numpy()
-    fig, ax = plt.subplots(3, 1, sharex='col', sharey='row')
-    _plot_hist(phi_errs, ax)
-
-    output_file = '7scenes_hist_' + scene_checkpoint.replace('.pt','').replace('7scenes_data/','') + '.pdf'
-    ax[2].set_xlabel('Error (rad)', fontsize=font_size)
-    fig.savefig(output_file, bbox_inches='tight')
+    ax[2].legend()
+    fig.savefig('kitti_so3_hist.pdf', bbox_inches='tight')
     plt.close(fig)
 
-def create_7scenes_abs_with_sigmas_plot(scene_checkpoint):
-    check_point = torch.load(scene_checkpoint, map_location=lambda storage, loc: storage)
-    (q_gt, q_est, R_est, R_direct_est) = (check_point['predict_history'][0],
-                                          check_point['predict_history'][1],
-                                          check_point['predict_history'][2],
-                                          check_point['predict_history'][3])
+
+def create_kitti_abs_with_sigmas_plot(seq):
+    hn_path = '../kitti/fusion/hydranet_output_reverse_model_seq_{}.pt'.format(seq)
+    hn_data = torch.load(hn_path)
+
+    C_21_hn_est = hn_data['Rot_21'].numpy()
+    C_21_hn_gt = hn_data['Rot_21_gt'].numpy()
+    Sigma_21 = hn_data['Sigma_21'].numpy()
 
     fig, ax = plt.subplots(3, 1, sharex='col', sharey='row')
 
-    x_labels = np.arange(0, q_gt.shape[0])
-    phi_est = quat_log(q_est).numpy()
-    phi_gt = quat_log(q_gt).numpy()
+    x_labels = np.arange(0, C_21_hn_est.shape[0])
 
-    R_est = R_est.numpy()
-    R_direct_est = R_direct_est.numpy()
+    num_odom = C_21_hn_est.shape[0]
+    phi_est = np.empty((num_odom, 3))
+    phi_gt = np.empty((num_odom, 3))
 
-    _plot_sigma_with_gt(x_labels, phi_est[:, 0], phi_gt[:, 0], np.sqrt(R_est[:,0,0].flatten()), np.sqrt(R_direct_est[:,0,0].flatten()),  '$\Theta_1$', ax[0])
-    _plot_sigma_with_gt(x_labels, phi_est[:, 1], phi_gt[:, 1], np.sqrt(R_est[:,1,1].flatten()), np.sqrt(R_direct_est[:,1,1].flatten()), '$\Theta_2$', ax[1])
-    _plot_sigma_with_gt(x_labels, phi_est[:, 2], phi_gt[:, 2], np.sqrt(R_est[:,2,2].flatten()), np.sqrt(R_direct_est[:,2,2].flatten()), '$\Theta_3$', ax[2])
+    deg_factor = 180./np.pi
+
+    for pose_i in range(num_odom):
+        phi_est[pose_i] = SO3.from_matrix(C_21_hn_est[pose_i], normalize=True).log() * deg_factor
+        phi_gt[pose_i] = SO3.from_matrix(C_21_hn_gt[pose_i], normalize=True).log() * deg_factor
+
+
+    _plot_sigma_with_gt(x_labels, phi_est[:, 0], phi_gt[:, 0], np.sqrt(Sigma_21[:,0,0].flatten()) * deg_factor, '$\phi_1$ (deg)', ax[0])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 1], phi_gt[:, 1], np.sqrt(Sigma_21[:,1,1].flatten()) * deg_factor, '$\phi_2$ (deg)', ax[1])
+    _plot_sigma_with_gt(x_labels, phi_est[:, 2], phi_gt[:, 2], np.sqrt(Sigma_21[:,2,2].flatten()) * deg_factor, '$\phi_3$ (deg)', ax[2])
 
     ax[2].legend()
     #image_array = canvas_to_array(fig)
-    output_file = '7scenes_abs_' + scene_checkpoint.replace('.pt','').replace('7scenes_data/','') + '.pdf'
+    output_file = 'kitti_abs_{}.pdf'.format(seq)
     fig.savefig(output_file, bbox_inches='tight')
     plt.close(fig)
 
@@ -224,7 +198,7 @@ def main():
                    'drive': '0034',
                    'frames': range(0, 1201)}}
 
-    process_seqs = {'00', '02', '05'}
+    process_seqs = ['00', '02', '05']
     segs = list(range(100, 801, 100))
 
     for seq in process_seqs:
@@ -237,14 +211,14 @@ def main():
 
         svo_file = os.path.join(svo_tm_path, '{}_drive_{}.mat'.format(seqs[seq]['date'], seqs[seq]['drive']))
 
-        tm_svo = TrajectoryMetrics.loadmat(svo_file)
-        tm_fusion = TrajectoryMetrics.loadmat(fusion_file)
+        # tm_svo = TrajectoryMetrics.loadmat(svo_file)
+        # tm_fusion = TrajectoryMetrics.loadmat(fusion_file)
         #create_kitti_topdown_plots(tm_svo, tm_fusion, seq)
         #output_kitti_stats(tm_svo, tm_fusion, seq, segs)
-        create_kitti_seg_err_plots(tm_svo, tm_fusion, seq, segs)
-    #create_sim_world_plot()
-    #create_sim_error_plot()
+        #create_kitti_seg_err_plots(tm_svo, tm_fusion, seq, segs)
+        create_kitti_abs_with_sigmas_plot(seq)
 
+    #create_kitti_histogram(process_seqs)
 
 
 if __name__ == '__main__':
