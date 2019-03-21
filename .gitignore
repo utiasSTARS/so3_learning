@@ -7,3 +7,5 @@ __pycache__/
 .DS_Store
 best_model_*
 kitti/data
+!paper_plots_and_data/7scenes_data/*
+
