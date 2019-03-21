@@ -1,1 +1,8 @@
 *.pt filter=lfs diff=lfs merge=lfs -text
+paper_plots_and_data/7scenes_data/best_model_chess_heads_25_epoch_13.pt filter=lfs diff=lfs merge=lfs -text
+paper_plots_and_data/7scenes_data/best_model_fire_heads_25_epoch_4.pt filter=lfs diff=lfs merge=lfs -text
+paper_plots_and_data/7scenes_data/best_model_heads_heads_25_epoch_11.pt filter=lfs diff=lfs merge=lfs -text
+paper_plots_and_data/7scenes_data/best_model_office_heads_25_epoch_15.pt filter=lfs diff=lfs merge=lfs -text
+paper_plots_and_data/7scenes_data/best_model_pumpkin_heads_25_epoch_13.pt filter=lfs diff=lfs merge=lfs -text
+paper_plots_and_data/7scenes_data/best_model_redkitchen_heads_25_epoch_2.pt filter=lfs diff=lfs merge=lfs -text
+paper_plots_and_data/7scenes_data/best_model_stairs_heads_25_epoch_11.pt filter=lfs diff=lfs merge=lfs -text
