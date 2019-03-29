@@ -87,15 +87,19 @@ def compute_kitti_nll_and_error(seqs):
         Sigma_21 = hn_data['Sigma_21'].numpy()
         num_odom = len(C_21_hn_gt)
         phi_errs = np.empty((num_odom, 3))
+        norm_errs = np.empty((num_odom,1))
         for pose_i in range(num_odom):
             C_21_est = SO3.from_matrix(C_21_hn_est[pose_i], normalize=True)
             C_21_gt = SO3.from_matrix(C_21_hn_gt[pose_i], normalize=True)
             phi_errs_i = C_21_est.dot(C_21_gt.inv()).log()
             phi_errs[pose_i] = phi_errs_i*180./np.pi
-        mean_error = np.abs(phi_errs).mean(axis=0)
+            norm_errs[pose_i] = np.linalg.norm(phi_errs[pose_i])
+        axis_errors = np.abs(phi_errs).mean(axis=0)
+        mean_error = norm_errs.mean()
         
-        for i in range(0, mean_error.shape[0]):
-            stats_list.append([seq, i, mean_error[i], mean_nll])
+        for i in range(0, axis_errors.shape[0]):
+            stats_list.append([seq, i, axis_errors[i], mean_nll])
+        stats_list.append([seq, i+1, mean_error, ''])
     
     csv_filename = 'kitti_nll_error_stats.csv'
     csv_header = ['Sequence', 'axis','Error', 'NLL']

@@ -34,6 +34,37 @@ def visualize(x_train, y_train, x_test, y_test, y_pred, sigma_pred, nll, mse, e,
         data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
         return data
 
+def visualize_multiple(x_train, y_train, x_test, y_test, y_pred, sigma_pred, nll, mse, e,filename=False):
+#    fig = plt.figure(figsize=(8, 4))
+#    fig.clf()
+    fig, ax = plt.subplots(1, len(x_train),sharex=False, sharey=True, figsize=(32, 4))
+    for i in range(0,len(x_train)):
+        ax[i].grid(True)
+#        ax[i].set_xlabel('X', fontsize=18)
+#        ax[i].set_ylabel('Y', fontsize=18)
+        ax[i].set_ylim(-8,8)
+    #    ax[i].set_title('Epoch: {}'.format(e), fontsize=18)
+        ax[i].scatter(x_train[i], y_train[i], c='g', alpha=0.5)
+        ax[i].scatter(x_test[i], y_test[i], c='c', alpha=0.5)
+        ax[i].plot(x_test[i], y_pred[i], c='k', rasterized=True)
+        ax[i].fill_between(x_test[i], y_pred[i] - sigma_pred[i], y_pred[i] + sigma_pred[i], facecolor='dodgerblue', alpha=0.7, rasterized=True)
+        ax[i].fill_between(x_test[i], y_pred[i] - 2*sigma_pred[i], y_pred[i] + 2*sigma_pred[i], facecolor='dodgerblue', alpha=0.5, rasterized=True)
+        ax[i].fill_between(x_test[i], y_pred[i] - 3*sigma_pred[i], y_pred[i] + 3*sigma_pred[i], facecolor='dodgerblue', alpha=0.2, rasterized=True)
+        ax[i].xaxis.set_tick_params(labelsize=22)
+#        ax[i].xaxis.set_visible(False)
+        ax[i].yaxis.set_tick_params(labelsize=22)
+
+#    ax.text(-2, 7, 'NLL: {:.2f} | MSE: {:.2f}'.format(nll, mse), bbox=dict(facecolor='white'), fontsize=18)
+    fig.canvas.draw()
+
+    if filename:
+        fig.savefig('figs/' + filename, bbox_inches='tight', dpi=300)
+    else:
+        #Output rasterized plot for doing whatever with
+        data = np.fromstring(fig.canvas.tostring_rgb(), dtype=np.uint8, sep='')
+        data = data.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        return data
+
 def visualize_data_only(x_train, y_train, x_test, y_test, filename='data.pdf'):
     fig = plt.figure(figsize=(8, 4))
     fig.clf()

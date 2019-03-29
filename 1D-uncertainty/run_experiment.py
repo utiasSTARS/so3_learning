@@ -42,11 +42,11 @@ def main():
 
     stats_list = []
     csv_header = ["Rep",
-#    "Dropout-NLL", "Dropout-MSE",
+    "Dropout-NLL", "Dropout-MSE",
 #    "Ensemble-NLL", "Ensemble-MSE",
 #    "Sigma-NLL", "Sigma-MSE",
 #    "HydraNet-NLL", "HydraNet-MSE",
-    "HydraNet-Sigma-NLL", "HydraNet-Sigma-MSE",
+#    "HydraNet-Sigma-NLL", "HydraNet-Sigma-MSE",
     ]    
 
     for rep in range(num_reps):
@@ -61,17 +61,17 @@ def main():
 #        visualize_data_only(x_train, y_train, x_test, y_test, filename='data.pdf')
         #return
 
-#        print('Starting dropout training')
-#        start = time.time()
-##        (dropout_model, _) = train_nn_dropout(x_train, y_train, num_epochs=num_epochs, use_cuda=use_cuda)
-#        (dropout_model, _) = train_nn_dropout(x_train, y_train, minibatch_samples, num_epochs=num_epochs, use_cuda=use_cuda)
-#        (y_pred_dropout, sigma_pred_dropout) = test_nn_dropout(x_test, dropout_model, use_cuda=use_cuda)
-#        nll_dropout = compute_nll(y_test, y_pred_dropout, sigma_pred_dropout)
-#        mse_dropout = compute_mse(y_test, y_pred_dropout)
-#        print('Dropout, NLL: {:.3f} | MSE: {:.3f}'.format(nll_dropout, mse_dropout))
-#        visualize(x_train, y_train, x_test, y_test, y_pred_dropout, sigma_pred_dropout, nll_dropout, mse_dropout, rep,'dropout_{}.png'.format(rep))
-#        end = time.time()
-#        print('Completed in {:.3f} seconds.'.format(end - start))
+        print('Starting dropout training')
+        start = time.time()
+#        (dropout_model, _) = train_nn_dropout(x_train, y_train, num_epochs=num_epochs, use_cuda=use_cuda)
+        (dropout_model, _) = train_nn_dropout(x_train, y_train, minibatch_samples, num_epochs=num_epochs, use_cuda=use_cuda)
+        (y_pred_dropout, sigma_pred_dropout) = test_nn_dropout(x_test, dropout_model, use_cuda=use_cuda)
+        nll_dropout = compute_nll(y_test, y_pred_dropout, sigma_pred_dropout)
+        mse_dropout = compute_mse(y_test, y_pred_dropout)
+        print('Dropout, NLL: {:.3f} | MSE: {:.3f}'.format(nll_dropout, mse_dropout))
+        visualize(x_train, y_train, x_test, y_test, y_pred_dropout, sigma_pred_dropout, nll_dropout, mse_dropout, rep,'dropout_{}.png'.format(rep))
+        end = time.time()
+        print('Completed in {:.3f} seconds.'.format(end - start))
 #
 #
 #        print('Starting ensemble training')
@@ -111,20 +111,19 @@ def main():
 #        end = time.time()
 #        print('Completed in {:.3f} seconds.'.format(end - start))
 
-        print('Starting hydranet-sigma training')
-        #
-        start = time.time()
-        (hydranetsigma_model, _) = train_hydranet_sigma(exp_data, minibatch_samples, num_heads=10, num_epochs=num_epochs, use_cuda=use_cuda, target_noise_sigma=target_noise_sigma)
-        (y_pred_hydranetsigma, sigma_pred_hydranetsigma) = test_hydranet_sigma(x_test, hydranetsigma_model, use_cuda=use_cuda)
-        nll_hydranetsigma = compute_nll(y_test, y_pred_hydranetsigma, sigma_pred_hydranetsigma)
-        mse_hydranetsigma = compute_mse(y_test, y_pred_hydranetsigma)
+#        print('Starting hydranet-sigma training')
+#        #
+#        start = time.time()
+#        (hydranetsigma_model, _) = train_hydranet_sigma(exp_data, minibatch_samples, num_heads=10, num_epochs=num_epochs, use_cuda=use_cuda, target_noise_sigma=target_noise_sigma)
+#        (y_pred_hydranetsigma, sigma_pred_hydranetsigma) = test_hydranet_sigma(x_test, hydranetsigma_model, use_cuda=use_cuda)
+#        nll_hydranetsigma = compute_nll(y_test, y_pred_hydranetsigma, sigma_pred_hydranetsigma)
+#        mse_hydranetsigma = compute_mse(y_test, y_pred_hydranetsigma)
+#        print('HydraNet-Sigma, NLL: {:.3f} | MSE: {:.3f}'.format(nll_hydranetsigma, mse_hydranetsigma))
+##        visualize(x_train, y_train, x_test, y_test, y_pred_hydranetsigma, sigma_pred_hydranetsigma, nll_hydranetsigma, mse_hydranetsigma, rep,'hydranetsigma_{}.png'.format(rep))
+#        end = time.time()
+#        print('Completed in {:.3f} seconds.'.format(end - start))
 
-        print('HydraNet-Sigma, NLL: {:.3f} | MSE: {:.3f}'.format(nll_hydranetsigma, mse_hydranetsigma))
-#        visualize(x_train, y_train, x_test, y_test, y_pred_hydranetsigma, sigma_pred_hydranetsigma, nll_hydranetsigma, mse_hydranetsigma, rep,'hydranetsigma_{}.png'.format(rep))
-        end = time.time()
-        print('Completed in {:.3f} seconds.'.format(end - start))
-
-        stats_list.append([rep, nll_hydranetsigma, mse_hydranetsigma])
+#        stats_list.append([rep, nll_dropout, mse_dropout])
 
 #        stats_list.append([rep, nll_dropout, mse_dropout, nll_bs, mse_bs, nll_sigma, mse_sigma, nll_hydranet, mse_hydranet, nll_hydranetsigma, mse_hydranetsigma])
 
@@ -132,37 +131,37 @@ def main():
                       'x_test': x_test,
                       'y_train': y_train,
                       'y_test': y_test,
-#                      'y_pred_dropout': y_pred_dropout,
+                      'y_pred_dropout': y_pred_dropout,
 #                      'y_pred_sigma': y_pred_sigma,
 #                      'y_pred_bs': y_pred_bs,
 #                      'y_pred_hydranet': y_pred_hydranet,
-                      'y_pred_hydranetsigma': y_pred_hydranetsigma,
-#                      'sigma_pred_dropout': sigma_pred_dropout,
+#                      'y_pred_hydranetsigma': y_pred_hydranetsigma,
+                      'sigma_pred_dropout': sigma_pred_dropout,
 #                      'sigma_pred_sigma': sigma_pred_sigma,
 #                      'sigma_pred_bs': sigma_pred_bs,
 #                      'sigma_pred_hydranet': sigma_pred_hydranet,
-                      'sigma_pred_hydranetsigma': sigma_pred_hydranetsigma,
-#                      'nll_dropout': nll_dropout,
+#                      'sigma_pred_hydranetsigma': sigma_pred_hydranetsigma,
+                      'nll_dropout': nll_dropout,
 #                      'nll_sigma': nll_sigma,
 #                      'nll_bs': nll_bs,
 #                      'nll_hydranet': nll_hydranet,
-                      'nll_hydranetsigma': nll_hydranetsigma,
-#                      'mse_dropout': nll_dropout,
+#                      'nll_hydranetsigma': nll_hydranetsigma,
+                      'mse_dropout': nll_dropout,
 #                      'mse_sigma': mse_sigma,
 #                      'mse_bs': nll_bs,
 #                      'mse_hydranet': nll_hydranet,
-                      'mse_hydranetsigma': nll_hydranetsigma,         
+#                      'mse_hydranetsigma': nll_hydranetsigma,         
                       'rep': rep, 
                       'sigma_n': target_noise_sigma,
                   }
-        torch.save(output_mat, 'figs/experiment_run_{}_noise_{}.pt'.format(rep,target_noise_sigma))
+        torch.save(output_mat, 'figs/dropout_experiment_run_{}_noise_{}.pt'.format(rep,target_noise_sigma))
 
 
-    csv_filename = 'figs/stats.csv'.format(target_noise_sigma)
-    with open(csv_filename, "w") as f:
-        writer = csv.writer(f)
-        writer.writerow(csv_header)
-        writer.writerows(stats_list)
+#    csv_filename = 'figs/stats.csv'.format(target_noise_sigma)
+#    with open(csv_filename, "w") as f:
+#        writer = csv.writer(f)
+#        writer.writerow(csv_header)
+#        writer.writerows(stats_list)
 
 
 if __name__ == '__main__':
