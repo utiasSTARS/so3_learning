@@ -19,6 +19,7 @@ def create_noise_plots():
         for n in sigma_n:
             f = pd.read_csv('figs/noise_experiment/stats_target_noise_sigma_{}.csv'.format(n), mangle_dupe_cols=True)
             print(f)
+            print(n)
             nll.append(np.asarray(f[m + '-NLL']).reshape((-1, 1)))
             mse.append(np.asarray(f[m + '-MSE']).reshape((-1, 1)))
         nll_losses.append(np.hstack((nll)))
@@ -93,7 +94,7 @@ def create_nll_plot():
 
 def main():
     #create_nll_plot()
-    create_mse_plot()
+#    create_mse_plot()
     create_noise_plots()
 
 
