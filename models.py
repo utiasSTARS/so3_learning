@@ -88,7 +88,7 @@ class QuaternionNet(torch.nn.Module):
             return q_mean, Rinv, Rinv_direct
 
 
-def conv_unit(in_planes, out_planes, kernel_size=3, stride=1,padding=1):
+def conv_unit(in_planes, out_planes, kernel_size=3, stride=2,padding=1):
         return torch.nn.Sequential(
             torch.nn.Conv2d(in_planes, out_planes, kernel_size=kernel_size, stride=stride, padding=padding),
             torch.nn.BatchNorm2d(out_planes),
@@ -97,9 +97,9 @@ def conv_unit(in_planes, out_planes, kernel_size=3, stride=1,padding=1):
 
 
 class BasicCNN(torch.nn.Module):
-    def __init__(self, feature_dim=128, channels=3):
+    def __init__(self, feature_dim=128, channels=2):
         super(BasicCNN, self).__init__()
-        self.cnn0 = torch.nn.Sequential(
+        self.cnn = torch.nn.Sequential(
             # StandardBlock(D_in_sensor, self.sensor_net_dim),
             conv_unit(channels, 64, kernel_size=3, stride=2, padding=1),
             conv_unit(64, 128, kernel_size=3, stride=2, padding=1),
@@ -113,7 +113,7 @@ class BasicCNN(torch.nn.Module):
 
 
     def forward(self, x):
-        out = self.cnn0(x)
+        out = self.cnn(x)
         out = out.view(out.shape[0], -1)
         out = self.fc(out)
         return out
@@ -235,19 +235,14 @@ class QuaternionDualCNN(torch.nn.Module):
 
 
 class GenericHead(torch.nn.Module):
-    def __init__(self, D_in, D_out, D_layers, dropout=False, init_large=False):
+    def __init__(self, D_in, D_out, D_layers, dropout=False):
         super(GenericHead, self).__init__()
         self.fc0 = torch.nn.Linear(D_in, D_layers)
         self.fc1 = torch.nn.Linear(D_layers, D_out)
-        #self.bn = torch.nn.BatchNorm1d(D_layers)
-
-        if init_large:
-            self.fc0.apply(init_lin_weights)
-            self.fc1.apply(init_lin_weights)
         if dropout:
             self.dropout = torch.nn.Dropout(p=0.5)
         else:
-            self.dropout = None
+            self.dropout = False
         self.nonlin = torch.nn.PReLU()
 
     def forward(self, x):
