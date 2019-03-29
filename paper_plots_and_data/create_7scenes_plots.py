@@ -134,9 +134,16 @@ def main():
     #create_sim_world_plot()
     #create_sim_error_plot()
 
-    sevenscene_checkpoints = ['7scenes_data/best_model_chess_heads_25_epoch_13.pt',
-                              '7scenes_data/best_model_fire_heads_25_epoch_4.pt',
-                              '7scenes_data/best_model_heads_heads_25_epoch_11.pt']
+    # sevenscene_checkpoints = ['7scenes_data/best_model_chess_heads_25_epoch_13.pt',
+    #                           '7scenes_data/best_model_fire_heads_25_epoch_4.pt',
+    #                           '7scenes_data/best_model_heads_heads_25_epoch_11.pt']
+
+    sevenscene_checkpoints = ['7scenes_data/best_model_office_heads_25_epoch_15.pt',
+                              '7scenes_data/best_model_pumpkin_heads_25_epoch_13.pt',
+                              '7scenes_data/best_model_redkitchen_heads_25_epoch_2.pt',
+                              '7scenes_data/best_model_stairs_heads_25_epoch_11.pt'
+                              ]
+
     for checkpoint in sevenscene_checkpoints:
         #create_7scenes_error_plot(checkpoint)
         #create_7scenes_histogram_plot(checkpoint)

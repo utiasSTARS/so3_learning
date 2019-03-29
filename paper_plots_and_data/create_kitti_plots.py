@@ -22,13 +22,20 @@ plt.rc('text', usetex=True)
 plt.rc('font', family='serif')
 
 
-def _plot_sigma_with_gt(x, y_est, y_gt, y_sigma, label, ax, y_lim=None):
+def _plot_sigma_with_gt(x, y_est, y_gt, y_sigma, label, ax, y_lim=None, downsample=1):
+
+    if downsample > 5:
+        x = x[::downsample]
+        y_est = y_est[::downsample]
+        y_gt = y_gt[::downsample]
+        y_sigma = y_sigma[::downsample]
 
     #ax.fill_between(x, y_est-y_sigma, y_est+y_sigma, alpha=0.2, facecolor='dodgerblue', label='$\pm \sigma$')
     #ax.fill_between(x, y_est-2*y_sigma, y_est+2*y_sigma, alpha=0.5, facecolor='dodgerblue', label='$\pm 2\sigma$')
-    ax.fill_between(x, y_est-3*y_sigma, y_est+3*y_sigma, alpha=0.9, facecolor='dodgerblue', label='$\pm 3\sigma$', rasterized=False)
-    ax.plot(x, y_gt,  c='black', linewidth=0.75, label='GT',rasterized=False)
-    ax.plot(x, y_est, c='green', linewidth=0.75, label='HydraNet', rasterized=False)
+    ax.plot(x, y_gt,  c='black', linewidth=0.75, label='Ground truth',rasterized=False)
+    ax.plot(x, y_est, c='green', linewidth=0.5, label='HydraNet', rasterized=False)
+    ax.fill_between(x, y_est-3*y_sigma, y_est+3*y_sigma, alpha=0.7, facecolor='dodgerblue', label='HydraNet $\pm 3\sigma$', rasterized=False)
+
     ax.set_ylabel(label)
     if y_lim is not None:
         ax.set_ylim(y_lim)
@@ -126,19 +133,20 @@ def create_kitti_abs_with_sigmas_plot(seq):
         phi_est[pose_i] = SO3.from_matrix(C_21_hn_est[pose_i], normalize=True).log() * deg_factor
         phi_gt[pose_i] = SO3.from_matrix(C_21_hn_gt[pose_i], normalize=True).log() * deg_factor
 
-
-    _plot_sigma_with_gt(x_labels, phi_est[:, 0], phi_gt[:, 0], np.sqrt(Sigma_21[:,0,0].flatten()) * deg_factor, '$\phi_1$ (deg)', ax[0])
-    _plot_sigma_with_gt(x_labels, phi_est[:, 1], phi_gt[:, 1], np.sqrt(Sigma_21[:,1,1].flatten()) * deg_factor, '$\phi_2$ (deg)', ax[1])
-    _plot_sigma_with_gt(x_labels, phi_est[:, 2], phi_gt[:, 2], np.sqrt(Sigma_21[:,2,2].flatten()) * deg_factor, '$\phi_3$ (deg)', ax[2])
+    downsample = 1
+    _plot_sigma_with_gt(x_labels, phi_est[:, 0], phi_gt[:, 0], np.sqrt(Sigma_21[:,0,0].flatten()) * deg_factor, '$\phi_1$ (deg)', ax[0], downsample=downsample)
+    _plot_sigma_with_gt(x_labels, phi_est[:, 1], phi_gt[:, 1], np.sqrt(Sigma_21[:,1,1].flatten()) * deg_factor, '$\phi_2$ (deg)', ax[1], downsample=downsample)
+    _plot_sigma_with_gt(x_labels, phi_est[:, 2], phi_gt[:, 2], np.sqrt(Sigma_21[:,2,2].flatten()) * deg_factor, '$\phi_3$ (deg)', ax[2], downsample=downsample)
 
     ax[2].legend()
+    ax[2].set_xlabel('Frame')
     #image_array = canvas_to_array(fig)
-    output_file = 'kitti_abs_{}.pdf'.format(seq)
+    output_file = 'kitti_abs_{}_downsample_{}.pdf'.format(seq, downsample)
     fig.savefig(output_file, bbox_inches='tight')
     plt.close(fig)
 
 def create_kitti_topdown_plot(tm_svo, tm_fusion, seq):
-    tm_dict = {'viso2-s': tm_svo, 'Fusion': tm_fusion}
+    tm_dict = {'viso2-s': tm_svo, 'viso2-s + HydraNet': tm_fusion}
     vis = TrajectoryVisualizer(tm_dict)
     fig, ax = vis.plot_topdown(which_plane='xy')
     output_file = 'kitti_{}_topdown.pdf'.format(seq)
@@ -248,14 +256,14 @@ def main():
 
         # tm_svo = TrajectoryMetrics.loadmat(svo_file)
         # tm_fusion = TrajectoryMetrics.loadmat(fusion_file)
-        #create_kitti_topdown_plots(tm_svo, tm_fusion, seq)
+        # create_kitti_topdown_plot(tm_svo, tm_fusion, seq)
         #output_kitti_stats(tm_svo, tm_fusion, seq, segs)
         #create_kitti_seg_err_plots(tm_svo, tm_fusion, seq, segs)
-#        create_kitti_abs_with_sigmas_plot(seq)
+        create_kitti_abs_with_sigmas_plot(seq)
         
 
     #create_kitti_histogram(process_seqs)
-    compute_kitti_nll_and_error(process_seqs)
+    #compute_kitti_nll_and_error(process_seqs)
 
 if __name__ == '__main__':
     main()
